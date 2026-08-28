@@ -572,6 +572,59 @@
     font-weight: 700;
   }
   #tbody-ped tr.row-danger .chip.c-danger::before { background: #fff; }
+
+  /* ===== Painel de resumo por filial (Pendentes / Processados), 1 card colorido por filial ===== */
+  .filiais-resumo {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .filial-card {
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--fc, var(--accent));
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .filial-card__nome {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    text-align: center;
+    padding: 7px 6px;
+    color: var(--fc, var(--text));
+    background: color-mix(in srgb, var(--fc, var(--accent)) 14%, var(--surface));
+    border-bottom: 1px solid var(--border);
+  }
+  .filial-card__sec { padding: 9px 8px 10px; text-align: center; }
+  .filial-card__sec + .filial-card__sec { border-top: 1px dashed var(--border); }
+  .filial-card__lbl {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .filial-card__sec--pend .filial-card__lbl { color: var(--warning); }
+  .filial-card__sec--proc .filial-card__lbl { color: var(--ok); }
+  .filial-card__big { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.35; margin-top: 3px; }
+  .filial-card__sub { font-size: 11px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .filial-card__money { font-size: 12.5px; font-weight: 700; color: var(--ok); font-variant-numeric: tabular-nums; }
+  .filial-card__hint { font-size: 9px; color: var(--warning); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; opacity: 0.85; }
+  .filial-card__sec--pend {
+    cursor: pointer;
+    background: color-mix(in srgb, var(--warning) 15%, var(--surface));
+    transition: filter .12s ease;
+  }
+  .filial-card__sec--pend:hover { filter: brightness(1.06); }
+  .filial-card__sec--pend:focus-visible { outline: 2px solid var(--warning); outline-offset: -2px; }
+  .filial-card__sec--pend.is-zero { cursor: default; background: var(--surface); }
+  .filial-card__sec--pend.is-zero:hover { filter: none; }
+  .filiais-resumo-empty { grid-column: 1 / -1; font-size: 11.5px; color: var(--text-muted); padding: 4px 2px; }
+
   #clientes-tbody tr.row-inativo td { background: var(--danger-soft); }
   #clientes-tbody tr.row-inativo td.produto-name { color: var(--danger); }
   #clientes-tbody tr.row-inativo:hover td { background: var(--danger-soft); }
@@ -1144,6 +1197,10 @@
         <div class="lbl">Pendentes há mais de 48h</div>
       </div>
     </div>
+
+    <p class="tab-context-note">Resumo por filial &middot; <b>Pendentes</b> = todos os pedidos em aberto da filial (clique pra ver a lista) &middot; <b>Processados</b> respeita o filtro de Período &middot; valor = soma dos itens dos pedidos processados</p>
+    <div class="filiais-resumo" id="filiais-resumo"></div>
+
     <div class="panel">
       <div class="filters">
         <div class="field">
@@ -1342,6 +1399,30 @@
     <table class="modal-table" id="filial-breakdown-table"></table>
     <div class="modal-close-row">
       <button class="modal-close-btn" id="filial-breakdown-close-btn" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay is-hidden" id="pendentes-modal">
+  <div class="modal-card modal-card-wide is-compact" role="dialog" aria-modal="true" aria-labelledby="pendentes-title">
+    <h2 id="pendentes-title">Pedidos pendentes</h2>
+    <p class="modal-sub" id="pendentes-sub"></p>
+    <div class="ranking-table-wrap">
+      <table class="ranking-table" id="pendentes-table">
+        <thead>
+          <tr>
+            <th style="width:14%">Pedido</th>
+            <th style="width:36%">Cliente</th>
+            <th style="width:24%">Vendedor</th>
+            <th style="width:13%">Digitado</th>
+            <th style="width:13%">Em aberto há</th>
+          </tr>
+        </thead>
+        <tbody id="pendentes-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-close-row">
+      <button class="modal-close-btn" id="pendentes-close-btn" type="button">Fechar</button>
     </div>
   </div>
 </div>
@@ -1758,7 +1839,105 @@ function cidadeUfHtml(cidade, uf) {
     }
 
     lastRenderedRows = rows;
+    renderResumoFiliais();
   }
+
+  // ---- Painel de resumo por filial (1 card colorido por filial: Pendentes + Processados) ----
+  const filiaisResumoEl = document.getElementById("filiais-resumo");
+
+  function clientesDistintos(arr) {
+    // pedido PENDENTE às vezes vem sem CodcCliente (só o nome) - cai pro nome nesse caso.
+    return new Set(arr.map(p => {
+      const cod = p.CodcCliente == null ? "" : String(p.CodcCliente).trim();
+      if (cod && cod !== "null" && cod !== "undefined" && cod !== "0") return "c:" + cod;
+      const nome = (p.Cliente || "").trim();
+      return nome ? "n:" + nome.toLowerCase() : "";
+    }).filter(Boolean)).size;
+  }
+  function valorPedidos(arr) {
+    return arr.reduce((s, p) => s + (p.Itens || []).reduce((si, it) => si + (it.Total || 0), 0), 0);
+  }
+
+  function renderResumoFiliais() {
+    const empresaVal = pedEmpresa.value;
+    const periodoVal = pedPeriodo.value;
+    const buscaVal = pedBusca.value.trim().toLowerCase();
+    const passaBusca = p => !buscaVal || `${p.Pedido} ${p.Vendedor || ""}`.toLowerCase().includes(buscaVal);
+
+    const porFilial = new Map();
+    for (const p of RAW_PEDIDOS) {
+      if (empresaVal && p.Empresa !== empresaVal) continue;
+      if (!passaBusca(p)) continue;
+      if (!porFilial.has(p.Empresa)) porFilial.set(p.Empresa, { pend: [], proc: [] });
+      const g = porFilial.get(p.Empresa);
+      if (p.Pendente) g.pend.push(p);
+      else if (passaPeriodo(p, periodoVal)) g.proc.push(p);
+    }
+    const filiais = [...porFilial.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"));
+    if (!filiais.length) {
+      filiaisResumoEl.innerHTML = `<div class="filiais-resumo-empty">Nenhum pedido no recorte atual.</div>`;
+      return;
+    }
+    const periodoRotulo = periodoVal === "hoje" ? " (hoje)" : periodoVal === "mes" ? " (mês)" : "";
+    filiaisResumoEl.innerHTML = filiais.map((nome, i) => {
+      const g = porFilial.get(nome);
+      const seg = (i % 8) + 1;
+      const nPend = g.pend.length;
+      const zero = nPend === 0 ? " is-zero" : "";
+      return `<div class="filial-card" style="--fc:var(--seg-${seg})">
+        <div class="filial-card__nome">${empresaAbrev(nome)}</div>
+        <div class="filial-card__sec filial-card__sec--pend${zero}" data-filial="${nome.replace(/"/g, "&quot;")}"${nPend ? ' tabindex="0" role="button" title="Ver a lista de pendentes"' : ""}>
+          <div class="filial-card__lbl">Pendentes</div>
+          <div class="filial-card__big">${fmtNum(nPend)} ${nPend === 1 ? "pedido" : "pedidos"}</div>
+          <div class="filial-card__sub">${fmtNum(clientesDistintos(g.pend))} ${clientesDistintos(g.pend) === 1 ? "cliente" : "clientes"}</div>
+          ${nPend ? '<div class="filial-card__hint">▸ clique para ver</div>' : ""}
+        </div>
+        <div class="filial-card__sec filial-card__sec--proc">
+          <div class="filial-card__lbl">Processados${periodoRotulo}</div>
+          <div class="filial-card__big">${fmtNum(g.proc.length)} ${g.proc.length === 1 ? "pedido" : "pedidos"}</div>
+          <div class="filial-card__money">${fmtMoney(valorPedidos(g.proc))}</div>
+          <div class="filial-card__sub">${fmtNum(clientesDistintos(g.proc))} ${clientesDistintos(g.proc) === 1 ? "cliente" : "clientes"}</div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  // pop-up com todos os pendentes de uma filial (ao clicar no bloco "Pendentes" do card)
+  const pendModal = document.getElementById("pendentes-modal");
+  const pendSub = document.getElementById("pendentes-sub");
+  const pendTbody = document.getElementById("pendentes-tbody");
+
+  function abrirPendentes(filialNome) {
+    const lista = RAW_PEDIDOS
+      .filter(p => p.Pendente && p.Empresa === filialNome)
+      .sort((a, b) => (b.TempoAbertoMin || 0) - (a.TempoAbertoMin || 0));
+    document.getElementById("pendentes-title").textContent = `Pedidos pendentes — ${empresaAbrev(filialNome)}`;
+    pendSub.textContent = `${fmtNum(lista.length)} ${lista.length === 1 ? "pedido pendente" : "pedidos pendentes"} · ${fmtNum(clientesDistintos(lista))} ${clientesDistintos(lista) === 1 ? "cliente" : "clientes"}`;
+    pendTbody.innerHTML = lista.length
+      ? lista.map(p => `<tr>
+          <td class="num">${p.Pedido}</td>
+          <td title="${(p.Cliente || "").replace(/"/g, "&quot;")}">${p.Cliente || "—"}</td>
+          <td>${p.Vendedor || "—"}</td>
+          <td>${p.DataDigitacao ? fmtDate(p.DataDigitacao) + (p.HoraDigitacao ? " " + p.HoraDigitacao : "") : "—"}</td>
+          <td>${p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined ? "⏳ " + fmtTempo(p.TempoAbertoMin) : "—"}</td>
+        </tr>`).join("")
+      : `<tr><td colspan="5"><div class="ranking-empty">Sem pedidos pendentes nesta filial.</div></td></tr>`;
+    pendModal.classList.remove("is-hidden");
+  }
+  function fecharPendentes() { pendModal.classList.add("is-hidden"); }
+  document.getElementById("pendentes-close-btn").addEventListener("click", fecharPendentes);
+  pendModal.addEventListener("click", (e) => { if (e.target === pendModal) fecharPendentes(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pendModal.classList.contains("is-hidden")) fecharPendentes(); });
+
+  filiaisResumoEl.addEventListener("click", (e) => {
+    const sec = e.target.closest(".filial-card__sec--pend:not(.is-zero)");
+    if (sec) abrirPendentes(sec.dataset.filial);
+  });
+  filiaisResumoEl.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const sec = e.target.closest(".filial-card__sec--pend:not(.is-zero)");
+    if (sec) { e.preventDefault(); abrirPendentes(sec.dataset.filial); }
+  });
 
   document.querySelectorAll("#tab-content-pedidos th[data-key] button").forEach(btn => {
     btn.addEventListener("click", () => {
