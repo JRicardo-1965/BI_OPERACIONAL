@@ -1,0 +1,2348 @@
+<title>BI Operacional — Aqui Tem Mais</title>
+<style>
+  :root {
+    --bg: #f6f5f2;
+    --surface: #ffffff;
+    --surface-2: #eeece6;
+    --border: #e0ddd4;
+    --text: #23211d;
+    --text-muted: #6b6960;
+    --text-faint: #98948a;
+    --accent: #3f6178;
+    --accent-soft: #e2eaf0;
+    --accent-strong: #2b4657;
+    --ok: #1f9d52;
+    --ok-soft: #ddf3e5;
+    --warning: #d68f00;
+    --warning-soft: #fbedd0;
+    --danger: #d1382c;
+    --danger-soft: #fbe1de;
+    --neutral-chip: #837e70;
+    --neutral-chip-soft: #eae7de;
+    --brand-green: #08a538;
+    --status-fresh: #2ee66b;
+    --status-warning: #ffd11a;
+    --status-stale: #ff3b3b;
+    --shadow: 0 1px 2px rgba(35,33,29,0.06), 0 4px 14px rgba(35,33,29,0.05);
+    --mono: ui-monospace, "Cascadia Code", "Consolas", "SFMono-Regular", Menlo, monospace;
+    --sans: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --seg-1: #7c5cbf;
+    --seg-2: #eb6834;
+    --seg-3: #1baf7a;
+    --seg-4: #eda100;
+    --seg-5: #e87ba4;
+    --seg-6: #008300;
+    --seg-7: #2a78d6;
+    --seg-8: #e34948;
+  }
+  :root[data-theme="dark"] {
+    --bg: #17151c;
+    --surface: #1e1b25;
+    --surface-2: #28242f;
+    --border: #3a3542;
+    --text: #ede9f2;
+    --text-muted: #b0aabd;
+    --text-faint: #7d7690;
+    --accent: #86b2cd;
+    --accent-soft: #16323f;
+    --accent-strong: #b3d6ea;
+    --ok: #2ee881;
+    --ok-soft: #0f3d24;
+    --warning: #ffc93c;
+    --warning-soft: #3d2c08;
+    --danger: #ff5c5c;
+    --danger-soft: #3d1414;
+    --neutral-chip: #c2baa8;
+    --neutral-chip-soft: #332e3a;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.35);
+    --seg-1: #b18cf2;
+    --seg-2: #d95926;
+    --seg-3: #199e70;
+    --seg-4: #c98500;
+    --seg-5: #d55181;
+    --seg-6: #008300;
+    --seg-7: #5a9be8;
+    --seg-8: #e66767;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #17151c;
+      --surface: #1e1b25;
+      --surface-2: #28242f;
+      --border: #3a3542;
+      --text: #ede9f2;
+      --text-muted: #b0aabd;
+      --text-faint: #7d7690;
+      --accent: #86b2cd;
+      --accent-soft: #16323f;
+      --accent-strong: #b3d6ea;
+      --ok: #2ee881;
+      --ok-soft: #0f3d24;
+      --warning: #ffc93c;
+      --warning-soft: #3d2c08;
+      --danger: #ff5c5c;
+      --danger-soft: #3d1414;
+      --neutral-chip: #c2baa8;
+      --neutral-chip-soft: #332e3a;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 6px 20px rgba(0,0,0,0.35);
+      --seg-1: #b18cf2;
+      --seg-2: #d95926;
+      --seg-3: #199e70;
+      --seg-4: #c98500;
+      --seg-5: #d55181;
+      --seg-6: #008300;
+      --seg-7: #5a9be8;
+      --seg-8: #e66767;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .app {
+    font-family: var(--sans);
+    color: var(--text);
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 16px 16px 32px;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    background: #0a0a0a;
+    border-radius: 12px;
+    padding: 14px 20px;
+    box-shadow: var(--shadow);
+  }
+  .brand-block { display: flex; align-items: center; gap: 14px; }
+  .brand-logo { height: 42px; width: auto; display: block; flex-shrink: 0; }
+  .brand-name {
+    font-size: 27px;
+    margin: 0;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1;
+  }
+  .tab-context-note {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0 0 12px;
+  }
+  .tab-context-note b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .version-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.65);
+    background: rgba(255,255,255,0.1);
+    padding: 1px 6px;
+    border-radius: 100px;
+    vertical-align: middle;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .header-right .update-badge,
+  .header-right .icon-btn,
+  .header-right .local-update-trigger-btn,
+  .header-right .theme-toggle {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.85);
+  }
+  .header-right .update-badge svg { color: var(--brand-green); }
+  .header-right .update-badge b { color: #fff; }
+  .header-right .icon-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+  .header-right .local-update-trigger-btn:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
+  .header-right .theme-toggle.is-sun { background: rgba(224,172,82,0.2); border-color: rgba(224,172,82,0.55); }
+  .header-right .theme-toggle.is-moon { background: rgba(111,184,196,0.2); border-color: rgba(111,184,196,0.55); }
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    flex-shrink: 0;
+    transition: background-color .15s ease, border-color .15s ease, transform .12s ease;
+  }
+  .theme-toggle:hover { transform: translateY(-1px); }
+  .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .theme-toggle.is-sun { background: var(--warning-soft); border-color: var(--warning); }
+  .theme-toggle.is-moon { background: var(--accent-soft); border-color: var(--accent); }
+  .theme-icon { font-size: 15px; line-height: 1; }
+
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+  }
+  .kpis-7 { grid-template-columns: repeat(7, 1fr); }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    cursor: pointer;
+    transition: transform .12s ease, border-color .12s ease;
+    position: relative;
+  }
+  .kpi:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .kpi.is-active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
+  .kpi .num { font-family: var(--mono); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .kpi .lbl { font-size: 10.5px; color: var(--text-muted); line-height: 1.25; }
+  .kpi .sub { font-size: 10px; font-family: var(--mono); font-weight: 600; margin-top: 1px; }
+  .kpi.k-danger .num { color: var(--danger); }
+  .kpi.k-warning .num { color: var(--warning); }
+  .kpi.k-ok .num { color: var(--ok); }
+  .kpi.k-neutral .num { color: var(--neutral-chip); }
+  .kpi.kpi-static { cursor: default; position: relative; }
+  .kpi.kpi-static:hover { transform: none; border-color: var(--border); }
+  .kpi.kpi-static .num { color: var(--accent); }
+  .kpi.kpi-static.k-ok .num { color: var(--ok); }
+  .kpi.kpi-static.k-warning .num { color: var(--warning); }
+  .kpi.kpi-readonly { cursor: default; }
+  .kpi.kpi-readonly:hover { transform: none; border-color: var(--border); }
+  .kpi.kpi-clickable { cursor: pointer; }
+  .kpi.kpi-clickable:hover { transform: translateY(-1px); border-color: var(--accent); }
+  .kpi.kpi-clickable:hover .kpi-click-icon { border-color: var(--accent); color: var(--accent); }
+  .kpi.kpi-clickable:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .ped-cliente-link {
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 2px;
+  }
+  .ped-cliente-link:hover { color: var(--accent-strong); }
+  .kpi-click-icon {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-faint);
+    font-size: 9px;
+    pointer-events: none;
+  }
+  .kpis-6 { grid-template-columns: repeat(6, 1fr); }
+  .kpis-4 { grid-template-columns: repeat(4, 1fr); }
+  .kpis-5 { grid-template-columns: repeat(5, 1fr); }
+  .kpi-ranking-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .kpi-ranking-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .kpi-ranking-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .is-hidden { display: none; }
+  .tab-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab-btn {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 16px;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.is-active { color: var(--accent); border-bottom-color: var(--surface); background: var(--surface); box-shadow: 0 -2px 0 var(--accent) inset; }
+  .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .cliente-row { cursor: pointer; }
+  .cliente-open-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .cliente-open-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .produtos-count-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ruptura-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .ruptura-table th, .ruptura-table td { padding: 4px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .ruptura-th-cliente, .ruptura-td-cliente {
+    text-align: left;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    min-width: 200px;
+    max-width: 270px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ruptura-th-cliente { background: var(--surface-2); color: var(--text-muted); font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .ruptura-td-cliente {
+    background: var(--surface);
+    font-weight: 600;
+  }
+  .ruptura-table td.ruptura-td-cliente {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;
+    line-height: 1.3;
+    vertical-align: middle;
+  }
+  .ruptura-empresa-tag {
+    display: inline-block;
+    font-weight: 700;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin-right: 5px;
+    letter-spacing: 0.02em;
+  }
+  .ruptura-td-cliente.is-inativo { background: var(--danger-soft); color: var(--danger); }
+  .ruptura-inativo-badge {
+    display: inline-block;
+    font-weight: 700;
+    font-family: var(--mono);
+    font-size: 8.5px;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin-left: 5px;
+    letter-spacing: 0.02em;
+    vertical-align: middle;
+  }
+  .ruptura-ativo-badge {
+    display: inline-block;
+    font-weight: 700;
+    font-family: var(--mono);
+    font-size: 8.5px;
+    color: var(--ok);
+    border: 1px solid var(--ok);
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin-left: 5px;
+    letter-spacing: 0.02em;
+    vertical-align: middle;
+  }
+  .segmento-tag {
+    display: inline-block;
+    font-weight: 700;
+    font-family: var(--mono);
+    font-size: 8.5px;
+    color: var(--seg-color, var(--accent));
+    background: color-mix(in srgb, var(--seg-color, var(--accent)) 16%, var(--surface));
+    border: 1px solid var(--seg-color, var(--accent));
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin-left: 5px;
+    letter-spacing: 0.02em;
+    vertical-align: middle;
+  }
+  .cliente-cidade {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 400;
+    color: var(--text-muted);
+    margin-left: 5px;
+    vertical-align: middle;
+  }
+  .ruptura-th-streak { text-align: center; min-width: 70px; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-muted); }
+  .ruptura-td-streak { text-align: center; }
+  .ruptura-th-mes {
+    text-align: center;
+    font-size: 8.5px;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    text-transform: uppercase;
+  }
+  .ruptura-td-cell { text-align: center; padding: 3px !important; }
+  .ruptura-dot-btn {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .ruptura-dot-btn.is-comprou { background: var(--status-fresh); }
+  .ruptura-dot-btn.is-nao-comprou { background: var(--status-stale); }
+  .ruptura-dot-btn.is-nao-cadastrado { background: var(--border); cursor: default; }
+  .ruptura-dot-btn:hover { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .ruptura-dot-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .ruptura-dot-btn.is-nao-cadastrado:hover,
+  .ruptura-dot-btn.is-nao-cadastrado:focus-visible { outline: none; }
+  .ruptura-streak-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .ruptura-streak-badge.s-ok { background: var(--ok-soft); color: var(--ok); }
+  .ruptura-streak-badge.s-warning { background: var(--warning-soft); color: var(--warning); }
+  .ruptura-streak-badge.s-danger { background: var(--danger-soft); color: var(--danger); }
+  .ruptura-legend-dot { display: inline-block; width: 9px; height: 9px; border-radius: 3px; vertical-align: middle; margin: 0 3px; }
+  .ruptura-legend-dot.is-comprou { background: var(--status-fresh); }
+  .ruptura-legend-dot.is-nao-comprou { background: var(--status-stale); }
+  .ruptura-legend-dot.is-nao-cadastrado { background: var(--border); }
+
+  .params {
+    display: flex;
+    gap: 10px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    align-items: center;
+    background: var(--accent-soft);
+  }
+  .params input[type="number"] {
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    width: 68px;
+    font-variant-numeric: tabular-nums;
+  }
+  .params input[type="number"]:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .params-formula {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .filters {
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    align-items: center;
+    background: var(--surface-2);
+  }
+  .field { display: flex; flex-direction: column; gap: 2px; }
+  .field label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); font-weight: 700; }
+  select, input[type="search"], input[type="number"], input[type="text"] {
+    font-family: var(--sans);
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    min-width: 140px;
+  }
+  input[type="search"] { min-width: 180px; }
+  #cmp-dia-limite { min-width: 0; width: 72px; }
+  select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .spacer { flex: 1; }
+  .result-count { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .clear-btn {
+    font-family: var(--sans);
+    font-size: 11px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 5px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .clear-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .clear-btn:focus-visible, .kpi:focus-visible, th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .copy-btn { display: inline-flex; align-items: center; gap: 5px; }
+  .copy-status { font-size: 10.5px; color: var(--text-muted); white-space: nowrap; }
+  .copy-status.is-error { color: var(--danger); }
+
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+  thead th {
+    text-align: left;
+    padding: 6px 8px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+  thead th button {
+    all: unset;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  thead th button:hover { color: var(--accent); }
+  .sort-arrow { font-size: 8px; opacity: 0.6; }
+  tbody td {
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+  tbody tr:hover td { background: var(--accent-soft); }
+  tbody tr.row-danger td:first-child { box-shadow: inset 3px 0 0 var(--danger); }
+  tbody tr.row-warning td:first-child { box-shadow: inset 3px 0 0 var(--warning); }
+  #clientes-tbody tr.row-inativo td { background: var(--danger-soft); }
+  #clientes-tbody tr.row-inativo td.produto-name { color: var(--danger); }
+  #clientes-tbody tr.row-inativo:hover td { background: var(--danger-soft); }
+  .num-cell { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+  .produto-name { font-weight: 600; }
+
+  .table-compact-cc { min-width: 0; width: 100%; table-layout: fixed; font-size: 10.5px; }
+  .table-compact-cc thead th {
+    white-space: normal;
+    line-height: 1.25;
+    padding: 5px 3px;
+    font-size: 8.5px;
+    text-align: center;
+    vertical-align: bottom;
+  }
+  .table-compact-cc thead th:nth-child(1),
+  .table-compact-cc thead th:nth-child(2) { text-align: left; }
+  .table-compact-cc thead th button { justify-content: center; text-align: center; white-space: normal; line-height: 1.25; }
+  .table-compact-cc tbody td { padding: 4px 3px; font-size: 10.5px; }
+  .table-compact-cc .chip { font-size: 8.5px; padding: 1px 5px; white-space: normal; text-align: center; }
+  .table-compact-cc .chip::before { width: 4px; height: 4px; }
+  .table-compact-cc thead th:nth-child(1) { width: 9%; }
+  .table-compact-cc thead th:nth-child(2) { width: 26%; }
+  .table-compact-cc thead th:nth-child(3) { width: 10%; }
+  .table-compact-cc thead th:nth-child(4) { width: 10%; }
+  .table-compact-cc thead th:nth-child(5) { width: 10%; }
+  .table-compact-cc thead th:nth-child(6) { width: 10%; }
+  .table-compact-cc thead th:nth-child(7) { width: 10%; }
+  .table-compact-cc thead th:nth-child(8) { width: 8%; }
+  .table-compact-cc thead th:nth-child(9) { width: 7%; }
+  .table-compact-cc td.produto-name {
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.3;
+  }
+
+  /* Vendas Detalhadas (aba Vendas Detalhadas) - largura fixa por coluna, texto quebra em vez de
+     forçar rolagem horizontal (pedido explícito do usuário: prefere nome de cliente/produto
+     quebrando em várias linhas a ter barra de rolagem). */
+  .table-vd { table-layout: fixed; width: 100%; min-width: 0; }
+  .table-vd th, .table-vd td { white-space: normal; word-break: break-word; line-height: 1.35; vertical-align: top; }
+  .table-vd th:nth-child(1), .table-vd td:nth-child(1) { width: 7%; }
+  .table-vd th:nth-child(2), .table-vd td:nth-child(2) { width: 4%; }
+  .table-vd th:nth-child(3), .table-vd td:nth-child(3) { width: 7%; }
+  .table-vd th:nth-child(4), .table-vd td:nth-child(4) { width: 11%; }
+  .table-vd th:nth-child(5), .table-vd td:nth-child(5) { width: 9%; }
+  .table-vd th:nth-child(6), .table-vd td:nth-child(6) { width: 20%; }
+  .table-vd th:nth-child(7), .table-vd td:nth-child(7) { width: 16%; }
+  .table-vd th:nth-child(8), .table-vd td:nth-child(8) { width: 6%; }
+  .table-vd th:nth-child(9), .table-vd td:nth-child(9) { width: 10%; }
+  .table-vd th:nth-child(10), .table-vd td:nth-child(10) { width: 10%; }
+  .table-vd td.num-cell { text-align: right; }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .chip::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .chip.c-danger { background: var(--danger-soft); color: var(--danger); }
+  .chip.c-warning { background: var(--warning-soft); color: var(--warning); }
+  .chip.c-ok { background: var(--ok-soft); color: var(--ok); }
+  .chip.c-neutral { background: var(--neutral-chip-soft); color: var(--neutral-chip); }
+
+  .chip-row { display: flex; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap; align-items: center; }
+  .chip-check {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 4px 9px 4px 6px;
+    border-radius: 100px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; user-select: none;
+  }
+  .chip-check input { margin: 0; accent-color: var(--seg-color, var(--accent)); }
+  .chip-check .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--seg-color, var(--accent)); flex-shrink: 0; }
+  .chip-check.is-active { border-color: var(--seg-color, var(--accent)); background: color-mix(in srgb, var(--seg-color, var(--accent)) 12%, var(--surface)); }
+
+  .chart-wrap { padding: 16px 18px 8px; }
+  .chart-box { width: 100%; height: 240px; }
+  .chart-box.is-tall { height: 300px; }
+  .chart-legend { display: flex; gap: 16px; padding: 0 18px 12px; flex-wrap: wrap; }
+  .chart-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-muted); font-weight: 600; }
+  .chart-legend-swatch { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+  .chart-empty { padding: 40px; text-align: center; color: var(--text-muted); font-size: 12.5px; }
+
+  .methodology-note {
+    margin: 0 0 12px; padding: 10px 12px; background: var(--accent-soft); border: 1px solid var(--border);
+    border-radius: 8px; font-size: 11px; color: var(--text-muted); line-height: 1.55;
+  }
+  .methodology-note b { color: var(--text); }
+
+  .gauge-cell { width: 100px; }
+  .gauge {
+    position: relative;
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(to right,
+      var(--danger-soft) 0%, var(--danger-soft) 30%,
+      var(--warning-soft) 30%, var(--warning-soft) 60%,
+      var(--ok-soft) 60%, var(--ok-soft) 100%);
+    overflow: visible;
+  }
+  .gauge .fill { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 3px; }
+  .gauge .marker { position: absolute; top: -2px; width: 2px; height: 10px; background: var(--text-faint); }
+  .gauge-labels { display: flex; justify-content: space-between; font-size: 8.5px; color: var(--text-faint); margin-top: 2px; font-family: var(--mono); }
+
+  .empty-state { padding: 32px 20px; text-align: center; color: var(--text-muted); font-size: 12.5px; }
+
+  .footnote {
+    font-size: 10px;
+    color: var(--text-faint);
+    padding: 8px 12px 4px;
+    line-height: 1.5;
+  }
+  .footnote code { font-family: var(--mono); background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+
+  @media (max-width: 860px) {
+    .kpis, .kpis-4, .kpis-5, .kpis-6, .kpis-7 { grid-template-columns: repeat(2, 1fr); }
+    .header { flex-direction: column; align-items: flex-start; }
+    .header-right { flex-direction: column-reverse; align-items: flex-start; }
+  }
+
+  .update-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    color: var(--text-muted);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 6px 10px 6px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+    cursor: default;
+    box-shadow: var(--shadow);
+  }
+  .update-badge svg { flex-shrink: 0; color: var(--accent); }
+  .update-badge b { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .theme-toggle-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .freshness-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--text-faint);
+  }
+  .freshness-dot.is-fresh { background: var(--status-fresh); box-shadow: 0 0 7px 1px rgba(46,230,107,0.75); }
+  .freshness-dot.is-warning { background: var(--status-warning); box-shadow: 0 0 7px 1px rgba(255,209,26,0.75); }
+  .freshness-dot.is-stale { background: var(--status-stale); box-shadow: 0 0 7px 1px rgba(255,59,59,0.75); }
+  #freshness-age { color: var(--text-faint); }
+
+  .icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .local-update-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 100px;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: var(--shadow);
+  }
+  .local-update-trigger-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .local-update-trigger-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .local-update-trigger-btn:disabled { opacity: 0.55; cursor: default; }
+  .icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-overlay.is-hidden { display: none; }
+  .modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    max-width: 380px;
+    width: 100%;
+    padding: 16px 18px;
+  }
+  .modal-card h2 {
+    font-size: 14px;
+    margin: 0 0 4px;
+    color: var(--text);
+  }
+  .modal-card .modal-sub { font-size: 11.5px; color: var(--text-muted); margin: 0 0 12px; }
+  .local-update-bar-track {
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .local-update-bar-fill {
+    height: 100%;
+    background: var(--brand-green, var(--accent));
+    border-radius: 999px;
+    transition: width 0.35s ease;
+  }
+  .local-update-bar-fill.is-error { background: var(--danger); }
+  .local-update-bar-fill.is-warning { background: var(--status-warning); }
+  .local-update-pct { font-size: 11px; color: var(--text-muted); margin: 0 0 12px; text-align: right; }
+  .modal-table { width: 100%; min-width: 0; border-collapse: collapse; font-size: 12px; }
+  .modal-table td { padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .modal-table td:first-child { color: var(--text-muted); }
+  .modal-table td:last-child { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--text); font-weight: 600; }
+  .modal-table tr:last-child td { border-bottom: none; }
+  .modal-close-row { display: flex; justify-content: flex-end; margin-top: 14px; }
+  .modal-close-btn {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--accent);
+    color: var(--surface);
+    border: none;
+    padding: 7px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+  .modal-close-btn:hover { opacity: 0.9; }
+  .modal-close-btn:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
+
+  .modal-card-wide {
+    max-width: 820px;
+    max-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .modal-card-wide.is-compact { padding: 12px 16px; }
+  .modal-card-wide.is-compact .modal-close-row { margin-top: 8px; }
+  .ranking-filters-note { font-size: 11px; color: var(--text-muted); margin: 0 0 10px; }
+  .ranking-empty { padding: 30px; text-align: center; color: var(--text-muted); font-size: 12.5px; }
+  .filtro-ativo-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 0 0 12px; }
+  .filtro-ativo-tag {
+    display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 100px;
+    font-size: 11px; font-weight: 600; color: var(--accent-strong); background: var(--accent-soft);
+    border: 1px solid var(--accent); white-space: nowrap;
+  }
+  .filtro-ativo-tag b { font-weight: 700; }
+  .ranking-table-wrap {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .ranking-table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; font-size: 12px; }
+  .ranking-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--surface-2);
+    text-align: left;
+    padding: 7px 10px;
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    z-index: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ranking-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .ranking-table td.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; overflow: visible; }
+
+  .cliente-summary {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .cliente-summary-item {
+    flex: 1;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+  }
+  .cliente-summary-item .num { font-family: var(--mono); font-size: 16px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .cliente-summary-item .lbl { font-size: 10.5px; color: var(--text-muted); }
+  .cliente-summary-item .periodo-sub {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px dashed var(--border);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--warning);
+    font-variant-numeric: tabular-nums;
+  }
+  .cliente-summary-item .periodo-sub .periodo-sub-lbl { font-family: var(--sans); font-size: 9.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; display: block; margin-bottom: 1px; }
+  .cliente-section-title {
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin: 10px 0 6px;
+  }
+  .cliente-chart-wrap {
+    height: 108px;
+    padding: 4px 4px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .cliente-chart-wrap svg { display: block; }
+
+  .cmp-metric-toggle {
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px 0;
+    flex-wrap: wrap;
+  }
+  .cmp-metric-btn {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 7px 14px;
+    border-radius: 100px;
+    cursor: pointer;
+  }
+  .cmp-metric-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .cmp-metric-btn.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .cmp-metric-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .cmp-chart-row {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    padding: 0 12px;
+  }
+  .cmp-chart-wrap {
+    padding: 14px 0 4px;
+    height: 300px;
+    flex: 1;
+    min-width: 0;
+  }
+  .cmp-chart-wrap svg { display: block; width: 100%; height: 100%; }
+  .cmp-point:hover + circle { r: 4; }
+  .cmp-summary-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 210px;
+    flex-shrink: 0;
+    padding: 14px 0 4px;
+    overflow-y: auto;
+  }
+  .cmp-summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--card-color, var(--accent));
+    border-radius: 8px;
+    padding: 8px 10px;
+    box-shadow: var(--shadow);
+  }
+  .cmp-summary-card-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .cmp-summary-card-swatch { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; background: var(--card-color); }
+  .cmp-summary-row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 11px; padding: 2px 0; }
+  .cmp-summary-row .lbl { color: var(--text-muted); }
+  .cmp-summary-row .val { font-family: var(--mono); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cmp-summary-empty { font-size: 11px; color: var(--text-faint); font-style: italic; padding: 14px 0; }
+  @media (max-width: 760px) {
+    .cmp-chart-row { flex-direction: column; }
+    .cmp-summary-cards { width: 100%; flex-direction: row; flex-wrap: wrap; overflow-y: visible; }
+    .cmp-summary-card { flex: 1 1 150px; }
+  }
+  .cmp-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 0 12px 10px;
+  }
+  .cmp-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .cmp-legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .cmp-legend-empty { font-size: 11.5px; color: var(--text-faint); font-style: italic; }
+  .cliente-cols { display: flex; gap: 14px; margin-top: 4px; align-items: flex-start; }
+  .cliente-col { flex: 1; min-width: 0; }
+  .cliente-table-wrap { max-height: 150px; min-height: 44px; overflow-y: auto; overflow-x: hidden; border: 1px solid var(--border); border-radius: 8px; }
+  .cliente-nao-comprou {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-content: flex-start;
+    max-height: 150px;
+    min-height: 44px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .cliente-nao-comprou .oportunidade-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--warning-soft);
+    color: var(--warning);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+  .cliente-nao-comprou .oportunidade-vazio { font-size: 12px; color: var(--text-muted); padding: 4px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toast { transition: opacity .01ms; }
+  }
+</style>
+
+<div class="app">
+  <div class="wrap">
+
+    <div class="header">
+      <div class="brand-block">
+        <img src="__LOGO_DATA_URI__" alt="Aqui Tem Mais" class="brand-logo" />
+        <h1 class="brand-name">Operacional</h1>
+      </div>
+      <div class="header-right">
+        <span class="version-tag" title="Corresponde à Version exibida no menu de versões do Artifact — sobe a cada publicação, inclusive as automáticas">Version __VERSION__</span>
+        <span class="version-tag" title="Número de release: só muda quando uma funcionalidade ou visual novo é lançado">Release __RELEASE__</span>
+        <span class="update-badge" id="update-badge" title="Última vez que a rotina de atualização rodou com sucesso">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          Dados de <b>__PROCESSADO_EM__</b> <span id="freshness-age"></span>
+        </span>
+        <button id="refresh-page-btn" class="icon-btn" type="button" title="Atualizar a página (recarrega com os últimos dados publicados)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+        </button>
+        <button id="local-update-btn" class="local-update-trigger-btn is-hidden" type="button" title="Atualizar dados agora (extrai do Access e reconstrói o dashboard) — disponível só rodando local">🔄 Atualizar dados</button>
+        <span class="local-update-trigger-btn is-hidden" id="hosted-user-badge" title="Usuário logado"></span>
+        <button id="hosted-logout-btn" class="local-update-trigger-btn is-hidden" type="button">Sair</button>
+        <div class="theme-toggle-wrap">
+          <span class="freshness-dot" id="freshness-dot"></span>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false" title="Alternar entre tela clara e escura">
+            <span class="theme-icon" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-nav">
+      <button class="tab-btn is-active" id="tab-btn-pedidos" type="button" data-tab="pedidos">Faturamento &amp; Pedidos</button>
+      <button class="tab-btn" id="tab-btn-vendas-detalhe" type="button" data-tab="vendas-detalhe">Vendas Detalhadas</button>
+      <button class="tab-btn" id="tab-btn-estoquefilial" type="button" data-tab="estoquefilial">Estoque por Filial</button>
+    </div>
+
+    <!-- ===================== TAB: FATURAMENTO & PEDIDOS ===================== -->
+    <div id="tab-content-pedidos">
+    <div class="kpis kpis-6" id="kpis-pedidos">
+      <div class="kpi kpi-static kpi-clickable" id="kpi-fat-dia" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+        <div class="num" id="total-fat-dia">–</div>
+        <div class="lbl">Faturamento do dia</div>
+      </div>
+      <div class="kpi kpi-static kpi-clickable" id="kpi-fat-mes" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+        <div class="num" id="total-fat-mes">–</div>
+        <div class="lbl">Faturamento do mês corrente</div>
+      </div>
+      <div class="kpi kpi-static kpi-clickable" id="kpi-prod-dia" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+        <div class="num" id="total-prod-dia">–</div>
+        <div class="lbl">Produtos vendidos no dia</div>
+      </div>
+      <div class="kpi kpi-static kpi-clickable" id="kpi-prod-mes" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+        <div class="num" id="total-prod-mes">–</div>
+        <div class="lbl">Produtos vendidos no mês</div>
+      </div>
+      <div class="kpi kpi-static kpi-clickable" id="kpi-fat-projecao" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+        <div class="num" id="total-fat-projecao">–</div>
+        <div class="lbl">Projeção de faturamento mensal</div>
+      </div>
+      <div class="kpi kpi-static kpi-clickable" id="kpi-prod-projecao" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+        <div class="num" id="total-prod-projecao">–</div>
+        <div class="lbl">Projeção de quantidade de vendas mensal</div>
+      </div>
+    </div>
+
+    <p class="tab-context-note">Funil operacional · tempo entre a digitação e o processamento do pedido, todo o histórico</p>
+    <div class="kpis kpis-4" id="kpis-funil">
+      <div class="kpi kpi-static kpi-clickable" id="kpi-funil-sla" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+        <div class="num" id="total-funil-sla">–</div>
+        <div class="lbl">Processados em até 24h</div>
+      </div>
+      <div class="kpi kpi-static kpi-clickable" id="kpi-funil-tempo" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+        <div class="num" id="total-funil-tempo">–</div>
+        <div class="lbl">Tempo médio de processamento</div>
+      </div>
+      <div class="kpi kpi-static kpi-clickable" id="kpi-funil-pendentes" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+        <div class="num" id="total-funil-pendentes">–</div>
+        <div class="lbl">Pendentes em aberto</div>
+      </div>
+      <div class="kpi kpi-static kpi-clickable k-danger" id="kpi-funil-atraso" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+        <div class="num" id="total-funil-atraso">–</div>
+        <div class="lbl">Pendentes há mais de 48h</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="filters">
+        <div class="field">
+          <label for="ped-empresa">Empresa</label>
+          <select id="ped-empresa"><option value="">Todas as empresas</option></select>
+        </div>
+        <div class="field">
+          <label for="ped-periodo">Período (processados)</label>
+          <select id="ped-periodo">
+            <option value="hoje">Hoje</option>
+            <option value="mes">Mês corrente</option>
+            <option value="todos">Todo o período</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="ped-busca">Pedido / Vendedor</label>
+          <input type="search" id="ped-busca" placeholder="Buscar..." />
+        </div>
+        <div class="spacer"></div>
+        <span class="result-count" id="result-count-ped"></span>
+        <button class="clear-btn" id="clear-filters-ped">Limpar filtros</button>
+        <button class="clear-btn copy-btn" id="copy-ped-btn" type="button">📋 Copiar para Excel</button>
+        <span class="copy-status" id="copy-ped-status"></span>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th data-key="Empresa"><button>Empresa <span class="sort-arrow"></span></button></th>
+              <th data-key="Pedido"><button>Pedido <span class="sort-arrow"></span></button></th>
+              <th data-key="Cliente"><button>Cliente <span class="sort-arrow"></span></button></th>
+              <th data-key="Vendedor"><button>Vendedor <span class="sort-arrow"></span></button></th>
+              <th data-key="DataDigitacao"><button>Digitado em <span class="sort-arrow"></span></button></th>
+              <th data-key="DataProcessamento"><button>Processado em <span class="sort-arrow"></span></button></th>
+              <th data-key="_tempoOrdenacao"><button>Tempo <span class="sort-arrow"></span></button></th>
+              <th data-key="Situacao"><button>Situação <span class="sort-arrow"></span></button></th>
+            </tr>
+          </thead>
+          <tbody id="tbody-ped"></tbody>
+        </table>
+      </div>
+      <div class="empty-state" id="empty-state-ped" style="display:none;">Nenhum pedido corresponde aos filtros aplicados.</div>
+
+      <div class="footnote">
+        Faturamento e produtos vendidos vêm das SAÍDAS reais (<code>003_SAIDA_POR_VENDAS</code>), não da fila de pedidos &middot;
+        Pedidos <b>PENDENTES</b> (qualquer situação diferente de PROCESSADO, vindos de <code>CONSULTA_PEDIDOS_A_PROCESSAR</code>) ficam sempre no topo da lista, em destaque, independente do filtro de período escolhido &middot;
+        Tempo = intervalo entre a digitação e o processamento do pedido &middot; pedidos pendentes mostram há quanto tempo estão em aberto desde a digitação &middot;
+        Projeção mensal = ritmo do mês em curso (faturamento/produtos até hoje ÷ dia do mês) projetado para os dias totais do mês &middot;
+        Clique nos cards acima (⤢) para ver o detalhamento por filial &middot;
+        Clique no nome do cliente para ver os itens do pedido e os dados do cliente (segmento, situação, cidade).
+      </div>
+    </div>
+    </div>
+
+    <!-- ===================== TAB: VENDAS DETALHADAS ===================== -->
+    <div id="tab-content-vendas-detalhe" class="is-hidden">
+      <p class="tab-context-note">
+        <b>Listagem linha a linha das vendas</b> (fonte: <code>VENDAS_CLIENTES</code>) — Empresa, Pedido, Data, Cliente, Produto, Quantidade e Valores. Mostra o mês corrente por padrão; escolha outro em Ano/Mês.
+      </p>
+      <div class="kpis kpis-4" id="kpis-vd">
+        <div class="kpi kpi-static kpi-clickable" id="kpi-vd-qte" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="num" id="num-vd-qte">–</div>
+          <div class="lbl">Total de unidades vendidas (SKUs)</div>
+        </div>
+        <div class="kpi kpi-static kpi-clickable" id="kpi-vd-valor" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="num" id="num-vd-valor">–</div>
+          <div class="lbl">Valor total vendido</div>
+        </div>
+        <div class="kpi kpi-static kpi-clickable" id="kpi-vd-projqte" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="num" id="num-vd-projqte">–</div>
+          <div class="lbl" id="lbl-vd-projqte">Projeção de unidades no mês</div>
+        </div>
+        <div class="kpi kpi-static kpi-clickable" id="kpi-vd-projvalor" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="num" id="num-vd-projvalor">–</div>
+          <div class="lbl" id="lbl-vd-projvalor">Projeção de valor no mês</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="filters">
+          <div class="field">
+            <label for="vd-segmento">Segmento</label>
+            <select id="vd-segmento"><option value="">Todos os segmentos</option></select>
+          </div>
+          <div class="field">
+            <label for="vd-empresa">Empresa</label>
+            <select id="vd-empresa"><option value="">Todas as empresas</option></select>
+          </div>
+          <div class="field">
+            <label for="vd-periodo">Ano/Mês</label>
+            <select id="vd-periodo"></select>
+          </div>
+          <div class="field">
+            <label for="vd-busca">Pedido / Cliente / Produto</label>
+            <input type="search" id="vd-busca" placeholder="Buscar..." />
+          </div>
+          <button class="clear-btn copy-btn" id="vd-sumarizacao-btn" type="button">📊 Sumarização</button>
+          <div class="spacer"></div>
+          <span class="result-count" id="result-count-vd"></span>
+          <button class="clear-btn copy-btn" id="copy-vd-btn" type="button">📋 Copiar para Excel</button>
+          <span class="copy-status" id="copy-vd-status"></span>
+        </div>
+        <div class="table-scroll">
+          <table class="table-vd">
+            <thead>
+              <tr>
+                <th data-key="Empresa"><button>Empresa <span class="sort-arrow"></span></button></th>
+                <th data-key="Pedido"><button>Ped. <span class="sort-arrow"></span></button></th>
+                <th data-key="Data"><button>Data <span class="sort-arrow"></span></button></th>
+                <th data-key="DataHoraProcessamento"><button>Data/Hora<br>Processamento <span class="sort-arrow">▼</span></button></th>
+                <th data-key="CidadeUF"><button>Cidade-UF <span class="sort-arrow"></span></button></th>
+                <th data-key="Cliente"><button>Cliente <span class="sort-arrow"></span></button></th>
+                <th data-key="Produto"><button>Produto <span class="sort-arrow"></span></button></th>
+                <th data-key="Qte"><button>Qtde <span class="sort-arrow"></span></button></th>
+                <th data-key="VrUnit"><button>Vr.Unit.(R$) <span class="sort-arrow"></span></button></th>
+                <th data-key="Total"><button>Vr.Tot.(R$) <span class="sort-arrow"></span></button></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-vd"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="empty-state-vd" style="display:none;">Nenhuma venda corresponde aos filtros aplicados.</div>
+      </div>
+      <div class="footnote">
+        Fonte: <code>VENDAS_CLIENTES</code>, histórico completo, excluindo FRETE &middot;
+        Cliente mostra a tag de Segmento e o selo ATIVO/INATIVO do cadastro &middot;
+        Projeção = ritmo do mês em curso (valor até hoje ÷ dia do mês) projetado pros dias totais do mês - só se aplica ao mês corrente; num mês já fechado, Projeção = valor exato do mês &middot;
+        Clique nos cards de KPI (⤢) pra ver o detalhamento por filial, respeitando os filtros de Segmento/Ano-Mês ativos.
+      </div>
+    </div>
+
+    <!-- ===================== TAB: ESTOQUE POR FILIAL ===================== -->
+    <div id="tab-content-estoquefilial" class="is-hidden">
+    <div class="panel">
+      <p class="tab-context-note">
+        <b>Estoque por Filial</b> · estoque atual de chips cruzado com filial — mostra <b>todas as empresas</b>, independente do seu acesso nas demais abas &middot; colunas de "Em trânsito" aparecem quando existe transferência com aceite pendente na rota.
+      </p>
+      <div class="filters" style="margin-top:10px;">
+        <span class="result-count" id="result-count-estoquefilial"></span>
+        <button class="clear-btn copy-btn" id="copy-estoquefilial-btn" type="button">📋 Copiar para Excel</button>
+        <span class="copy-status" id="copy-estoquefilial-status"></span>
+      </div>
+      <div class="table-scroll">
+        <table id="table-estoquefilial">
+          <thead id="thead-estoquefilial"></thead>
+          <tbody id="tbody-estoquefilial"></tbody>
+          <tfoot id="tfoot-estoquefilial"></tfoot>
+        </table>
+      </div>
+      <div class="footnote">
+        Estoque atual por filial (<code>002_ESTOQUE_ATUAL</code>) &middot;
+        colunas <b>EM TRÂNSITO</b> aparecem quando existe transferência com <b>ACEITE NÃO DADO</b> na rota (mercadoria já saiu da origem, destino ainda não confirmou) &middot; assim que o destino dá o aceite, a mercadoria some do trânsito e passa a contar no estoque normal da filial de destino &middot;
+        "Total Geral" soma todas as colunas da linha, inclusive trânsito.
+      </div>
+    </div>
+    </div>
+
+    <p class="footer-note" style="font-size:10.5px;color:var(--text-faint);text-align:center;padding:4px 0 0;">BI Operacional — Aqui Tem Mais · dados processados em <b>__PROCESSADO_EM__</b></p>
+  </div>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div class="modal-overlay is-hidden" id="local-update-modal">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="local-update-title">
+    <h2 id="local-update-title">Atualizando dados</h2>
+    <p class="modal-sub" id="local-update-etapa">Iniciando...</p>
+    <div class="local-update-bar-track"><div class="local-update-bar-fill" id="local-update-bar-fill" style="width:0%"></div></div>
+    <p class="local-update-pct" id="local-update-pct">0%</p>
+    <div class="modal-close-row"><button class="modal-close-btn" id="local-update-close-btn" type="button" disabled>Fechar</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay is-hidden" id="pedido-cliente-modal">
+  <div class="modal-card modal-card-wide is-compact" role="dialog" aria-modal="true" aria-labelledby="pedido-cliente-title">
+    <h2 id="pedido-cliente-title">Cliente</h2>
+    <p class="modal-sub" id="pedido-cliente-sub"></p>
+    <div class="cliente-section-title">Pedido</div>
+    <table class="modal-table" id="pedido-cliente-info-table"></table>
+    <div class="cliente-section-title">Itens do pedido</div>
+    <div class="cliente-table-wrap">
+      <table class="modal-table" id="pedido-cliente-itens-table"></table>
+    </div>
+    <div class="modal-close-row">
+      <button class="modal-close-btn" id="pedido-cliente-close-btn" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay is-hidden" id="filial-breakdown-modal">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="filial-breakdown-title">
+    <h2 id="filial-breakdown-title">Por filial</h2>
+    <table class="modal-table" id="filial-breakdown-table"></table>
+    <div class="modal-close-row">
+      <button class="modal-close-btn" id="filial-breakdown-close-btn" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay is-hidden" id="vd-sumarizacao-modal">
+  <div class="modal-card modal-card-wide is-compact" role="dialog" aria-modal="true" aria-labelledby="vd-sumarizacao-title">
+    <h2 id="vd-sumarizacao-title">Sumarização — Vendas por SKU</h2>
+    <p class="ranking-filters-note">Quantidade e valor total vendidos de cada produto, no escopo dos filtros aplicados.</p>
+    <div class="filtro-ativo-row" id="vd-sumarizacao-tags"></div>
+    <div class="ranking-table-wrap">
+      <table class="ranking-table">
+        <thead>
+          <tr>
+            <th style="width:55%">SKU (Produto)</th>
+            <th style="width:22%">Qtde</th>
+            <th style="width:23%">Valor</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-vd-sumarizacao"></tbody>
+      </table>
+    </div>
+    <div class="modal-close-row">
+      <button class="modal-close-btn" id="vd-sumarizacao-close-btn" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay is-hidden" id="copy-fallback-modal">
+  <div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="copy-fallback-title">
+    <h2 id="copy-fallback-title">Copiar para Excel</h2>
+    <p class="modal-sub">Este navegador não deixa copiar automaticamente. O texto abaixo já está selecionado — aperte <b>Ctrl+C</b> (ou <b>Cmd+C</b> no Mac), feche esta janela e cole no Excel com Ctrl+V.</p>
+    <textarea id="copy-fallback-textarea" readonly
+      style="width:100%; height:280px; font-family:var(--mono); font-size:11px; padding:8px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); box-sizing:border-box; resize:vertical;"></textarea>
+    <div class="modal-close-row">
+      <button class="modal-close-btn" id="copy-fallback-close-btn" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const RAW_CLIENTES = __CLIENTES_JSON__;
+const RAW_PEDIDOS = __PEDIDOS_JSON__;
+const RAW_PEDIDOS_RESUMO = __PEDIDOS_RESUMO_JSON__;
+const RAW_VENDAS_DETALHE = __VENDAS_DETALHE_JSON__;
+const RAW_ESTOQUE = __ESTOQUE_JSON__;
+const RAW_TRANSFERENCIAS = __TRANSFERENCIAS_JSON__;
+
+// Preenchidos só pelo backend hospedado (Render) a cada login, sessão a sessão — o build.js do
+// Artifact público e do dashboard local sempre substitui os dois por string vazia, então o bloco
+// initHostedSession() abaixo nunca ativa nesses dois casos.
+const HOSTED_USER_LABEL = "__HOSTED_USER_LABEL__";
+const HOSTED_SESSION = "__HOSTED_SESSION__" === "1";
+
+const today = new Date("__TODAY_ISO__T00:00:00");
+const TODAY_ISO_STR = "__TODAY_ISO__";
+
+// ================================================================
+// HELPERS COMPARTILHADOS (usados por várias abas)
+// ================================================================
+function fmtNum(v, digits = 0) {
+  if (v === null || v === undefined || !isFinite(v)) return "—";
+  return Number(v).toLocaleString("pt-BR", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+}
+
+function fmtDate(iso) {
+  if (!iso) return "—";
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function fmtMoney(v) {
+  if (v === null || v === undefined || !isFinite(v)) return "—";
+  return Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function fmtPct(v, digits = 1) {
+  if (v === null || v === undefined || !isFinite(v)) return "—";
+  return Number(v).toLocaleString("pt-BR", { minimumFractionDigits: digits, maximumFractionDigits: digits }) + "%";
+}
+
+function fmtMesLabel(anoMes) {
+  const [y, m] = anoMes.split("-");
+  const meses = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  return `${meses[parseInt(m, 10) - 1]}/${y.slice(2)}`;
+}
+
+function empresaAbrev(nome) {
+  return (nome || "").replace(/^AQUI TEM\s*\+\s*/i, "").trim();
+}
+
+function empresaBadgeHtml(nome) {
+  return `<span class="ruptura-empresa-tag" title="${nome}">${empresaAbrev(nome)}</span>`;
+}
+
+function buildTsv(headers, rows) {
+  const escapeCell = (v) => {
+    const s = v === null || v === undefined ? "" : String(v);
+    return s.replace(/\t/g, " ").replace(/\r?\n/g, " ");
+  };
+  const lines = [headers.map(escapeCell).join("\t")];
+  for (const row of rows) lines.push(row.map(escapeCell).join("\t"));
+  return lines.join("\r\n");
+}
+
+function showCopyFallback(tsv) {
+  const modal = document.getElementById("copy-fallback-modal");
+  const ta = document.getElementById("copy-fallback-textarea");
+  ta.value = tsv;
+  modal.classList.remove("is-hidden");
+  ta.focus();
+  ta.select();
+}
+
+async function copyToExcel(headers, rows, statusEl) {
+  if (!rows.length) {
+    if (statusEl) { statusEl.textContent = "Nada para copiar com os filtros atuais."; statusEl.classList.add("is-error"); }
+    return;
+  }
+  const tsv = buildTsv(headers, rows);
+  let ok = false;
+
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(tsv);
+      ok = true;
+    }
+  } catch (err) { ok = false; }
+
+  if (!ok) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = tsv;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+    } catch (err) { ok = false; }
+  }
+
+  if (ok) {
+    if (statusEl) {
+      statusEl.textContent = `Copiado (${rows.length} linhas) — cole no Excel com Ctrl+V`;
+      statusEl.classList.remove("is-error");
+    }
+  } else {
+    if (statusEl) statusEl.textContent = "";
+    showCopyFallback(tsv);
+  }
+}
+
+const empresas = [...new Set(RAW_CLIENTES.map(c => c.Empresa))].sort();
+
+const SEGMENTOS_DISTINCT = [...new Set(RAW_CLIENTES.map(c => c.Segmento).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+const SEGMENTO_COLOR_SLOTS = 8;
+const segmentoColorIndex = (() => {
+  const map = new Map();
+  SEGMENTOS_DISTINCT.forEach((seg, i) => map.set(seg, (i % SEGMENTO_COLOR_SLOTS) + 1));
+  return (segmento) => map.get(segmento) || 1;
+})();
+
+function segmentoTagHtml(segmento) {
+  if (!segmento) return "";
+  const slot = segmentoColorIndex(segmento);
+  return ` <span class="segmento-tag" style="--seg-color:var(--seg-${slot})" title="Segmento: ${segmento}">${segmento}</span>`;
+}
+
+function situacaoBadgeHtml(situacao) {
+  if (situacao === "INATIVO") return ' <span class="ruptura-inativo-badge">INATIVO</span>';
+  if (situacao === "ATIVO") return ' <span class="ruptura-ativo-badge">ATIVO</span>';
+  return "";
+}
+
+function cidadeUfHtml(cidade, uf) {
+  if (!cidade && !uf) return "";
+  const txt = cidade && uf ? `${cidade}-${uf}` : (cidade || uf);
+  return ` <span class="cliente-cidade">${txt}</span>`;
+}
+
+(function initCopyFallbackModal() {
+  const modal = document.getElementById("copy-fallback-modal");
+  const closeBtn = document.getElementById("copy-fallback-close-btn");
+  const ta = document.getElementById("copy-fallback-textarea");
+
+  function close() { modal.classList.add("is-hidden"); }
+
+  closeBtn.addEventListener("click", close);
+  modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+  ta.addEventListener("click", () => ta.select());
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modal.classList.contains("is-hidden")) close();
+  });
+})();
+
+// ================================================================
+// ABA: FATURAMENTO & PEDIDOS — portado do BI Logística, verbatim
+// ================================================================
+(function initPedidosTab() {
+  const resumo = RAW_PEDIDOS_RESUMO;
+
+  function fmtTempo(min) {
+    if (min === null || min === undefined) return "—";
+    const m = Math.round(min);
+    if (m < 60) return `${m} min`;
+    const h = Math.floor(m / 60);
+    const rem = m % 60;
+    return rem > 0 ? `${h}h ${rem}min` : `${h}h`;
+  }
+
+  // KPIs sensíveis ao filtro de Empresa: cada bloco (Hoje/Mes/Projecao) já vem do servidor com um
+  // PorEmpresa[] pronto (mesmo dado usado no pop-up "por filial") - quando uma empresa é selecionada,
+  // busca o valor daquela empresa em vez do agregado geral. Período/Busca continuam só filtrando a
+  // lista de pedidos abaixo (não fazem sentido pros KPIs: eles já têm sua própria janela fixa de
+  // tempo - dia/mês corrente/projeção - independente do período escolhido na lista).
+  function valorPorEmpresa(bloco, empresaVal) {
+    if (!empresaVal) return { Faturamento: bloco.Faturamento, Produtos: bloco.Produtos };
+    const linha = bloco.PorEmpresa.find(e => e.Empresa === empresaVal);
+    return linha ? { Faturamento: linha.Faturamento, Produtos: linha.Produtos } : { Faturamento: 0, Produtos: 0 };
+  }
+
+  function renderKpisPedidos() {
+    const empresaVal = document.getElementById("ped-empresa").value;
+    const hoje = valorPorEmpresa(resumo.Hoje, empresaVal);
+    const mes = valorPorEmpresa(resumo.Mes, empresaVal);
+    const projecao = valorPorEmpresa(resumo.Projecao, empresaVal);
+    document.getElementById("total-fat-dia").textContent = fmtMoney(hoje.Faturamento);
+    document.getElementById("total-fat-mes").textContent = fmtMoney(mes.Faturamento);
+    document.getElementById("total-prod-dia").textContent = fmtNum(hoje.Produtos);
+    document.getElementById("total-prod-mes").textContent = fmtNum(mes.Produtos);
+    document.getElementById("total-fat-projecao").textContent = fmtMoney(projecao.Faturamento);
+    document.getElementById("total-prod-projecao").textContent = fmtNum(projecao.Produtos);
+  }
+  renderKpisPedidos();
+
+  // ---- Funil operacional (todo o histórico de RAW_PEDIDOS, não só hoje/mês) ----
+  const SLA_MINUTOS = 24 * 60;
+  const ATRASO_MINUTOS = 48 * 60;
+  const processados = RAW_PEDIDOS.filter(p => !p.Pendente && p.TempoProcessamentoMin !== null && p.TempoProcessamentoMin !== undefined);
+  const pendentesAbertos = RAW_PEDIDOS.filter(p => p.Pendente);
+  const dentroSla = processados.filter(p => p.TempoProcessamentoMin <= SLA_MINUTOS).length;
+  const slaPct = processados.length ? Math.round((dentroSla / processados.length) * 1000) / 10 : null;
+  const tempoMedioGeral = processados.length ? processados.reduce((s, p) => s + p.TempoProcessamentoMin, 0) / processados.length : null;
+  const emAtraso = pendentesAbertos.filter(p => p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined && p.TempoAbertoMin > ATRASO_MINUTOS).length;
+  document.getElementById("total-funil-sla").textContent = slaPct === null ? "—" : `${fmtNum(slaPct, 1)}%`;
+  document.getElementById("total-funil-tempo").textContent = tempoMedioGeral === null ? "—" : fmtTempo(tempoMedioGeral);
+  document.getElementById("total-funil-pendentes").textContent = fmtNum(pendentesAbertos.length);
+  document.getElementById("total-funil-atraso").textContent = fmtNum(emAtraso);
+  function porFilialFunil() {
+    const porEmpresa = new Map();
+    function grupo(nome) {
+      if (!porEmpresa.has(nome)) porEmpresa.set(nome, { Empresa: nome, processados: [], pendentes: [], atraso: 0 });
+      return porEmpresa.get(nome);
+    }
+    for (const p of processados) grupo(p.Empresa).processados.push(p.TempoProcessamentoMin);
+    for (const p of pendentesAbertos) {
+      const g = grupo(p.Empresa);
+      g.pendentes.push(p);
+      if (p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined && p.TempoAbertoMin > ATRASO_MINUTOS) g.atraso++;
+    }
+    return [...porEmpresa.values()].map(g => ({
+      Empresa: g.Empresa,
+      SlaPct: g.processados.length ? Math.round((g.processados.filter(t => t <= SLA_MINUTOS).length / g.processados.length) * 1000) / 10 : null,
+      TempoMedio: g.processados.length ? g.processados.reduce((s, t) => s + t, 0) / g.processados.length : null,
+      Pendentes: g.pendentes.length,
+      Atraso: g.atraso
+    })).sort((a, b) => a.Empresa.localeCompare(b.Empresa, "pt-BR"));
+  }
+  const funilPorFilial = porFilialFunil();
+
+  // modal de detalhamento por filial - reaproveitado pelos 4 cards, cada um so muda o titulo/dado
+  const bdModal = document.getElementById("filial-breakdown-modal");
+  const bdTitle = document.getElementById("filial-breakdown-title");
+  const bdTable = document.getElementById("filial-breakdown-table");
+  const bdCloseBtn = document.getElementById("filial-breakdown-close-btn");
+
+  function abrirBreakdown(titulo, porEmpresa, campo, formatter) {
+    bdTitle.textContent = titulo;
+    if (!porEmpresa.length) {
+      bdTable.innerHTML = `<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:14px 0;">Sem dados no período.</td></tr>`;
+    } else {
+      bdTable.innerHTML = porEmpresa.map(e => `
+        <tr><td>${empresaBadgeHtml(e.Empresa)}${e.Empresa}</td><td>${formatter(e[campo])}</td></tr>
+      `).join("");
+    }
+    bdModal.classList.remove("is-hidden");
+  }
+  function fecharBreakdown() { bdModal.classList.add("is-hidden"); }
+  bdCloseBtn.addEventListener("click", fecharBreakdown);
+  bdModal.addEventListener("click", (e) => { if (e.target === bdModal) fecharBreakdown(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !bdModal.classList.contains("is-hidden")) fecharBreakdown(); });
+
+  const kpiCards = {
+    "kpi-fat-dia": () => abrirBreakdown("Faturamento do dia por filial", resumo.Hoje.PorEmpresa, "Faturamento", fmtMoney),
+    "kpi-fat-mes": () => abrirBreakdown("Faturamento do mês por filial", resumo.Mes.PorEmpresa, "Faturamento", fmtMoney),
+    "kpi-prod-dia": () => abrirBreakdown("Produtos vendidos no dia por filial", resumo.Hoje.PorEmpresa, "Produtos", (v) => fmtNum(v)),
+    "kpi-prod-mes": () => abrirBreakdown("Produtos vendidos no mês por filial", resumo.Mes.PorEmpresa, "Produtos", (v) => fmtNum(v)),
+    "kpi-fat-projecao": () => abrirBreakdown("Projeção de faturamento mensal por filial", resumo.Projecao.PorEmpresa, "Faturamento", fmtMoney),
+    "kpi-prod-projecao": () => abrirBreakdown("Projeção de quantidade de vendas mensal por filial", resumo.Projecao.PorEmpresa, "Produtos", (v) => fmtNum(v)),
+    "kpi-funil-sla": () => abrirBreakdown("% processados em até 24h, por filial", funilPorFilial, "SlaPct", (v) => v === null ? "—" : `${fmtNum(v, 1)}%`),
+    "kpi-funil-tempo": () => abrirBreakdown("Tempo médio de processamento, por filial", funilPorFilial, "TempoMedio", (v) => v === null ? "—" : fmtTempo(v)),
+    "kpi-funil-pendentes": () => abrirBreakdown("Pedidos pendentes em aberto, por filial", funilPorFilial, "Pendentes", (v) => fmtNum(v)),
+    "kpi-funil-atraso": () => abrirBreakdown("Pendentes há mais de 48h, por filial", funilPorFilial, "Atraso", (v) => fmtNum(v))
+  };
+  for (const id in kpiCards) {
+    const el = document.getElementById(id);
+    el.addEventListener("click", kpiCards[id]);
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); kpiCards[id](); } });
+  }
+
+  // lista de pedidos
+  const pedEmpresa = document.getElementById("ped-empresa");
+  const pedPeriodo = document.getElementById("ped-periodo");
+  const pedBusca = document.getElementById("ped-busca");
+  const tbody = document.getElementById("tbody-ped");
+  const resultCount = document.getElementById("result-count-ped");
+
+  const empresasPed = [...new Set(RAW_PEDIDOS.map(p => p.Empresa))].sort();
+  for (const e of empresasPed) {
+    const opt = document.createElement("option");
+    opt.value = e; opt.textContent = e;
+    pedEmpresa.appendChild(opt);
+  }
+
+  let sortKey = null; // null = ordem natural (Situação: pendentes primeiro -> Filial -> Pedido desc)
+  let sortDir = 1;
+  let lastRenderedRows = [];
+
+  function passaPeriodo(p, periodo) {
+    if (periodo === "todos") return true;
+    if (!p.DataPedido) return false;
+    if (periodo === "hoje") return p.DataPedido === TODAY_ISO_STR;
+    if (periodo === "mes") return p.DataPedido.slice(0, 7) === TODAY_ISO_STR.slice(0, 7);
+    return true;
+  }
+
+  function render() {
+    const empresaVal = pedEmpresa.value;
+    const periodoVal = pedPeriodo.value;
+    const buscaVal = pedBusca.value.trim().toLowerCase();
+
+    let rows = RAW_PEDIDOS.filter(p => {
+      if (empresaVal && p.Empresa !== empresaVal) return false;
+      if (buscaVal) {
+        const alvo = `${p.Pedido} ${p.Vendedor || ""}`.toLowerCase();
+        if (!alvo.includes(buscaVal)) return false;
+      }
+      // pendente ignora o filtro de periodo de proposito - precisa aparecer sempre, nao importa
+      // ha quanto tempo foi digitado (pedido 3.o) - so processado respeita o filtro de periodo.
+      if (!p.Pendente && !passaPeriodo(p, periodoVal)) return false;
+      return true;
+    });
+
+    if (sortKey) {
+      rows.sort((a, b) => {
+        if (a.Pendente !== b.Pendente) return a.Pendente ? -1 : 1;
+        let av = a[sortKey], bv = b[sortKey];
+        if (av === null || av === undefined) av = sortDir === 1 ? Infinity : -Infinity;
+        if (bv === null || bv === undefined) bv = sortDir === 1 ? Infinity : -Infinity;
+        if (typeof av === "string") return av.localeCompare(bv) * sortDir;
+        return (av - bv) * sortDir;
+      });
+    } else {
+      // ordem padrao pedida pelo usuario: Situação (PENDENTE primeiro) -> Filial -> Pedido
+      // (descendente) - mesma regra dentro de PENDENTE e dentro de PROCESSADO.
+      rows.sort((a, b) => {
+        if (a.Pendente !== b.Pendente) return a.Pendente ? -1 : 1;
+        const empresaCompare = (a.Empresa || "").localeCompare(b.Empresa || "", "pt-BR");
+        if (empresaCompare !== 0) return empresaCompare;
+        return (b.Pedido || 0) - (a.Pedido || 0);
+      });
+    }
+
+    resultCount.textContent = `${rows.length} de ${RAW_PEDIDOS.length} pedidos`;
+    tbody.innerHTML = "";
+    document.getElementById("empty-state-ped").style.display = rows.length ? "none" : "block";
+
+    for (const p of rows) {
+      const tr = document.createElement("tr");
+      tr.className = p.Pendente ? "row-danger" : "";
+      const digitadoTxt = p.DataDigitacao ? `${fmtDate(p.DataDigitacao)} ${p.HoraDigitacao || ""}` : "—";
+      const processadoTxt = p.DataProcessamento ? `${fmtDate(p.DataProcessamento)} ${p.HoraProcessamento || ""}` : "—";
+      const tempoTxt = p.Pendente
+        ? (p.TempoAbertoMin !== null ? `⏳ em aberto há ${fmtTempo(p.TempoAbertoMin)}` : "—")
+        : fmtTempo(p.TempoProcessamentoMin);
+      const clienteTxt = p.Cliente
+        ? `<span class="ped-cliente-link" data-empresa="${p.CodEmpresa}" data-pedido="${p.Pedido}">${p.Cliente}</span>`
+        : "—";
+      tr.innerHTML = `
+        <td>${empresaBadgeHtml(p.Empresa)}</td>
+        <td class="num-cell">${p.Pedido}</td>
+        <td>${clienteTxt}</td>
+        <td>${p.Vendedor || "—"}</td>
+        <td>${digitadoTxt}</td>
+        <td>${processadoTxt}</td>
+        <td>${tempoTxt}</td>
+        <td><span class="chip ${p.Pendente ? "c-danger" : "c-ok"}">${p.Pendente ? "PENDENTE" : "PROCESSADO"}</span></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    document.querySelectorAll("#tab-content-pedidos th[data-key] .sort-arrow").forEach(el => el.textContent = "");
+    if (sortKey) {
+      const activeTh = document.querySelector(`#tab-content-pedidos th[data-key="${sortKey}"] .sort-arrow`);
+      if (activeTh) activeTh.textContent = sortDir === 1 ? "▲" : "▼";
+    }
+
+    lastRenderedRows = rows;
+  }
+
+  document.querySelectorAll("#tab-content-pedidos th[data-key] button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.parentElement.dataset.key;
+      if (key === "_tempoOrdenacao") {
+        sortKey = null; // "Tempo" nao tem campo unico pra ordenar (pendente x processado usam campos
+        // diferentes) - clicar nesse cabecalho so volta pra ordem padrao (Situação -> Filial -> Pedido)
+      } else if (sortKey === key) {
+        sortDir *= -1;
+      } else {
+        sortKey = key; sortDir = 1;
+      }
+      render();
+    });
+  });
+
+  pedEmpresa.addEventListener("change", () => { renderKpisPedidos(); render(); });
+  pedPeriodo.addEventListener("change", render);
+  pedBusca.addEventListener("input", render);
+
+  document.getElementById("clear-filters-ped").addEventListener("click", () => {
+    pedEmpresa.value = ""; pedPeriodo.value = "hoje"; pedBusca.value = "";
+    sortKey = null; sortDir = 1;
+    renderKpisPedidos();
+    render();
+  });
+
+  document.getElementById("copy-ped-btn").addEventListener("click", () => {
+    const headers = ["Empresa", "Pedido", "Cliente", "Vendedor", "Digitado em", "Hora Digitação", "Processado em", "Hora Processamento", "Tempo (min)", "Situação"];
+    const rowsOut = lastRenderedRows.map(p => [
+      p.Empresa, p.Pedido, p.Cliente || "", p.Vendedor || "", p.DataDigitacao || "", p.HoraDigitacao || "",
+      p.DataProcessamento || "", p.HoraProcessamento || "",
+      p.Pendente ? p.TempoAbertoMin : p.TempoProcessamentoMin,
+      p.Pendente ? "PENDENTE" : "PROCESSADO"
+    ]);
+    copyToExcel(headers, rowsOut, document.getElementById("copy-ped-status"));
+  });
+
+  // popup de cliente + itens do pedido, ao clicar no nome do cliente na tabela (so existe quando
+  // o pedido tem vinculo achado em VENDAS_CLIENTES)
+  const pcModal = document.getElementById("pedido-cliente-modal");
+  const pcTitle = document.getElementById("pedido-cliente-title");
+  const pcSub = document.getElementById("pedido-cliente-sub");
+  const pcInfoTable = document.getElementById("pedido-cliente-info-table");
+  const pcItensTable = document.getElementById("pedido-cliente-itens-table");
+  const pcCloseBtn = document.getElementById("pedido-cliente-close-btn");
+
+  function abrirPedidoCliente(codEmpresa, pedidoNum) {
+    const p = RAW_PEDIDOS.find(x => String(x.CodEmpresa) === String(codEmpresa) && String(x.Pedido) === String(pedidoNum));
+    if (!p) return;
+    const clienteFull = RAW_CLIENTES.find(c => String(c.CodEmpresa) === String(p.CodEmpresa) && String(c.CodcCliente) === String(p.CodcCliente));
+
+    pcTitle.textContent = p.Cliente || "Cliente";
+    pcSub.innerHTML = clienteFull
+      ? `${empresaBadgeHtml(p.Empresa)} ${p.Empresa}${segmentoTagHtml(clienteFull.Segmento)}${situacaoBadgeHtml(clienteFull.Situacao)}${cidadeUfHtml(clienteFull.Cidade, clienteFull.UF)}`
+      : `${empresaBadgeHtml(p.Empresa)} ${p.Empresa}`;
+
+    const tempoTxt = p.Pendente
+      ? (p.TempoAbertoMin !== null ? `⏳ em aberto há ${fmtTempo(p.TempoAbertoMin)}` : "—")
+      : fmtTempo(p.TempoProcessamentoMin);
+    pcInfoTable.innerHTML = `
+      <tr><td>Pedido</td><td>${p.Pedido}</td></tr>
+      <tr><td>Situação</td><td><span class="chip ${p.Pendente ? "c-danger" : "c-ok"}">${p.Pendente ? "PENDENTE" : "PROCESSADO"}</span></td></tr>
+      <tr><td>Vendedor</td><td>${p.Vendedor || "—"}</td></tr>
+      <tr><td>Digitado em</td><td>${p.DataDigitacao ? fmtDate(p.DataDigitacao) + " " + (p.HoraDigitacao || "") : "—"}</td></tr>
+      <tr><td>Processado em</td><td>${p.DataProcessamento ? fmtDate(p.DataProcessamento) + " " + (p.HoraProcessamento || "") : "—"}</td></tr>
+      <tr><td>Tempo</td><td>${tempoTxt}</td></tr>
+    `;
+
+    if (!p.Itens || !p.Itens.length) {
+      const msg = p.Pendente
+        ? "Pedido ainda não processado — os itens só ficam disponíveis depois que o pedido vira venda."
+        : "Sem itens vinculados a este pedido.";
+      pcItensTable.innerHTML = `<tr><td style="text-align:center;color:var(--text-muted);padding:10px 0;">${msg}</td></tr>`;
+    } else {
+      const header = `<tr style="font-size:9.5px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);">
+        <td style="border-bottom:1px solid var(--border);">Produto</td>
+        <td class="num-cell" style="border-bottom:1px solid var(--border);">Qtd</td>
+        <td style="border-bottom:1px solid var(--border);">Total</td>
+      </tr>`;
+      const linhas = p.Itens.map(it => `<tr><td>${it.Produto}</td><td class="num-cell">${fmtNum(it.Qte)}</td><td>${fmtMoney(it.Total)}</td></tr>`).join("");
+      pcItensTable.innerHTML = header + linhas;
+    }
+
+    pcModal.classList.remove("is-hidden");
+  }
+  function fecharPedidoCliente() { pcModal.classList.add("is-hidden"); }
+  pcCloseBtn.addEventListener("click", fecharPedidoCliente);
+  pcModal.addEventListener("click", (e) => { if (e.target === pcModal) fecharPedidoCliente(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pcModal.classList.contains("is-hidden")) fecharPedidoCliente(); });
+
+  tbody.addEventListener("click", (e) => {
+    const link = e.target.closest(".ped-cliente-link");
+    if (!link) return;
+    abrirPedidoCliente(link.dataset.empresa, link.dataset.pedido);
+  });
+
+  window.renderPedidos = render;
+})();
+
+// ================================================================
+// ABA: VENDAS DETALHADAS
+// ================================================================
+(function initVendasDetalheTab() {
+  const segmentoSel = document.getElementById("vd-segmento");
+  const empresaSel = document.getElementById("vd-empresa");
+  const periodoSel = document.getElementById("vd-periodo");
+  const buscaInput = document.getElementById("vd-busca");
+  const tbody = document.getElementById("tbody-vd");
+  const resultCount = document.getElementById("result-count-vd");
+  const tabelaPrincipal = tbody.closest("table");
+
+  for (const s of SEGMENTOS_DISTINCT) {
+    const opt = document.createElement("option"); opt.value = s; opt.textContent = s; segmentoSel.appendChild(opt);
+  }
+  for (const e of empresas) {
+    const opt = document.createElement("option"); opt.value = e; opt.textContent = e; empresaSel.appendChild(opt);
+  }
+  const anoMesRealAtualVD = TODAY_ISO_STR.slice(0, 7);
+  const periodosSetVD = new Set(RAW_VENDAS_DETALHE.map(v => v.AnoMes));
+  periodosSetVD.add(anoMesRealAtualVD);
+  const periodosOrdenadosVD = [...periodosSetVD].sort().reverse();
+  for (const p of periodosOrdenadosVD) {
+    const opt = document.createElement("option");
+    opt.value = p; opt.textContent = fmtMesLabel(p) + (p === anoMesRealAtualVD ? " (atual)" : "");
+    periodoSel.appendChild(opt);
+  }
+  periodoSel.value = anoMesRealAtualVD;
+
+  let sortKey = "DataHoraProcessamento";
+  let sortDir = -1;
+  let lastRenderedRows = [];
+
+  // Segmento + Ano/Mês definem o "escopo" - Empresa e a busca textual só recortam dentro dele (o
+  // drill-down por filial precisa do escopo SEM o filtro de Empresa, senão clicar num KPI já
+  // filtrado por uma empresa mostraria só ela mesma no popup).
+  function escopoBase() {
+    const segmentoVal = segmentoSel.value;
+    const periodoVal = periodoSel.value;
+    return RAW_VENDAS_DETALHE.filter(v => {
+      if (segmentoVal && v.Segmento !== segmentoVal) return false;
+      if (periodoVal && v.AnoMes !== periodoVal) return false;
+      return true;
+    });
+  }
+
+  function porEmpresaBreakdownVD() {
+    const base = escopoBase();
+    const ehAtual = periodoSel.value === anoMesRealAtualVD;
+    const map = new Map();
+    for (const v of base) {
+      if (!map.has(v.Empresa)) map.set(v.Empresa, { Empresa: v.Empresa, Qte: 0, Total: 0 });
+      const e = map.get(v.Empresa);
+      e.Qte += v.Qte; e.Total += v.Total;
+    }
+    const diaAtualVD = today.getDate();
+    const totalDiasVD = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    return Array.from(map.values()).map(e => {
+      let projQte = e.Qte, projValor = e.Total;
+      if (ehAtual && diaAtualVD > 0) { projQte = (e.Qte / diaAtualVD) * totalDiasVD; projValor = (e.Total / diaAtualVD) * totalDiasVD; }
+      return { Empresa: e.Empresa, Qte: e.Qte, Total: e.Total, ProjQte: projQte, ProjValor: projValor };
+    }).sort((a, b) => a.Empresa.localeCompare(b.Empresa, "pt-BR"));
+  }
+
+  function abrirBreakdownVD(titulo, linhas, campo, formatter) {
+    const bdModal = document.getElementById("filial-breakdown-modal");
+    const bdTitle = document.getElementById("filial-breakdown-title");
+    const bdTable = document.getElementById("filial-breakdown-table");
+    bdTitle.textContent = titulo;
+    bdTable.innerHTML = linhas.length
+      ? linhas.map(e => `<tr><td>${empresaBadgeHtml(e.Empresa)}${e.Empresa}</td><td>${formatter(e[campo])}</td></tr>`).join("")
+      : `<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:14px 0;">Sem dados no escopo.</td></tr>`;
+    bdModal.classList.remove("is-hidden");
+  }
+
+  function render() {
+    const empresaVal = empresaSel.value;
+    const buscaVal = buscaInput.value.trim().toLowerCase();
+    const periodoVal = periodoSel.value;
+    const ehMesAtual = periodoVal === anoMesRealAtualVD;
+
+    document.getElementById("lbl-vd-projqte").textContent = ehMesAtual ? "Projeção de unidades no mês" : "Unidades no mês (fechado)";
+    document.getElementById("lbl-vd-projvalor").textContent = ehMesAtual ? "Projeção de valor no mês" : "Valor no mês (fechado)";
+
+    const base = escopoBase();
+    const kpiScope = empresaVal ? base.filter(v => v.Empresa === empresaVal) : base;
+    const totalQte = kpiScope.reduce((s, v) => s + v.Qte, 0);
+    const totalValor = kpiScope.reduce((s, v) => s + v.Total, 0);
+    let projQte = totalQte, projValor = totalValor;
+    if (ehMesAtual) {
+      const diaAtualVD = today.getDate();
+      const totalDiasVD = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+      if (diaAtualVD > 0) { projQte = (totalQte / diaAtualVD) * totalDiasVD; projValor = (totalValor / diaAtualVD) * totalDiasVD; }
+    }
+    document.getElementById("num-vd-qte").textContent = fmtNum(totalQte);
+    document.getElementById("num-vd-valor").textContent = fmtMoney(totalValor);
+    document.getElementById("num-vd-projqte").textContent = fmtNum(projQte);
+    document.getElementById("num-vd-projvalor").textContent = fmtMoney(projValor);
+
+    let rows = base.filter(v => {
+      if (empresaVal && v.Empresa !== empresaVal) return false;
+      if (buscaVal) {
+        const alvo = `${v.Pedido} ${v.CodcCliente} ${v.Cliente} ${v.Produto}`.toLowerCase();
+        if (!alvo.includes(buscaVal)) return false;
+      }
+      return true;
+    });
+
+    // CidadeUF e DataHoraProcessamento não são campos reais da linha - montam na hora pra poder
+    // ordenar por eles também. DataHoraProcessamento vem de CONSULTA_PEDIDOS_A_PROCESSAR (data/hora
+    // real do processamento do pedido, não a DataSaida) e é o critério de ordenação padrão da aba,
+    // por pedido explícito do usuário (desconsidera qualquer outro critério como padrão).
+    function cidadeUfTexto(v) { return v.Cidade && v.UF ? `${v.Cidade}-${v.UF}` : (v.Cidade || v.UF || ""); }
+    function dataHoraProcTexto(v) { return v.DataProcessamento ? `${v.DataProcessamento} ${v.HoraProcessamento || "00:00"}` : ""; }
+
+    rows.sort((a, b) => {
+      let av, bv;
+      if (sortKey === "CidadeUF") { av = cidadeUfTexto(a); bv = cidadeUfTexto(b); }
+      else if (sortKey === "DataHoraProcessamento") { av = dataHoraProcTexto(a); bv = dataHoraProcTexto(b); }
+      else { av = a[sortKey]; bv = b[sortKey]; }
+      if (av === null || av === undefined || av === "") av = sortDir === 1 ? "￿" : "";
+      if (bv === null || bv === undefined || bv === "") bv = sortDir === 1 ? "￿" : "";
+      let cmp;
+      if (typeof av === "string") cmp = av.localeCompare(bv) * sortDir;
+      else cmp = (av - bv) * sortDir;
+      // Desempate quando processamento cai no mesmo minuto (ou nenhum dos dois tem processamento
+      // ainda): Empresa antes de Pedido porque cada empresa tem sua própria sequência de numeração
+      // (pedido 50 da empresa A não é comparável com pedido 200 da empresa B).
+      if (cmp === 0 && sortKey === "DataHoraProcessamento") {
+        cmp = a.Empresa.localeCompare(b.Empresa, "pt-BR");
+        if (cmp === 0) cmp = (b.Pedido - a.Pedido);
+      }
+      return cmp;
+    });
+
+    resultCount.textContent = `${fmtNum(rows.length)} de ${fmtNum(base.length)} vendas`;
+    document.getElementById("empty-state-vd").style.display = rows.length ? "none" : "block";
+
+    const frag = document.createDocumentFragment();
+    for (const v of rows) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${empresaBadgeHtml(v.Empresa)}</td>
+        <td class="num-cell">${v.Pedido}</td>
+        <td>${fmtDate(v.Data)}</td>
+        <td>${v.DataProcessamento ? `${fmtDate(v.DataProcessamento)}<br>${v.HoraProcessamento || ""}` : "—"}</td>
+        <td>${cidadeUfTexto(v) || "—"}</td>
+        <td class="produto-name">${v.CodcCliente} - ${v.Cliente}${segmentoTagHtml(v.Segmento)}${situacaoBadgeHtml(v.Situacao)}</td>
+        <td>${v.Produto}</td>
+        <td class="num-cell">${fmtNum(v.Qte)}</td>
+        <td class="num-cell">${fmtNum(v.VrUnit, 2)}</td>
+        <td class="num-cell">${fmtNum(v.Total, 2)}</td>
+      `;
+      frag.appendChild(tr);
+    }
+    tbody.innerHTML = "";
+    tbody.appendChild(frag);
+
+    tabelaPrincipal.querySelectorAll("th[data-key] .sort-arrow").forEach(el => el.textContent = "");
+    const activeTh = tabelaPrincipal.querySelector(`th[data-key="${sortKey}"] .sort-arrow`);
+    if (activeTh) activeTh.textContent = sortDir === 1 ? "▲" : "▼";
+
+    lastRenderedRows = rows;
+
+  }
+
+  // Sumarização (SKU x Segmento) em pop-up, sob demanda - mesmo escopo já filtrado da tabela
+  // principal (lastRenderedRows, atualizado a cada render()). Tags no topo do modal mostram só os
+  // filtros de fato aplicados (Segmento/Empresa) na mesma ordem em que aparecem no formulário de
+  // filtros; Ano/Mês sempre aparece porque esta aba não tem opção "todos os períodos".
+  function filtroTagHtml(label, valor) {
+    return `<span class="filtro-ativo-tag">${label}: <b>${valor}</b></span>`;
+  }
+
+  function abrirSumarizacaoVD() {
+    // Agrupa só por Produto - não quebra por Segmento (se um Segmento estiver filtrado, a TAG acima
+    // já indica isso; sem filtro, o total já é a soma de todos os segmentos, pedido explícito do
+    // usuário pra não fragmentar a mesma linha de produto em várias por segmento).
+    const skuMap = new Map();
+    for (const v of lastRenderedRows) {
+      if (!skuMap.has(v.Produto)) skuMap.set(v.Produto, { Produto: v.Produto, Qte: 0, Total: 0 });
+      const e = skuMap.get(v.Produto);
+      e.Qte += v.Qte; e.Total += v.Total;
+    }
+    const skuRows = Array.from(skuMap.values()).sort((a, b) => b.Total - a.Total);
+
+    const tags = [];
+    if (segmentoSel.value) tags.push(filtroTagHtml("Segmento", segmentoSel.value));
+    if (empresaSel.value) tags.push(filtroTagHtml("Empresa", empresaSel.value));
+    const periodoLabel = fmtMesLabel(periodoSel.value) + (periodoSel.value === anoMesRealAtualVD ? " (atual)" : "");
+    tags.push(filtroTagHtml("Ano/Mês", periodoLabel));
+    document.getElementById("vd-sumarizacao-tags").innerHTML = tags.join("");
+
+    document.getElementById("tbody-vd-sumarizacao").innerHTML = skuRows.length
+      ? skuRows.map(r => `<tr><td title="${r.Produto}">${r.Produto}</td><td class="num">${fmtNum(r.Qte)}</td><td class="num">${fmtMoney(r.Total)}</td></tr>`).join("")
+      : `<tr><td colspan="3"><div class="ranking-empty">Sem vendas no escopo.</div></td></tr>`;
+
+    document.getElementById("vd-sumarizacao-modal").classList.remove("is-hidden");
+  }
+
+  tabelaPrincipal.querySelectorAll("th[data-key] button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.parentElement.dataset.key;
+      if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = (key === "Data" || key === "DataHoraProcessamento") ? -1 : 1; }
+      render();
+    });
+  });
+
+  const kpiCardsVD = {
+    "kpi-vd-qte": () => abrirBreakdownVD("Unidades vendidas por filial", porEmpresaBreakdownVD(), "Qte", (v) => fmtNum(v)),
+    "kpi-vd-valor": () => abrirBreakdownVD("Valor vendido por filial", porEmpresaBreakdownVD(), "Total", fmtMoney),
+    "kpi-vd-projqte": () => abrirBreakdownVD(document.getElementById("lbl-vd-projqte").textContent + " por filial", porEmpresaBreakdownVD(), "ProjQte", (v) => fmtNum(v)),
+    "kpi-vd-projvalor": () => abrirBreakdownVD(document.getElementById("lbl-vd-projvalor").textContent + " por filial", porEmpresaBreakdownVD(), "ProjValor", fmtMoney)
+  };
+  for (const id in kpiCardsVD) {
+    const el = document.getElementById(id);
+    el.addEventListener("click", kpiCardsVD[id]);
+    el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); kpiCardsVD[id](); } });
+  }
+
+  segmentoSel.addEventListener("change", render);
+  empresaSel.addEventListener("change", render);
+  periodoSel.addEventListener("change", render);
+  buscaInput.addEventListener("input", render);
+
+  const sumarizacaoModal = document.getElementById("vd-sumarizacao-modal");
+  document.getElementById("vd-sumarizacao-btn").addEventListener("click", abrirSumarizacaoVD);
+  document.getElementById("vd-sumarizacao-close-btn").addEventListener("click", () => sumarizacaoModal.classList.add("is-hidden"));
+  sumarizacaoModal.addEventListener("click", (e) => { if (e.target === sumarizacaoModal) sumarizacaoModal.classList.add("is-hidden"); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !sumarizacaoModal.classList.contains("is-hidden")) sumarizacaoModal.classList.add("is-hidden"); });
+
+  document.getElementById("copy-vd-btn").addEventListener("click", () => {
+    const headers = ["Empresa", "Pedido", "Data", "Data Processamento", "Hora Processamento", "Cidade", "UF", "Cód. Cliente", "Cliente", "Segmento", "Situação", "Produto", "Qtde", "Valor Unitário", "Valor Total"];
+    const rowsOut = lastRenderedRows.map(v => [
+      v.Empresa, v.Pedido, v.Data, v.DataProcessamento || "", v.HoraProcessamento || "", v.Cidade || "", v.UF || "", v.CodcCliente, v.Cliente, v.Segmento || "", v.Situacao || "", v.Produto, v.Qte, v.VrUnit, v.Total
+    ]);
+    copyToExcel(headers, rowsOut, document.getElementById("copy-vd-status"));
+  });
+
+  window.renderVendasDetalhe = render;
+})();
+
+// ================================================================
+// TABS
+// ================================================================
+// ================================================================
+// ABA: ESTOQUE POR FILIAL — cópia do BI Logística (lá continua existindo). Mostra TODAS as
+// empresas pra todo usuário (RAW_ESTOQUE não é filtrado por empresa no backend).
+// ================================================================
+(function initEstoqueFilialTab() {
+  const EMPRESA_ORDER = ["MATRIZ", "BA", "CO", "MG", "NO", "SPI"];
+  function empresaOrderIndex(nomeAbrev) {
+    const idx = EMPRESA_ORDER.findIndex(o => nomeAbrev.includes(o));
+    return idx === -1 ? 999 : idx;
+  }
+  function filialLabel(nomeAbrev) { return nomeAbrev; }
+
+  const thead = document.getElementById("thead-estoquefilial");
+  const tbody = document.getElementById("tbody-estoquefilial");
+  const tfoot = document.getElementById("tfoot-estoquefilial");
+  let lastState = null;
+
+  function render() {
+    const estoqueRows = RAW_ESTOQUE
+      .filter(r => r.Produto !== "FRETE")
+      .filter(r => r.EstoqueAtual !== null && r.EstoqueAtual !== undefined);
+
+    const produtos = Array.from(new Set(estoqueRows.map(r => r.Produto))).sort((a, b) => a.localeCompare(b, "pt-BR"));
+    const empresas = Array.from(new Set(estoqueRows.map(r => r.Empresa))).sort((a, b) => {
+      const ra = empresaOrderIndex(empresaAbrev(a));
+      const rb = empresaOrderIndex(empresaAbrev(b));
+      if (ra !== rb) return ra - rb;
+      return empresaAbrev(a).localeCompare(empresaAbrev(b), "pt-BR");
+    });
+
+    const estoqueMap = {};
+    for (const r of estoqueRows) {
+      estoqueMap[r.Produto] = estoqueMap[r.Produto] || {};
+      estoqueMap[r.Produto][r.Empresa] = (estoqueMap[r.Produto][r.Empresa] || 0) + Number(r.EstoqueAtual || 0);
+    }
+
+    const transitoRotas = [];
+    const transitoRotasSeen = new Set();
+    const transitoMap = {};
+    RAW_TRANSFERENCIAS.filter(r => !r.AceiteDado).forEach(r => {
+      const rotaKey = `${r.EmpresaOrigem}→${r.EmpresaDestino}`;
+      if (!transitoRotasSeen.has(rotaKey)) {
+        transitoRotasSeen.add(rotaKey);
+        transitoRotas.push({
+          key: rotaKey,
+          label: `EM TRÂNSITO<br>${filialLabel(empresaAbrev(r.EmpresaOrigem))} → ${filialLabel(empresaAbrev(r.EmpresaDestino))}`,
+          labelFlat: `EM TRÂNSITO ${filialLabel(empresaAbrev(r.EmpresaOrigem))} → ${filialLabel(empresaAbrev(r.EmpresaDestino))}`,
+        });
+      }
+      transitoMap[rotaKey] = transitoMap[rotaKey] || {};
+      transitoMap[rotaKey][r.Produto] = (transitoMap[rotaKey][r.Produto] || 0) + Number(r.Qte || 0);
+    });
+    transitoRotas.sort((a, b) => a.key.localeCompare(b.key, "pt-BR"));
+
+    const empresaCols = empresas.map(e => ({ key: e, label: filialLabel(empresaAbrev(e)), labelFlat: filialLabel(empresaAbrev(e)), isTransito: false }));
+    const allCols = [...empresaCols, ...transitoRotas.map(t => ({ ...t, isTransito: true }))];
+
+    thead.innerHTML = `<tr><th>CHIPS</th>${allCols.map(c => `<th class="num-cell"${c.isTransito ? ' style="color:var(--warning);"' : ""}>${c.label}</th>`).join("")}<th class="num-cell">Total Geral</th></tr>`;
+
+    const colTotals = {};
+    allCols.forEach(c => colTotals[c.key] = 0);
+    let grandTotal = 0;
+    let bodyHtml = "";
+    for (const produto of produtos) {
+      let rowTotal = 0;
+      const cellsHtml = allCols.map(c => {
+        const v = c.isTransito
+          ? ((transitoMap[c.key] && transitoMap[c.key][produto]) || 0)
+          : ((estoqueMap[produto] && estoqueMap[produto][c.key]) || 0);
+        rowTotal += v;
+        colTotals[c.key] += v;
+        return `<td class="num-cell"${c.isTransito ? ' style="color:var(--warning);"' : ""}>${v ? fmtNum(v) : "—"}</td>`;
+      }).join("");
+      grandTotal += rowTotal;
+      bodyHtml += `<tr><td>${produto}</td>${cellsHtml}<td class="num-cell" style="font-weight:700;">${fmtNum(rowTotal)}</td></tr>`;
+    }
+    tbody.innerHTML = bodyHtml;
+
+    const footCells = allCols.map(c => `<td class="num-cell">${fmtNum(colTotals[c.key])}</td>`).join("");
+    tfoot.innerHTML = `<tr style="font-weight:700;"><td>Total Geral</td>${footCells}<td class="num-cell">${fmtNum(grandTotal)}</td></tr>`;
+
+    document.getElementById("result-count-estoquefilial").textContent =
+      `${produtos.length} produtos × ${empresas.length} filiais` + (transitoRotas.length ? ` + ${transitoRotas.length} rota(s) em trânsito` : "");
+
+    lastState = { produtos, allCols, estoqueMap, transitoMap, colTotals, grandTotal };
+  }
+
+  document.getElementById("copy-estoquefilial-btn").addEventListener("click", () => {
+    if (!lastState) return;
+    const { produtos, allCols, estoqueMap, transitoMap, colTotals, grandTotal } = lastState;
+    const headers = ["CHIPS", ...allCols.map(c => c.labelFlat), "Total Geral"];
+    const rows = produtos.map(p => {
+      let rowTotal = 0;
+      const cells = allCols.map(c => {
+        const v = c.isTransito ? ((transitoMap[c.key] && transitoMap[c.key][p]) || 0) : ((estoqueMap[p] && estoqueMap[p][c.key]) || 0);
+        rowTotal += v;
+        return v;
+      });
+      return [p, ...cells, rowTotal];
+    });
+    rows.push(["Total Geral", ...allCols.map(c => colTotals[c.key]), grandTotal]);
+    copyToExcel(headers, rows, document.getElementById("copy-estoquefilial-status"));
+  });
+
+  window.renderEstoqueFilial = render;
+})();
+
+(function initTabs() {
+  const tabs = ["pedidos", "vendas-detalhe", "estoquefilial"];
+  const btns = {}, contents = {};
+  for (const t of tabs) {
+    btns[t] = document.getElementById("tab-btn-" + t);
+    contents[t] = document.getElementById("tab-content-" + t);
+  }
+  function activate(tab) {
+    for (const t of tabs) {
+      const isActive = t === tab;
+      btns[t].classList.toggle("is-active", isActive);
+      contents[t].classList.toggle("is-hidden", !isActive);
+    }
+    if (tab === "pedidos" && window.renderPedidos) window.renderPedidos();
+    if (tab === "vendas-detalhe" && window.renderVendasDetalhe) window.renderVendasDetalhe();
+    if (tab === "estoquefilial" && window.renderEstoqueFilial) window.renderEstoqueFilial();
+  }
+  for (const t of tabs) btns[t].addEventListener("click", () => activate(t));
+})();
+
+// a aba pedidos já está visível no HTML mas seu render() depende de listeners montados na IIFE;
+// dispara uma vez no load.
+if (window.renderPedidos) window.renderPedidos();
+
+// ================================================================
+// TEMA, BOTÃO ATUALIZAR, FRESCOR, SESSÃO HOSPEDADA
+// ================================================================
+(function initThemeToggle() {
+  const root = document.documentElement;
+  const btn = document.getElementById("theme-toggle");
+  const icon = btn.querySelector(".theme-icon");
+  const STORAGE_KEY = "bi-operacional-theme";
+  function systemPrefersDark() { return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; }
+  function effectiveTheme() {
+    const forced = root.getAttribute("data-theme");
+    if (forced === "dark" || forced === "light") return forced;
+    return systemPrefersDark() ? "dark" : "light";
+  }
+  function paintButton(theme) {
+    if (theme === "dark") {
+      icon.textContent = "☀️"; btn.classList.remove("is-moon"); btn.classList.add("is-sun");
+      btn.setAttribute("aria-pressed", "true"); btn.title = "Mudar para tela clara";
+    } else {
+      icon.textContent = "🌙"; btn.classList.remove("is-sun"); btn.classList.add("is-moon");
+      btn.setAttribute("aria-pressed", "false"); btn.title = "Mudar para tela escura";
+    }
+  }
+  let saved = null;
+  try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) { saved = null; }
+  if (saved === "dark" || saved === "light") root.setAttribute("data-theme", saved);
+  paintButton(effectiveTheme());
+  btn.addEventListener("click", () => {
+    const next = effectiveTheme() === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    paintButton(next);
+  });
+})();
+
+(function initRefreshButton() {
+  const btn = document.getElementById("refresh-page-btn");
+  if (!btn) return;
+  btn.addEventListener("click", () => { btn.disabled = true; location.reload(); });
+})();
+
+(function initFreshnessIndicator() {
+  const dot = document.getElementById("freshness-dot");
+  const ageEl = document.getElementById("freshness-age");
+  if (!dot || !ageEl) return;
+  function parsePtBrDateTime(str) {
+    if (!str) return null;
+    const [datePart, timePart] = str.split(" ");
+    if (!datePart) return null;
+    const [d, m, y] = datePart.split("/").map(Number);
+    const [hh, mm, ss] = (timePart || "00:00:00").split(":").map(Number);
+    return new Date(y, m - 1, d, hh, mm || 0, ss || 0);
+  }
+  const processedAt = parsePtBrDateTime("__PROCESSADO_EM__");
+  function render() {
+    if (!processedAt) { ageEl.textContent = ""; return; }
+    const diffMin = Math.round((Date.now() - processedAt.getTime()) / 60000);
+    let cls = "is-fresh", label = "Atualizado recentemente pela rotina automática";
+    if (diffMin > 30) { cls = "is-stale"; label = "Atualização atrasada — a rotina automática pode não estar rodando"; }
+    else if (diffMin > 15) { cls = "is-warning"; label = "Atualização um pouco atrasada"; }
+    dot.className = "freshness-dot " + cls;
+    dot.title = label;
+    const badge = document.getElementById("update-badge");
+    if (badge) badge.title = label;
+    ageEl.textContent = diffMin <= 0 ? "· agora mesmo" : diffMin === 1 ? "· há 1 min" : `· há ${diffMin} min`;
+  }
+  render();
+  setInterval(render, 30000);
+})();
+
+// Botão "Atualizar dados" — só existe de verdade rodando local via local_server.js (localhost).
+// No link público do Artifact (domínio claude.ai) o hostname nunca é localhost, então o botão fica
+// escondido e nada disto é chamado — o Artifact publicado não tem acesso ao Access nem ao PowerShell.
+(function initLocalUpdateButton() {
+  const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+  const btn = document.getElementById("local-update-btn");
+  if (!isLocal) return;
+  btn.classList.remove("is-hidden");
+  const modal = document.getElementById("local-update-modal");
+  const etapaEl = document.getElementById("local-update-etapa");
+  const fillEl = document.getElementById("local-update-bar-fill");
+  const pctEl = document.getElementById("local-update-pct");
+  const closeBtn = document.getElementById("local-update-close-btn");
+  let polling = null;
+  function openModal() { modal.classList.remove("is-hidden"); closeBtn.disabled = true; }
+  function closeModal() { modal.classList.add("is-hidden"); }
+  closeBtn.addEventListener("click", closeModal);
+  function setBar(percent, etapa, variant) {
+    fillEl.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+    fillEl.classList.toggle("is-error", variant === "error");
+    fillEl.classList.toggle("is-warning", variant === "warning");
+    pctEl.textContent = `${Math.round(percent)}%`;
+    etapaEl.textContent = etapa;
+  }
+  function stopPolling() { if (polling) { clearInterval(polling); polling = null; } }
+  function onFalha(msg) { setBar(0, msg, "error"); closeBtn.disabled = false; btn.disabled = false; stopPolling(); }
+  async function poll() {
+    try {
+      const res = await fetch("/api/progresso", { cache: "no-store" });
+      const data = await res.json();
+      if (data.status === "erro") { onFalha(data.etapa || "Erro na atualização."); return; }
+      setBar(data.percent || 0, data.etapa || "Processando...", "");
+      if (data.status === "concluido") {
+        stopPolling(); setBar(100, "Concluído! Recarregando...", "");
+        setTimeout(() => location.reload(), 900);
+      }
+      if (data.status === "concluido_sem_sync") {
+        stopPolling();
+        setBar(100, data.etapa || "Dados locais atualizados, mas a sincronização com o Render falhou.", "warning");
+        closeBtn.disabled = false;
+        setTimeout(() => location.reload(), 3500);
+      }
+    } catch (err) { onFalha("Não foi possível falar com o servidor local."); }
+  }
+  btn.addEventListener("click", async () => {
+    btn.disabled = true; openModal(); setBar(0, "Iniciando...", false);
+    try {
+      const res = await fetch("/api/atualizar", { method: "POST" });
+      if (!res.ok) throw new Error("falha ao iniciar");
+    } catch (err) { onFalha("Não foi possível iniciar a atualização."); return; }
+    stopPolling();
+    polling = setInterval(poll, 900);
+    poll();
+  });
+})();
+
+// Badge com o nome do usuário + botão "Sair" — só aparece na versão hospedada (Render).
+(function initHostedSession() {
+  if (!HOSTED_SESSION) return;
+  const badge = document.getElementById("hosted-user-badge");
+  const logoutBtn = document.getElementById("hosted-logout-btn");
+  badge.textContent = HOSTED_USER_LABEL || "Logado";
+  badge.classList.remove("is-hidden");
+  logoutBtn.classList.remove("is-hidden");
+  logoutBtn.addEventListener("click", async () => {
+    logoutBtn.disabled = true;
+    try { await fetch("/api/logout", { method: "POST" }); } catch (err) {}
+    location.href = "/login";
+  });
+})();
+</script>

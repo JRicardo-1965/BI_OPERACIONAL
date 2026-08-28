@@ -1,0 +1,18 @@
+{
+  "name": "bi-operacional-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend com login e filtro por empresa para o BI Operacional (Aqui Tem Mais)",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
