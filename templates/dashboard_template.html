@@ -1121,7 +1121,7 @@
       </div>
     </div>
 
-    <p class="tab-context-note">Funil operacional · tempo entre a digitação e o processamento do pedido, todo o histórico</p>
+    <p class="tab-context-note">Funil operacional · tempo entre a digitação e o processamento do pedido, todo o histórico · reflete o filtro de <b>Empresa</b> acima</p>
     <div class="kpis kpis-4" id="kpis-funil">
       <div class="kpi kpi-static kpi-clickable" id="kpi-funil-sla" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
         <span class="kpi-click-icon" aria-hidden="true">⤢</span>
@@ -1564,6 +1564,47 @@ function cidadeUfHtml(cidade, uf) {
     return linha ? { Faturamento: linha.Faturamento, Produtos: linha.Produtos } : { Faturamento: 0, Produtos: 0 };
   }
 
+  // ---- Funil operacional — reflete o filtro de Empresa (igual aos KPIs de cima).
+  // Período/Busca continuam só filtrando a lista de pedidos abaixo. ----
+  const SLA_MINUTOS = 24 * 60;
+  const ATRASO_MINUTOS = 48 * 60;
+
+  function calcFunil(pedidos) {
+    const proc = pedidos.filter(p => !p.Pendente && p.TempoProcessamentoMin !== null && p.TempoProcessamentoMin !== undefined);
+    const pend = pedidos.filter(p => p.Pendente);
+    const dentroSla = proc.filter(p => p.TempoProcessamentoMin <= SLA_MINUTOS).length;
+    return {
+      slaPct: proc.length ? Math.round((dentroSla / proc.length) * 1000) / 10 : null,
+      tempoMedio: proc.length ? proc.reduce((s, p) => s + p.TempoProcessamentoMin, 0) / proc.length : null,
+      pendentes: pend.length,
+      atraso: pend.filter(p => p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined && p.TempoAbertoMin > ATRASO_MINUTOS).length
+    };
+  }
+
+  function renderFunil(empresaVal) {
+    const escopo = empresaVal ? RAW_PEDIDOS.filter(p => p.Empresa === empresaVal) : RAW_PEDIDOS;
+    const f = calcFunil(escopo);
+    document.getElementById("total-funil-sla").textContent = f.slaPct === null ? "—" : `${fmtNum(f.slaPct, 1)}%`;
+    document.getElementById("total-funil-tempo").textContent = f.tempoMedio === null ? "—" : fmtTempo(f.tempoMedio);
+    document.getElementById("total-funil-pendentes").textContent = fmtNum(f.pendentes);
+    document.getElementById("total-funil-atraso").textContent = fmtNum(f.atraso);
+  }
+
+  // breakdown por filial (usado nos pop-ups dos 4 cards do funil) - sempre mostra todas as
+  // filiais, independente da empresa selecionada, igual aos pop-ups dos cards de faturamento.
+  function porFilialFunil() {
+    const porEmpresa = new Map();
+    for (const p of RAW_PEDIDOS) {
+      if (!porEmpresa.has(p.Empresa)) porEmpresa.set(p.Empresa, []);
+      porEmpresa.get(p.Empresa).push(p);
+    }
+    return [...porEmpresa.entries()].map(([Empresa, lista]) => {
+      const f = calcFunil(lista);
+      return { Empresa, SlaPct: f.slaPct, TempoMedio: f.tempoMedio, Pendentes: f.pendentes, Atraso: f.atraso };
+    }).sort((a, b) => a.Empresa.localeCompare(b.Empresa, "pt-BR"));
+  }
+  const funilPorFilial = porFilialFunil();
+
   function renderKpisPedidos() {
     const empresaVal = document.getElementById("ped-empresa").value;
     const hoje = valorPorEmpresa(resumo.Hoje, empresaVal);
@@ -1575,43 +1616,9 @@ function cidadeUfHtml(cidade, uf) {
     document.getElementById("total-prod-mes").textContent = fmtNum(mes.Produtos);
     document.getElementById("total-fat-projecao").textContent = fmtMoney(projecao.Faturamento);
     document.getElementById("total-prod-projecao").textContent = fmtNum(projecao.Produtos);
+    renderFunil(empresaVal);
   }
   renderKpisPedidos();
-
-  // ---- Funil operacional (todo o histórico de RAW_PEDIDOS, não só hoje/mês) ----
-  const SLA_MINUTOS = 24 * 60;
-  const ATRASO_MINUTOS = 48 * 60;
-  const processados = RAW_PEDIDOS.filter(p => !p.Pendente && p.TempoProcessamentoMin !== null && p.TempoProcessamentoMin !== undefined);
-  const pendentesAbertos = RAW_PEDIDOS.filter(p => p.Pendente);
-  const dentroSla = processados.filter(p => p.TempoProcessamentoMin <= SLA_MINUTOS).length;
-  const slaPct = processados.length ? Math.round((dentroSla / processados.length) * 1000) / 10 : null;
-  const tempoMedioGeral = processados.length ? processados.reduce((s, p) => s + p.TempoProcessamentoMin, 0) / processados.length : null;
-  const emAtraso = pendentesAbertos.filter(p => p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined && p.TempoAbertoMin > ATRASO_MINUTOS).length;
-  document.getElementById("total-funil-sla").textContent = slaPct === null ? "—" : `${fmtNum(slaPct, 1)}%`;
-  document.getElementById("total-funil-tempo").textContent = tempoMedioGeral === null ? "—" : fmtTempo(tempoMedioGeral);
-  document.getElementById("total-funil-pendentes").textContent = fmtNum(pendentesAbertos.length);
-  document.getElementById("total-funil-atraso").textContent = fmtNum(emAtraso);
-  function porFilialFunil() {
-    const porEmpresa = new Map();
-    function grupo(nome) {
-      if (!porEmpresa.has(nome)) porEmpresa.set(nome, { Empresa: nome, processados: [], pendentes: [], atraso: 0 });
-      return porEmpresa.get(nome);
-    }
-    for (const p of processados) grupo(p.Empresa).processados.push(p.TempoProcessamentoMin);
-    for (const p of pendentesAbertos) {
-      const g = grupo(p.Empresa);
-      g.pendentes.push(p);
-      if (p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined && p.TempoAbertoMin > ATRASO_MINUTOS) g.atraso++;
-    }
-    return [...porEmpresa.values()].map(g => ({
-      Empresa: g.Empresa,
-      SlaPct: g.processados.length ? Math.round((g.processados.filter(t => t <= SLA_MINUTOS).length / g.processados.length) * 1000) / 10 : null,
-      TempoMedio: g.processados.length ? g.processados.reduce((s, t) => s + t, 0) / g.processados.length : null,
-      Pendentes: g.pendentes.length,
-      Atraso: g.atraso
-    })).sort((a, b) => a.Empresa.localeCompare(b.Empresa, "pt-BR"));
-  }
-  const funilPorFilial = porFilialFunil();
 
   // modal de detalhamento por filial - reaproveitado pelos 4 cards, cada um so muda o titulo/dado
   const bdModal = document.getElementById("filial-breakdown-modal");
