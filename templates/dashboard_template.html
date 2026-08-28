@@ -549,6 +549,29 @@
   tbody tr:hover td { background: var(--accent-soft); }
   tbody tr.row-danger td:first-child { box-shadow: inset 3px 0 0 var(--danger); }
   tbody tr.row-warning td:first-child { box-shadow: inset 3px 0 0 var(--warning); }
+
+  /* ===== Faturamento & Pedidos: tabela cabe no painel (Situação nunca corta) ===== */
+  #ped-table { table-layout: fixed; width: 100%; min-width: 760px; }
+  #ped-table th:nth-child(1), #ped-table td:nth-child(1) { width: 8%; }
+  #ped-table th:nth-child(2), #ped-table td:nth-child(2) { width: 6%; }
+  #ped-table th:nth-child(3), #ped-table td:nth-child(3) { width: 24%; white-space: normal; word-break: break-word; }
+  #ped-table th:nth-child(4), #ped-table td:nth-child(4) { width: 16%; white-space: normal; word-break: break-word; }
+  #ped-table th:nth-child(5), #ped-table td:nth-child(5) { width: 13%; white-space: normal; }
+  #ped-table th:nth-child(6), #ped-table td:nth-child(6) { width: 13%; white-space: normal; }
+  #ped-table th:nth-child(7), #ped-table td:nth-child(7) { width: 11%; white-space: normal; }
+  #ped-table th:nth-child(8), #ped-table td:nth-child(8) { width: 9%; }
+  #ped-table td { vertical-align: top; }
+
+  /* ===== Pedidos PENDENTES: fundo de alerta na linha inteira + chip vermelho sólido ===== */
+  #tbody-ped tr.row-danger td { background: var(--danger-soft); }
+  #tbody-ped tr.row-danger:hover td { background: var(--danger-soft); }
+  #tbody-ped tr.row-danger td:first-child { box-shadow: inset 4px 0 0 var(--danger); }
+  #tbody-ped tr.row-danger .chip.c-danger {
+    background: var(--danger);
+    color: #fff;
+    font-weight: 700;
+  }
+  #tbody-ped tr.row-danger .chip.c-danger::before { background: #fff; }
   #clientes-tbody tr.row-inativo td { background: var(--danger-soft); }
   #clientes-tbody tr.row-inativo td.produto-name { color: var(--danger); }
   #clientes-tbody tr.row-inativo:hover td { background: var(--danger-soft); }
@@ -1147,7 +1170,7 @@
       </div>
 
       <div class="table-scroll">
-        <table>
+        <table id="ped-table">
           <thead>
             <tr>
               <th data-key="Empresa"><button>Empresa <span class="sort-arrow"></span></button></th>
