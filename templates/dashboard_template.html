@@ -576,7 +576,7 @@
   /* ===== Painel de resumo por filial (Pendentes / Processados), 1 card colorido por filial ===== */
   .filiais-resumo {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
     gap: 10px;
     margin-bottom: 12px;
   }
@@ -1143,6 +1143,13 @@
     <!-- ===================== TAB: STATUS DOS PEDIDOS ===================== -->
     <div id="tab-content-status">
       <p class="tab-context-note">Status dos pedidos por filial &middot; <b>Pendentes</b> = todos os pedidos em aberto da filial — clique no bloco para ver a lista &middot; <b>Processados</b> = pedidos já processados no período escolhido (valor = soma dos itens).</p>
+      <div class="kpis kpis-5" id="status-kpis">
+        <div class="kpi kpi-static kpi-readonly k-warning"><div class="num" id="st-total-pendentes">–</div><div class="lbl">Total de pendentes</div></div>
+        <div class="kpi kpi-static kpi-readonly k-ok"><div class="num" id="st-total-processados">–</div><div class="lbl">Total de processados</div></div>
+        <div class="kpi kpi-static kpi-readonly"><div class="num" id="st-total-pedidos">–</div><div class="lbl">Total de pedidos</div></div>
+        <div class="kpi kpi-static kpi-readonly"><div class="num" id="st-total-clientes">–</div><div class="lbl">Total de clientes</div></div>
+        <div class="kpi kpi-static kpi-readonly"><div class="num" id="st-total-valor">–</div><div class="lbl">Vr. total dos pedidos</div></div>
+      </div>
       <div class="filters" style="border-radius:10px;border:1px solid var(--border);margin-bottom:12px;">
         <div class="field">
           <label for="status-empresa">Empresa</label>
@@ -1692,6 +1699,16 @@ function cidadeUfHtml(cidade, uf) {
       else if (passaPeriodoStatus(p, periodoVal)) g.proc.push(p);
     }
     const filiais = [...porFilial.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+    // KPIs de topo — resumo de tudo que está no escopo (Empresa + Período).
+    const todosPend = [], todosProc = [];
+    for (const g of porFilial.values()) { todosPend.push(...g.pend); todosProc.push(...g.proc); }
+    document.getElementById("st-total-pendentes").textContent = fmtNum(todosPend.length);
+    document.getElementById("st-total-processados").textContent = fmtNum(todosProc.length);
+    document.getElementById("st-total-pedidos").textContent = fmtNum(todosPend.length + todosProc.length);
+    document.getElementById("st-total-clientes").textContent = fmtNum(clientesDistintos(todosPend.concat(todosProc)));
+    document.getElementById("st-total-valor").textContent = fmtMoney(valorPedidos(todosProc));
+
     if (!filiais.length) {
       cont.innerHTML = `<div class="filiais-resumo-empty">Nenhum pedido encontrado.</div>`;
       return;
