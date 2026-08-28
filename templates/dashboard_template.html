@@ -1138,6 +1138,7 @@
       <button class="tab-btn" id="tab-btn-pedidos" type="button" data-tab="pedidos">Faturamento &amp; Pedidos</button>
       <button class="tab-btn" id="tab-btn-vendas-detalhe" type="button" data-tab="vendas-detalhe">Vendas Detalhadas</button>
       <button class="tab-btn" id="tab-btn-estoquefilial" type="button" data-tab="estoquefilial">Estoque por Filial</button>
+      <button class="tab-btn" id="tab-btn-acessos" type="button" data-tab="acessos">Acessos</button>
     </div>
 
     <!-- ===================== TAB: STATUS DOS PEDIDOS ===================== -->
@@ -1387,6 +1388,52 @@
     </div>
     </div>
 
+    <!-- ===================== TAB: ACESSOS ===================== -->
+    <div id="tab-content-acessos" class="is-hidden">
+      <p class="tab-context-note">
+        <b>Acessos</b> · quem acessou qual sistema e quando, via login único do Portal BI &middot; mostra <b>todos os sistemas</b>, independente do seu acesso nas demais abas.
+      </p>
+      <div class="kpis kpis-4" id="kpis-acessos">
+        <div class="kpi kpi-static"><div class="num" id="num-acessos-total">–</div><div class="lbl">Total de acessos</div></div>
+        <div class="kpi kpi-static"><div class="num" id="num-acessos-usuarios">–</div><div class="lbl">Usuários distintos</div></div>
+        <div class="kpi kpi-static"><div class="num" id="num-acessos-sistema-top" style="font-size:15px;">–</div><div class="lbl">Sistema mais acessado</div></div>
+        <div class="kpi kpi-static"><div class="num" id="num-acessos-ultimo" style="font-size:14px;">–</div><div class="lbl">Último acesso</div></div>
+      </div>
+      <div class="panel">
+        <div class="filters">
+          <div class="field">
+            <label for="acessos-sistema">Sistema</label>
+            <select id="acessos-sistema"><option value="">Todos os sistemas</option></select>
+          </div>
+          <div class="field">
+            <label for="acessos-busca">Usuário</label>
+            <input type="search" id="acessos-busca" placeholder="Buscar por e-mail..." />
+          </div>
+          <div class="spacer"></div>
+          <span class="result-count" id="result-count-acessos"></span>
+          <button class="clear-btn copy-btn" id="copy-acessos-btn" type="button">📋 Copiar para Excel</button>
+          <span class="copy-status" id="copy-acessos-status"></span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th data-key="DataHora"><button>Data/Hora <span class="sort-arrow">▼</span></button></th>
+                <th data-key="Usuario"><button>Usuário <span class="sort-arrow"></span></button></th>
+                <th data-key="Sistema"><button>Sistema <span class="sort-arrow"></span></button></th>
+                <th data-key="IP"><button>IP <span class="sort-arrow"></span></button></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-acessos"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="empty-state-acessos" style="display:none;">Nenhum acesso registrado ainda, ou nenhum corresponde aos filtros aplicados.</div>
+      </div>
+      <div class="footnote">
+        Fonte: tabela <code>LOG_ACESSOS_BI</code> no Access &middot; gravada pelo Portal BI toda vez que alguém escolhe um sistema pra entrar (login único) &middot; o histórico começa a partir de 28/08/2026, quando essa captura foi ligada — acessos anteriores a essa data não ficaram registrados.
+      </div>
+    </div>
+
     <p class="footer-note" style="font-size:10.5px;color:var(--text-faint);text-align:center;padding:4px 0 0;">BI Operacional — Aqui Tem Mais · dados processados em <b>__PROCESSADO_EM__</b></p>
   </div>
 </div>
@@ -1494,6 +1541,7 @@ const RAW_PEDIDOS_RESUMO = __PEDIDOS_RESUMO_JSON__;
 const RAW_VENDAS_DETALHE = __VENDAS_DETALHE_JSON__;
 const RAW_ESTOQUE = __ESTOQUE_JSON__;
 const RAW_TRANSFERENCIAS = __TRANSFERENCIAS_JSON__;
+const RAW_ACESSOS = __ACESSOS_JSON__;
 
 // Preenchidos só pelo backend hospedado (Render) a cada login, sessão a sessão — o build.js do
 // Artifact público e do dashboard local sempre substitui os dois por string vazia, então o bloco
@@ -2451,8 +2499,106 @@ function cidadeUfHtml(cidade, uf) {
   window.renderEstoqueFilial = render;
 })();
 
+(function initAcessosTab() {
+  // DataHora vem como "yyyy-MM-dd HH:mm:ss" (string ISO-like) - ordena certo lexicograficamente
+  // sem precisar converter pra Date, so formata pra exibir.
+  function fmtDataHora(s) {
+    if (!s) return "—";
+    const [datePart, timePart] = s.split(" ");
+    const [y, m, d] = (datePart || "").split("-");
+    const hm = (timePart || "").slice(0, 5);
+    return `${d}/${m}/${y} ${hm}`;
+  }
+
+  const sistemaSel = document.getElementById("acessos-sistema");
+  const buscaInput = document.getElementById("acessos-busca");
+  const tbody = document.getElementById("tbody-acessos");
+
+  Array.from(new Set(RAW_ACESSOS.map(r => r.Sistema))).sort().forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    sistemaSel.appendChild(opt);
+  });
+
+  let sortKey = "DataHora";
+  let sortDir = -1; // mais recente primeiro por padrao (bate com o ▼ ja marcado no cabecalho)
+  let lastRendered = [];
+
+  function render() {
+    const sistemaVal = sistemaSel.value;
+    const buscaVal = buscaInput.value.trim().toLowerCase();
+
+    let rows = RAW_ACESSOS.slice();
+    if (sistemaVal) rows = rows.filter(r => r.Sistema === sistemaVal);
+    if (buscaVal) rows = rows.filter(r => (r.Usuario || "").toLowerCase().includes(buscaVal));
+
+    rows.sort((a, b) => {
+      const av = a[sortKey], bv = b[sortKey];
+      if (av === bv) return 0;
+      if (av === null || av === undefined) return 1;
+      if (bv === null || bv === undefined) return -1;
+      return (av < bv ? -1 : 1) * sortDir;
+    });
+
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td>${fmtDataHora(r.DataHora)}</td>
+        <td>${r.Usuario || "—"}</td>
+        <td>${r.Sistema || "—"}</td>
+        <td>${r.IP || "—"}</td>
+      </tr>
+    `).join("");
+
+    document.getElementById("result-count-acessos").textContent = `${rows.length} de ${RAW_ACESSOS.length} itens`;
+    document.getElementById("empty-state-acessos").style.display = rows.length ? "none" : "block";
+
+    // KPIs sempre sobre o total geral (nao sobre o filtrado) - visao geral fixa, independente
+    // do que estiver selecionado nos filtros no momento.
+    const usuariosDistintos = new Set(RAW_ACESSOS.map(r => r.Usuario)).size;
+    const contagemPorSistema = {};
+    RAW_ACESSOS.forEach(r => { contagemPorSistema[r.Sistema] = (contagemPorSistema[r.Sistema] || 0) + 1; });
+    let sistemaTop = "—", maxCount = 0;
+    Object.keys(contagemPorSistema).forEach(s => {
+      if (contagemPorSistema[s] > maxCount) { maxCount = contagemPorSistema[s]; sistemaTop = s; }
+    });
+    const ultimoAcesso = RAW_ACESSOS.length
+      ? RAW_ACESSOS.reduce((max, r) => (r.DataHora > max ? r.DataHora : max), RAW_ACESSOS[0].DataHora)
+      : null;
+
+    document.getElementById("num-acessos-total").textContent = fmtNum(RAW_ACESSOS.length);
+    document.getElementById("num-acessos-usuarios").textContent = fmtNum(usuariosDistintos);
+    document.getElementById("num-acessos-sistema-top").textContent = sistemaTop;
+    document.getElementById("num-acessos-ultimo").textContent = fmtDataHora(ultimoAcesso);
+
+    lastRendered = rows;
+  }
+
+  sistemaSel.addEventListener("change", render);
+  buscaInput.addEventListener("input", render);
+
+  document.querySelectorAll('#tab-content-acessos th[data-key] button').forEach(btn => {
+    btn.addEventListener("click", () => {
+      const th = btn.closest("th");
+      const key = th.dataset.key;
+      if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
+      document.querySelectorAll('#tab-content-acessos th[data-key] .sort-arrow').forEach(el => el.textContent = "");
+      th.querySelector(".sort-arrow").textContent = sortDir === 1 ? "▲" : "▼";
+      render();
+    });
+  });
+
+  document.getElementById("copy-acessos-btn").addEventListener("click", () => {
+    const headers = ["Data/Hora", "Usuário", "Sistema", "IP"];
+    const rowsOut = lastRendered.map(r => [r.DataHora, r.Usuario, r.Sistema, r.IP]);
+    copyToExcel(headers, rowsOut, document.getElementById("copy-acessos-status"));
+  });
+
+  window.renderAcessos = render;
+})();
+
 (function initTabs() {
-  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial"];
+  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "acessos"];
   const btns = {}, contents = {};
   for (const t of tabs) {
     btns[t] = document.getElementById("tab-btn-" + t);
@@ -2468,6 +2614,7 @@ function cidadeUfHtml(cidade, uf) {
     if (tab === "pedidos" && window.renderPedidos) window.renderPedidos();
     if (tab === "vendas-detalhe" && window.renderVendasDetalhe) window.renderVendasDetalhe();
     if (tab === "estoquefilial" && window.renderEstoqueFilial) window.renderEstoqueFilial();
+    if (tab === "acessos" && window.renderAcessos) window.renderAcessos();
   }
   for (const t of tabs) btns[t].addEventListener("click", () => activate(t));
 })();

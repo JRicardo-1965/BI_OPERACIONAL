@@ -211,6 +211,9 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
       // pra todo mundo, mesma regra do BI Logistica).
       estoque: body.estoque || [],
       transferencias: body.transferencias || [],
+      // acessos tambem sem filtro por empresa (nao tem esse conceito - e log de login por
+      // sistema, mesma regra de "mostra tudo" do estoque/transferencias acima).
+      acessos: body.acessos || [],
       meta: body.meta || {},
       usuarios,
       usuariosEmpresas: (body.usuariosEmpresas || []).map((v) => ({ email: v.email, empresa: String(v.empresa) })),
@@ -248,6 +251,7 @@ app.get('/', requireAuth, (req, res) => {
   // "Estoque por Filial" mostra TODAS as empresas pra todo usuario (sem filterByEmpresas).
   const estoque = latestData.estoque || [];
   const transferencias = latestData.transferencias || [];
+  const acessos = latestData.acessos || [];
   const meta = latestData.meta || {};
 
   const html = TEMPLATE
@@ -260,6 +264,7 @@ app.get('/', requireAuth, (req, res) => {
     .replaceAll('__VENDAS_DETALHE_JSON__', jsonForScript(vendasDetalhe))
     .replaceAll('__ESTOQUE_JSON__', jsonForScript(estoque))
     .replaceAll('__TRANSFERENCIAS_JSON__', jsonForScript(transferencias))
+    .replaceAll('__ACESSOS_JSON__', jsonForScript(acessos))
     .replaceAll('__TODAY_ISO__', new Date().toISOString().slice(0, 10))
     .replaceAll('__PROCESSADO_EM__', meta.ProcessadoEm || 'desconhecido')
     .replaceAll('__HOSTED_USER_LABEL__', escapeHtml(req.userNome))
