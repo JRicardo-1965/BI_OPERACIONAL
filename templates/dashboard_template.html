@@ -1134,13 +1134,34 @@
     </div>
 
     <div class="tab-nav">
-      <button class="tab-btn is-active" id="tab-btn-pedidos" type="button" data-tab="pedidos">Faturamento &amp; Pedidos</button>
+      <button class="tab-btn is-active" id="tab-btn-status" type="button" data-tab="status">Status dos Pedidos</button>
+      <button class="tab-btn" id="tab-btn-pedidos" type="button" data-tab="pedidos">Faturamento &amp; Pedidos</button>
       <button class="tab-btn" id="tab-btn-vendas-detalhe" type="button" data-tab="vendas-detalhe">Vendas Detalhadas</button>
       <button class="tab-btn" id="tab-btn-estoquefilial" type="button" data-tab="estoquefilial">Estoque por Filial</button>
     </div>
 
+    <!-- ===================== TAB: STATUS DOS PEDIDOS ===================== -->
+    <div id="tab-content-status">
+      <p class="tab-context-note">Status dos pedidos por filial &middot; <b>Pendentes</b> = todos os pedidos em aberto da filial — clique no bloco para ver a lista &middot; <b>Processados</b> = pedidos já processados no período escolhido (valor = soma dos itens).</p>
+      <div class="filters" style="border-radius:10px;border:1px solid var(--border);margin-bottom:12px;">
+        <div class="field">
+          <label for="status-empresa">Empresa</label>
+          <select id="status-empresa"><option value="">Todas as empresas</option></select>
+        </div>
+        <div class="field">
+          <label for="status-periodo">Período (processados)</label>
+          <select id="status-periodo">
+            <option value="hoje">Hoje</option>
+            <option value="mes" selected>Mês corrente</option>
+            <option value="todos">Todo o período</option>
+          </select>
+        </div>
+      </div>
+      <div class="filiais-resumo" id="status-filiais"></div>
+    </div>
+
     <!-- ===================== TAB: FATURAMENTO & PEDIDOS ===================== -->
-    <div id="tab-content-pedidos">
+    <div id="tab-content-pedidos" class="is-hidden">
     <div class="kpis kpis-6" id="kpis-pedidos">
       <div class="kpi kpi-static kpi-clickable" id="kpi-fat-dia" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
         <span class="kpi-click-icon" aria-hidden="true">⤢</span>
@@ -1197,9 +1218,6 @@
         <div class="lbl">Pendentes há mais de 48h</div>
       </div>
     </div>
-
-    <p class="tab-context-note">Resumo por filial &middot; <b>Pendentes</b> = todos os pedidos em aberto da filial (clique pra ver a lista) &middot; <b>Processados</b> respeita o filtro de Período &middot; valor = soma dos itens dos pedidos processados</p>
-    <div class="filiais-resumo" id="filiais-resumo"></div>
 
     <div class="panel">
       <div class="filters">
@@ -1620,6 +1638,130 @@ function cidadeUfHtml(cidade, uf) {
 })();
 
 // ================================================================
+// ABA: STATUS DOS PEDIDOS — 1 card colorido por filial (Pendentes / Processados),
+// só os "desenhos", sem KPIs. Clique no bloco Pendentes abre a lista num pop-up.
+// ================================================================
+(function initStatusPedidosTab() {
+  const cont = document.getElementById("status-filiais");
+  const selEmpresa = document.getElementById("status-empresa");
+  const selPeriodo = document.getElementById("status-periodo");
+
+  for (const e of [...new Set(RAW_PEDIDOS.map(p => p.Empresa))].sort((a, b) => a.localeCompare(b, "pt-BR"))) {
+    const opt = document.createElement("option");
+    opt.value = e; opt.textContent = e;
+    selEmpresa.appendChild(opt);
+  }
+
+  function fmtTempoAberto(min) {
+    if (min === null || min === undefined) return "—";
+    const m = Math.round(min);
+    if (m < 60) return `${m} min`;
+    const h = Math.floor(m / 60), rem = m % 60;
+    return rem > 0 ? `${h}h ${rem}min` : `${h}h`;
+  }
+  function passaPeriodoStatus(p, periodo) {
+    if (periodo === "todos") return true;
+    if (!p.DataPedido) return false;
+    if (periodo === "hoje") return p.DataPedido === TODAY_ISO_STR;
+    if (periodo === "mes") return p.DataPedido.slice(0, 7) === TODAY_ISO_STR.slice(0, 7);
+    return true;
+  }
+  function clientesDistintos(arr) {
+    // pedido PENDENTE às vezes vem sem CodcCliente (só o nome) - cai pro nome nesse caso.
+    return new Set(arr.map(p => {
+      const cod = p.CodcCliente == null ? "" : String(p.CodcCliente).trim();
+      if (cod && cod !== "null" && cod !== "undefined" && cod !== "0") return "c:" + cod;
+      const nome = (p.Cliente || "").trim();
+      return nome ? "n:" + nome.toLowerCase() : "";
+    }).filter(Boolean)).size;
+  }
+  function valorPedidos(arr) {
+    return arr.reduce((s, p) => s + (p.Itens || []).reduce((si, it) => si + (it.Total || 0), 0), 0);
+  }
+
+  function render() {
+    const empresaVal = selEmpresa.value;
+    const periodoVal = selPeriodo.value;
+
+    const porFilial = new Map();
+    for (const p of RAW_PEDIDOS) {
+      if (empresaVal && p.Empresa !== empresaVal) continue;
+      if (!porFilial.has(p.Empresa)) porFilial.set(p.Empresa, { pend: [], proc: [] });
+      const g = porFilial.get(p.Empresa);
+      if (p.Pendente) g.pend.push(p);
+      else if (passaPeriodoStatus(p, periodoVal)) g.proc.push(p);
+    }
+    const filiais = [...porFilial.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"));
+    if (!filiais.length) {
+      cont.innerHTML = `<div class="filiais-resumo-empty">Nenhum pedido encontrado.</div>`;
+      return;
+    }
+    const periodoRotulo = periodoVal === "hoje" ? " (hoje)" : periodoVal === "mes" ? " (mês)" : " (todo o período)";
+    cont.innerHTML = filiais.map((nome, i) => {
+      const g = porFilial.get(nome);
+      const seg = (i % 8) + 1;
+      const nPend = g.pend.length;
+      const zero = nPend === 0 ? " is-zero" : "";
+      const cliPend = clientesDistintos(g.pend), cliProc = clientesDistintos(g.proc);
+      return `<div class="filial-card" style="--fc:var(--seg-${seg})">
+        <div class="filial-card__nome">${empresaAbrev(nome)}</div>
+        <div class="filial-card__sec filial-card__sec--pend${zero}" data-filial="${nome.replace(/"/g, "&quot;")}"${nPend ? ' tabindex="0" role="button" title="Ver a lista de pendentes"' : ""}>
+          <div class="filial-card__lbl">Pendentes</div>
+          <div class="filial-card__big">${fmtNum(nPend)} ${nPend === 1 ? "pedido" : "pedidos"}</div>
+          <div class="filial-card__sub">${fmtNum(cliPend)} ${cliPend === 1 ? "cliente" : "clientes"}</div>
+          ${nPend ? '<div class="filial-card__hint">▸ clique para ver</div>' : ""}
+        </div>
+        <div class="filial-card__sec filial-card__sec--proc">
+          <div class="filial-card__lbl">Processados${periodoRotulo}</div>
+          <div class="filial-card__big">${fmtNum(g.proc.length)} ${g.proc.length === 1 ? "pedido" : "pedidos"}</div>
+          <div class="filial-card__money">${fmtMoney(valorPedidos(g.proc))}</div>
+          <div class="filial-card__sub">${fmtNum(cliProc)} ${cliProc === 1 ? "cliente" : "clientes"}</div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  // pop-up com todos os pendentes de uma filial
+  const pendModal = document.getElementById("pendentes-modal");
+  function abrirPendentes(filialNome) {
+    const lista = RAW_PEDIDOS
+      .filter(p => p.Pendente && p.Empresa === filialNome)
+      .sort((a, b) => (b.TempoAbertoMin || 0) - (a.TempoAbertoMin || 0));
+    document.getElementById("pendentes-title").textContent = `Pedidos pendentes — ${empresaAbrev(filialNome)}`;
+    document.getElementById("pendentes-sub").textContent = `${fmtNum(lista.length)} ${lista.length === 1 ? "pedido pendente" : "pedidos pendentes"} · ${fmtNum(clientesDistintos(lista))} ${clientesDistintos(lista) === 1 ? "cliente" : "clientes"}`;
+    document.getElementById("pendentes-tbody").innerHTML = lista.length
+      ? lista.map(p => `<tr>
+          <td class="num">${p.Pedido}</td>
+          <td title="${(p.Cliente || "").replace(/"/g, "&quot;")}">${p.Cliente || "—"}</td>
+          <td>${p.Vendedor || "—"}</td>
+          <td>${p.DataDigitacao ? fmtDate(p.DataDigitacao) + (p.HoraDigitacao ? " " + p.HoraDigitacao : "") : "—"}</td>
+          <td>${p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined ? "⏳ " + fmtTempoAberto(p.TempoAbertoMin) : "—"}</td>
+        </tr>`).join("")
+      : `<tr><td colspan="5"><div class="ranking-empty">Sem pedidos pendentes nesta filial.</div></td></tr>`;
+    pendModal.classList.remove("is-hidden");
+  }
+  function fecharPendentes() { pendModal.classList.add("is-hidden"); }
+  document.getElementById("pendentes-close-btn").addEventListener("click", fecharPendentes);
+  pendModal.addEventListener("click", (e) => { if (e.target === pendModal) fecharPendentes(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pendModal.classList.contains("is-hidden")) fecharPendentes(); });
+
+  cont.addEventListener("click", (e) => {
+    const sec = e.target.closest(".filial-card__sec--pend:not(.is-zero)");
+    if (sec) abrirPendentes(sec.dataset.filial);
+  });
+  cont.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const sec = e.target.closest(".filial-card__sec--pend:not(.is-zero)");
+    if (sec) { e.preventDefault(); abrirPendentes(sec.dataset.filial); }
+  });
+
+  selEmpresa.addEventListener("change", render);
+  selPeriodo.addEventListener("change", render);
+
+  window.renderStatus = render;
+})();
+
+// ================================================================
 // ABA: FATURAMENTO & PEDIDOS — portado do BI Logística, verbatim
 // ================================================================
 (function initPedidosTab() {
@@ -1839,105 +1981,7 @@ function cidadeUfHtml(cidade, uf) {
     }
 
     lastRenderedRows = rows;
-    renderResumoFiliais();
   }
-
-  // ---- Painel de resumo por filial (1 card colorido por filial: Pendentes + Processados) ----
-  const filiaisResumoEl = document.getElementById("filiais-resumo");
-
-  function clientesDistintos(arr) {
-    // pedido PENDENTE às vezes vem sem CodcCliente (só o nome) - cai pro nome nesse caso.
-    return new Set(arr.map(p => {
-      const cod = p.CodcCliente == null ? "" : String(p.CodcCliente).trim();
-      if (cod && cod !== "null" && cod !== "undefined" && cod !== "0") return "c:" + cod;
-      const nome = (p.Cliente || "").trim();
-      return nome ? "n:" + nome.toLowerCase() : "";
-    }).filter(Boolean)).size;
-  }
-  function valorPedidos(arr) {
-    return arr.reduce((s, p) => s + (p.Itens || []).reduce((si, it) => si + (it.Total || 0), 0), 0);
-  }
-
-  function renderResumoFiliais() {
-    const empresaVal = pedEmpresa.value;
-    const periodoVal = pedPeriodo.value;
-    const buscaVal = pedBusca.value.trim().toLowerCase();
-    const passaBusca = p => !buscaVal || `${p.Pedido} ${p.Vendedor || ""}`.toLowerCase().includes(buscaVal);
-
-    const porFilial = new Map();
-    for (const p of RAW_PEDIDOS) {
-      if (empresaVal && p.Empresa !== empresaVal) continue;
-      if (!passaBusca(p)) continue;
-      if (!porFilial.has(p.Empresa)) porFilial.set(p.Empresa, { pend: [], proc: [] });
-      const g = porFilial.get(p.Empresa);
-      if (p.Pendente) g.pend.push(p);
-      else if (passaPeriodo(p, periodoVal)) g.proc.push(p);
-    }
-    const filiais = [...porFilial.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"));
-    if (!filiais.length) {
-      filiaisResumoEl.innerHTML = `<div class="filiais-resumo-empty">Nenhum pedido no recorte atual.</div>`;
-      return;
-    }
-    const periodoRotulo = periodoVal === "hoje" ? " (hoje)" : periodoVal === "mes" ? " (mês)" : "";
-    filiaisResumoEl.innerHTML = filiais.map((nome, i) => {
-      const g = porFilial.get(nome);
-      const seg = (i % 8) + 1;
-      const nPend = g.pend.length;
-      const zero = nPend === 0 ? " is-zero" : "";
-      return `<div class="filial-card" style="--fc:var(--seg-${seg})">
-        <div class="filial-card__nome">${empresaAbrev(nome)}</div>
-        <div class="filial-card__sec filial-card__sec--pend${zero}" data-filial="${nome.replace(/"/g, "&quot;")}"${nPend ? ' tabindex="0" role="button" title="Ver a lista de pendentes"' : ""}>
-          <div class="filial-card__lbl">Pendentes</div>
-          <div class="filial-card__big">${fmtNum(nPend)} ${nPend === 1 ? "pedido" : "pedidos"}</div>
-          <div class="filial-card__sub">${fmtNum(clientesDistintos(g.pend))} ${clientesDistintos(g.pend) === 1 ? "cliente" : "clientes"}</div>
-          ${nPend ? '<div class="filial-card__hint">▸ clique para ver</div>' : ""}
-        </div>
-        <div class="filial-card__sec filial-card__sec--proc">
-          <div class="filial-card__lbl">Processados${periodoRotulo}</div>
-          <div class="filial-card__big">${fmtNum(g.proc.length)} ${g.proc.length === 1 ? "pedido" : "pedidos"}</div>
-          <div class="filial-card__money">${fmtMoney(valorPedidos(g.proc))}</div>
-          <div class="filial-card__sub">${fmtNum(clientesDistintos(g.proc))} ${clientesDistintos(g.proc) === 1 ? "cliente" : "clientes"}</div>
-        </div>
-      </div>`;
-    }).join("");
-  }
-
-  // pop-up com todos os pendentes de uma filial (ao clicar no bloco "Pendentes" do card)
-  const pendModal = document.getElementById("pendentes-modal");
-  const pendSub = document.getElementById("pendentes-sub");
-  const pendTbody = document.getElementById("pendentes-tbody");
-
-  function abrirPendentes(filialNome) {
-    const lista = RAW_PEDIDOS
-      .filter(p => p.Pendente && p.Empresa === filialNome)
-      .sort((a, b) => (b.TempoAbertoMin || 0) - (a.TempoAbertoMin || 0));
-    document.getElementById("pendentes-title").textContent = `Pedidos pendentes — ${empresaAbrev(filialNome)}`;
-    pendSub.textContent = `${fmtNum(lista.length)} ${lista.length === 1 ? "pedido pendente" : "pedidos pendentes"} · ${fmtNum(clientesDistintos(lista))} ${clientesDistintos(lista) === 1 ? "cliente" : "clientes"}`;
-    pendTbody.innerHTML = lista.length
-      ? lista.map(p => `<tr>
-          <td class="num">${p.Pedido}</td>
-          <td title="${(p.Cliente || "").replace(/"/g, "&quot;")}">${p.Cliente || "—"}</td>
-          <td>${p.Vendedor || "—"}</td>
-          <td>${p.DataDigitacao ? fmtDate(p.DataDigitacao) + (p.HoraDigitacao ? " " + p.HoraDigitacao : "") : "—"}</td>
-          <td>${p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined ? "⏳ " + fmtTempo(p.TempoAbertoMin) : "—"}</td>
-        </tr>`).join("")
-      : `<tr><td colspan="5"><div class="ranking-empty">Sem pedidos pendentes nesta filial.</div></td></tr>`;
-    pendModal.classList.remove("is-hidden");
-  }
-  function fecharPendentes() { pendModal.classList.add("is-hidden"); }
-  document.getElementById("pendentes-close-btn").addEventListener("click", fecharPendentes);
-  pendModal.addEventListener("click", (e) => { if (e.target === pendModal) fecharPendentes(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pendModal.classList.contains("is-hidden")) fecharPendentes(); });
-
-  filiaisResumoEl.addEventListener("click", (e) => {
-    const sec = e.target.closest(".filial-card__sec--pend:not(.is-zero)");
-    if (sec) abrirPendentes(sec.dataset.filial);
-  });
-  filiaisResumoEl.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" && e.key !== " ") return;
-    const sec = e.target.closest(".filial-card__sec--pend:not(.is-zero)");
-    if (sec) { e.preventDefault(); abrirPendentes(sec.dataset.filial); }
-  });
 
   document.querySelectorAll("#tab-content-pedidos th[data-key] button").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -2391,7 +2435,7 @@ function cidadeUfHtml(cidade, uf) {
 })();
 
 (function initTabs() {
-  const tabs = ["pedidos", "vendas-detalhe", "estoquefilial"];
+  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial"];
   const btns = {}, contents = {};
   for (const t of tabs) {
     btns[t] = document.getElementById("tab-btn-" + t);
@@ -2403,6 +2447,7 @@ function cidadeUfHtml(cidade, uf) {
       btns[t].classList.toggle("is-active", isActive);
       contents[t].classList.toggle("is-hidden", !isActive);
     }
+    if (tab === "status" && window.renderStatus) window.renderStatus();
     if (tab === "pedidos" && window.renderPedidos) window.renderPedidos();
     if (tab === "vendas-detalhe" && window.renderVendasDetalhe) window.renderVendasDetalhe();
     if (tab === "estoquefilial" && window.renderEstoqueFilial) window.renderEstoqueFilial();
@@ -2410,9 +2455,8 @@ function cidadeUfHtml(cidade, uf) {
   for (const t of tabs) btns[t].addEventListener("click", () => activate(t));
 })();
 
-// a aba pedidos já está visível no HTML mas seu render() depende de listeners montados na IIFE;
-// dispara uma vez no load.
-if (window.renderPedidos) window.renderPedidos();
+// "Status dos Pedidos" é a aba visível no load - dispara o render dela uma vez.
+if (window.renderStatus) window.renderStatus();
 
 // ================================================================
 // TEMA, BOTÃO ATUALIZAR, FRESCOR, SESSÃO HOSPEDADA
