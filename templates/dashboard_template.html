@@ -495,6 +495,8 @@
     min-width: 140px;
   }
   input[type="date"] { min-width: 130px; color-scheme: light dark; }
+  #tbody-acessos tr.acesso-login-row { cursor: pointer; }
+  #tbody-acessos tr.acesso-login-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
   input[type="search"] { min-width: 180px; }
   #cmp-dia-limite { min-width: 0; width: 72px; }
   select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -1445,12 +1447,12 @@
           <table>
             <thead>
               <tr>
-                <th data-key="DataHora"><button>Data/Hora <span class="sort-arrow">▼</span></button></th>
-                <th data-key="Usuario"><button>Usuário <span class="sort-arrow"></span></button></th>
-                <th data-key="Sistema"><button>Sistema <span class="sort-arrow"></span></button></th>
-                <th data-key="Aba"><button>Aba <span class="sort-arrow"></span></button></th>
-                <th data-key="IP"><button>IP <span class="sort-arrow"></span></button></th>
-                <th data-key="Pendente"><button>Status <span class="sort-arrow"></span></button></th>
+                <th data-key="Login"><button>Login <span class="sort-arrow"></span></button></th>
+                <th data-key="Primeiro"><button>Primeiro acesso <span class="sort-arrow"></span></button></th>
+                <th data-key="Ultimo"><button>Último acesso <span class="sort-arrow">▼</span></button></th>
+                <th data-key="Acessos"><button>Acessos no período <span class="sort-arrow"></span></button></th>
+                <th data-key="NrIps"><button>Nº IPs <span class="sort-arrow"></span></button></th>
+                <th data-key="NrTelas"><button>Nº telas <span class="sort-arrow"></span></button></th>
               </tr>
             </thead>
             <tbody id="tbody-acessos"></tbody>
@@ -1459,8 +1461,10 @@
         <div class="empty-state" id="empty-state-acessos" style="display:none;">Nenhum acesso registrado ainda, ou nenhum corresponde aos filtros aplicados.</div>
       </div>
       <div class="footnote">
-        Fonte: tabela <code>LOG_ACESSOS_BI</code> no Access &middot; gravada pelo Portal BI toda vez que alguém escolhe um sistema pra entrar (login único) &middot; o histórico começa a partir de 31/08/2026, quando essa captura passou a gravar de verdade — acessos anteriores a essa data não ficaram registrados (bug corrigido nesse dia) &middot;
-        <b>Pendente</b> = o Portal já capturou o evento, mas ele ainda não foi gravado de vez na tabela do Access (deve virar "Gravado" no próximo ciclo de atualização, ~15 min).
+        1 linha por login no período &middot; <b>clique numa linha</b> para ver o detalhe (data/hora, sistema, tela e IP de cada acesso) &middot;
+        <b>Nº telas</b> = telas/abas distintas consultadas &middot; <b>Nº IPs</b> = endereços IP distintos de onde o login acessou &middot;
+        Fonte: <code>LOG_ACESSOS_BI</code> no Access, gravada pelo Portal BI a cada escolha de sistema no login único &middot;
+        a tag <b>PENDENTE</b> na linha indica que o login tem pelo menos um acesso ainda não gravado de vez no Access (grava no próximo ciclo, ~15 min).
       </div>
     </div>
 
@@ -1501,6 +1505,30 @@
     <table class="modal-table" id="filial-breakdown-table"></table>
     <div class="modal-close-row">
       <button class="modal-close-btn" id="filial-breakdown-close-btn" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay is-hidden" id="acessos-detalhe-modal">
+  <div class="modal-card modal-card-wide is-compact" role="dialog" aria-modal="true" aria-labelledby="acessos-detalhe-title">
+    <h2 id="acessos-detalhe-title">Acessos</h2>
+    <p class="modal-sub" id="acessos-detalhe-sub"></p>
+    <div class="ranking-table-wrap">
+      <table class="ranking-table" id="acessos-detalhe-table">
+        <thead>
+          <tr>
+            <th style="width:20%">Data/Hora</th>
+            <th style="width:24%">Sistema</th>
+            <th style="width:24%">Tela</th>
+            <th style="width:20%">IP</th>
+            <th style="width:12%">Status</th>
+          </tr>
+        </thead>
+        <tbody id="acessos-detalhe-tbody"></tbody>
+      </table>
+    </div>
+    <div class="modal-close-row">
+      <button class="modal-close-btn" id="acessos-detalhe-close-btn" type="button">Fechar</button>
     </div>
   </div>
 </div>
@@ -2585,46 +2613,72 @@ function cidadeUfHtml(cidade, uf) {
     sistemaSel.appendChild(opt);
   });
 
-  let sortKey = "DataHora";
-  let sortDir = -1; // mais recente primeiro por padrao (bate com o ▼ ja marcado no cabecalho)
-  let lastRendered = [];
+  let sortKey = "Ultimo";
+  let sortDir = -1; // último acesso mais recente primeiro (bate com o ▼ já marcado no cabeçalho)
+  let lastRendered = [];      // agregados por login (pro Excel)
+  let agregadosPorLogin = {}; // login -> agregado (pro pop-up de detalhe)
 
   function render() {
     const sistemaVal = sistemaSel.value;
     const buscaVal = buscaInput.value.trim().toLowerCase();
     const statusVal = statusSel.value;
 
-    // "janela" = acessos dentro do período escolhido (Dia / Mês / Tudo). Os KPIs somam sobre a
-    // janela; Sistema/Usuário/Status recortam só a tabela dentro dela.
+    // "janela" = acessos dentro do período escolhido (Dia / Mês / Tudo / Datas). Os KPIs somam
+    // sobre a janela; Sistema/Usuário/Status recortam só os eventos que entram na agregação.
     const janela = RAW_ACESSOS.filter(noPeriodo);
 
-    let rows = janela.slice();
-    if (sistemaVal) rows = rows.filter(r => r.Sistema === sistemaVal);
-    if (buscaVal) rows = rows.filter(r => (r.Usuario || "").toLowerCase().includes(buscaVal));
-    if (statusVal === "gravado") rows = rows.filter(r => !r.Pendente);
-    if (statusVal === "pendente") rows = rows.filter(r => r.Pendente);
+    let eventos = janela.slice();
+    if (sistemaVal) eventos = eventos.filter(r => r.Sistema === sistemaVal);
+    if (buscaVal) eventos = eventos.filter(r => (r.Usuario || "").toLowerCase().includes(buscaVal));
+    if (statusVal === "gravado") eventos = eventos.filter(r => !r.Pendente);
+    if (statusVal === "pendente") eventos = eventos.filter(r => r.Pendente);
 
-    rows.sort((a, b) => {
-      const av = a[sortKey], bv = b[sortKey];
+    // 1 linha por login: primeiro/último acesso, nº de acessos, nº de IPs, nº de telas.
+    const porLogin = new Map();
+    for (const r of eventos) {
+      const login = r.Usuario || "(sem login)";
+      if (!porLogin.has(login)) {
+        porLogin.set(login, { Login: login, eventos: [], ips: new Set(), telas: new Set(), Primeiro: r.DataHora, Ultimo: r.DataHora, temPendente: false });
+      }
+      const g = porLogin.get(login);
+      g.eventos.push(r);
+      if (r.IP) g.ips.add(r.IP);
+      if (r.Aba) g.telas.add(r.Aba);
+      if (r.DataHora && (!g.Primeiro || r.DataHora < g.Primeiro)) g.Primeiro = r.DataHora;
+      if (r.DataHora && (!g.Ultimo || r.DataHora > g.Ultimo)) g.Ultimo = r.DataHora;
+      if (r.Pendente) g.temPendente = true;
+    }
+    const agregados = [...porLogin.values()].map(g => ({
+      Login: g.Login, Primeiro: g.Primeiro, Ultimo: g.Ultimo,
+      Acessos: g.eventos.length, NrIps: g.ips.size, NrTelas: g.telas.size,
+      temPendente: g.temPendente, eventos: g.eventos
+    }));
+
+    agregadosPorLogin = {};
+    agregados.forEach(a => { agregadosPorLogin[a.Login] = a; });
+
+    const numeric = sortKey === "Acessos" || sortKey === "NrIps" || sortKey === "NrTelas";
+    agregados.sort((a, b) => {
+      let av = a[sortKey], bv = b[sortKey];
+      if (numeric) return ((av || 0) - (bv || 0)) * sortDir;
+      av = av || ""; bv = bv || "";
       if (av === bv) return 0;
-      if (av === null || av === undefined) return 1;
-      if (bv === null || bv === undefined) return -1;
       return (av < bv ? -1 : 1) * sortDir;
     });
 
-    tbody.innerHTML = rows.map(r => `
-      <tr${r.Pendente ? ' class="row-warning"' : ""}>
-        <td>${fmtDataHora(r.DataHora)}</td>
-        <td>${r.Usuario || "—"}</td>
-        <td>${r.Sistema || "—"}</td>
-        <td>${r.Aba || "—"}</td>
-        <td>${r.IP || "—"}</td>
-        <td>${r.Pendente ? '<span class="chip c-warning">PENDENTE</span>' : '<span class="chip c-ok">GRAVADO</span>'}</td>
+    tbody.innerHTML = agregados.map(a => `
+      <tr class="acesso-login-row${a.temPendente ? " row-warning" : ""}" data-login="${(a.Login).replace(/"/g, "&quot;")}" tabindex="0" role="button" title="Ver o detalhe dos acessos deste login">
+        <td>${a.Login}${a.temPendente ? ' <span class="chip c-warning" style="font-size:8px">PENDENTE</span>' : ""}</td>
+        <td>${fmtDataHora(a.Primeiro)}</td>
+        <td>${fmtDataHora(a.Ultimo)}</td>
+        <td class="num-cell">${fmtNum(a.Acessos)}</td>
+        <td class="num-cell">${fmtNum(a.NrIps)}</td>
+        <td class="num-cell">${fmtNum(a.NrTelas)}</td>
       </tr>
     `).join("");
 
-    document.getElementById("result-count-acessos").textContent = `${rows.length} de ${janela.length} itens`;
-    document.getElementById("empty-state-acessos").style.display = rows.length ? "none" : "block";
+    document.getElementById("result-count-acessos").textContent = `${agregados.length} ${agregados.length === 1 ? "login" : "logins"} · ${eventos.length} ${eventos.length === 1 ? "acesso" : "acessos"}`;
+    document.getElementById("empty-state-acessos").style.display = agregados.length ? "none" : "block";
 
     // KPIs sobre a JANELA de período (Dia/Mês/Tudo) - não sobre o recorte de Sistema/Usuário/Status.
     const usuariosDistintos = new Set(janela.map(r => r.Usuario)).size;
@@ -2648,8 +2702,42 @@ function cidadeUfHtml(cidade, uf) {
     document.getElementById("num-acessos-ultimo").textContent = fmtDataHora(ultimoAcesso);
     document.getElementById("num-acessos-pendentes").textContent = fmtNum(totalPendentes);
 
-    lastRendered = rows;
+    lastRendered = agregados;
   }
+
+  // pop-up com o detalhe dos acessos de um login (no período/filtros atuais)
+  const detModal = document.getElementById("acessos-detalhe-modal");
+  function abrirDetalheAcessos(login) {
+    const a = agregadosPorLogin[login];
+    if (!a) return;
+    const eventos = a.eventos.slice().sort((x, y) => (x.DataHora < y.DataHora ? 1 : -1)); // mais recente primeiro
+    document.getElementById("acessos-detalhe-title").textContent = login;
+    document.getElementById("acessos-detalhe-sub").textContent =
+      `${fmtNum(a.Acessos)} acessos · ${fmtNum(a.NrIps)} IP(s) · ${fmtNum(a.NrTelas)} tela(s) · de ${fmtDataHora(a.Primeiro)} a ${fmtDataHora(a.Ultimo)}`;
+    document.getElementById("acessos-detalhe-tbody").innerHTML = eventos.map(r => `
+      <tr>
+        <td>${fmtDataHora(r.DataHora)}</td>
+        <td>${r.Sistema || "—"}</td>
+        <td>${r.Aba || "—"}</td>
+        <td>${r.IP || "—"}</td>
+        <td>${r.Pendente ? '<span class="chip c-warning">PENDENTE</span>' : '<span class="chip c-ok">GRAVADO</span>'}</td>
+      </tr>`).join("");
+    detModal.classList.remove("is-hidden");
+  }
+  function fecharDetalheAcessos() { detModal.classList.add("is-hidden"); }
+  document.getElementById("acessos-detalhe-close-btn").addEventListener("click", fecharDetalheAcessos);
+  detModal.addEventListener("click", (e) => { if (e.target === detModal) fecharDetalheAcessos(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !detModal.classList.contains("is-hidden")) fecharDetalheAcessos(); });
+
+  tbody.addEventListener("click", (e) => {
+    const tr = e.target.closest(".acesso-login-row");
+    if (tr) abrirDetalheAcessos(tr.dataset.login);
+  });
+  tbody.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const tr = e.target.closest(".acesso-login-row");
+    if (tr) { e.preventDefault(); abrirDetalheAcessos(tr.dataset.login); }
+  });
 
   periodoSel.addEventListener("change", () => { toggleRangeInputs(); render(); });
   dataIni.addEventListener("change", render);
@@ -2679,8 +2767,8 @@ function cidadeUfHtml(cidade, uf) {
   });
 
   document.getElementById("copy-acessos-btn").addEventListener("click", () => {
-    const headers = ["Data/Hora", "Usuário", "Sistema", "Aba", "IP", "Status"];
-    const rowsOut = lastRendered.map(r => [r.DataHora, r.Usuario, r.Sistema, r.Aba || "", r.IP, r.Pendente ? "PENDENTE" : "GRAVADO"]);
+    const headers = ["Login", "Primeiro acesso", "Último acesso", "Acessos no período", "Nº IPs", "Nº telas"];
+    const rowsOut = lastRendered.map(a => [a.Login, a.Primeiro, a.Ultimo, a.Acessos, a.NrIps, a.NrTelas]);
     copyToExcel(headers, rowsOut, document.getElementById("copy-acessos-status"));
   });
 
