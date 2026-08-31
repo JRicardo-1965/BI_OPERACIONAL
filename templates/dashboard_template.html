@@ -1394,7 +1394,7 @@
         <b>Acessos</b> · quem acessou qual sistema e quando, via login único do Portal BI &middot; mostra <b>todos os sistemas</b>, independente do seu acesso nas demais abas.
       </p>
       <div class="kpis kpis-5" id="kpis-acessos">
-        <div class="kpi kpi-static"><div class="num" id="num-acessos-total">–</div><div class="lbl">Total de acessos</div></div>
+        <div class="kpi kpi-static"><div class="num" id="num-acessos-total">–</div><div class="lbl" id="lbl-acessos-total">Total de acessos</div></div>
         <div class="kpi kpi-static"><div class="num" id="num-acessos-usuarios">–</div><div class="lbl">Usuários distintos</div></div>
         <div class="kpi kpi-static"><div class="num" id="num-acessos-sistema-top" style="font-size:15px;">–</div><div class="lbl">Sistema mais acessado</div></div>
         <div class="kpi kpi-static"><div class="num" id="num-acessos-ultimo" style="font-size:14px;">–</div><div class="lbl">Último acesso</div></div>
@@ -1402,6 +1402,14 @@
       </div>
       <div class="panel">
         <div class="filters">
+          <div class="field">
+            <label for="acessos-periodo">Acessos</label>
+            <select id="acessos-periodo">
+              <option value="dia" selected>Dia (hoje)</option>
+              <option value="mes">Mês corrente</option>
+              <option value="todos">Todo o histórico</option>
+            </select>
+          </div>
           <div class="field">
             <label for="acessos-sistema">Sistema</label>
             <select id="acessos-sistema"><option value="">Todos os sistemas</option></select>
@@ -2522,10 +2530,22 @@ function cidadeUfHtml(cidade, uf) {
     return `${d}/${m}/${y} ${hm}`;
   }
 
+  const periodoSel = document.getElementById("acessos-periodo");
   const sistemaSel = document.getElementById("acessos-sistema");
   const buscaInput = document.getElementById("acessos-busca");
   const statusSel = document.getElementById("acessos-status");
   const tbody = document.getElementById("tbody-acessos");
+
+  const HOJE_STR = TODAY_ISO_STR;              // "yyyy-MM-dd"
+  const MES_STR = TODAY_ISO_STR.slice(0, 7);   // "yyyy-MM"
+  function noPeriodo(r) {
+    const p = periodoSel.value;
+    if (p === "todos") return true;
+    if (!r.DataHora) return false;
+    if (p === "dia") return String(r.DataHora).slice(0, 10) === HOJE_STR;
+    if (p === "mes") return String(r.DataHora).slice(0, 7) === MES_STR;
+    return true;
+  }
 
   Array.from(new Set(RAW_ACESSOS.map(r => r.Sistema))).sort().forEach(s => {
     const opt = document.createElement("option");
@@ -2543,7 +2563,11 @@ function cidadeUfHtml(cidade, uf) {
     const buscaVal = buscaInput.value.trim().toLowerCase();
     const statusVal = statusSel.value;
 
-    let rows = RAW_ACESSOS.slice();
+    // "janela" = acessos dentro do período escolhido (Dia / Mês / Tudo). Os KPIs somam sobre a
+    // janela; Sistema/Usuário/Status recortam só a tabela dentro dela.
+    const janela = RAW_ACESSOS.filter(noPeriodo);
+
+    let rows = janela.slice();
     if (sistemaVal) rows = rows.filter(r => r.Sistema === sistemaVal);
     if (buscaVal) rows = rows.filter(r => (r.Usuario || "").toLowerCase().includes(buscaVal));
     if (statusVal === "gravado") rows = rows.filter(r => !r.Pendente);
@@ -2568,24 +2592,25 @@ function cidadeUfHtml(cidade, uf) {
       </tr>
     `).join("");
 
-    document.getElementById("result-count-acessos").textContent = `${rows.length} de ${RAW_ACESSOS.length} itens`;
+    document.getElementById("result-count-acessos").textContent = `${rows.length} de ${janela.length} itens`;
     document.getElementById("empty-state-acessos").style.display = rows.length ? "none" : "block";
 
-    // KPIs sempre sobre o total geral (nao sobre o filtrado) - visao geral fixa, independente
-    // do que estiver selecionado nos filtros no momento.
-    const usuariosDistintos = new Set(RAW_ACESSOS.map(r => r.Usuario)).size;
+    // KPIs sobre a JANELA de período (Dia/Mês/Tudo) - não sobre o recorte de Sistema/Usuário/Status.
+    const usuariosDistintos = new Set(janela.map(r => r.Usuario)).size;
     const contagemPorSistema = {};
-    RAW_ACESSOS.forEach(r => { contagemPorSistema[r.Sistema] = (contagemPorSistema[r.Sistema] || 0) + 1; });
+    janela.forEach(r => { contagemPorSistema[r.Sistema] = (contagemPorSistema[r.Sistema] || 0) + 1; });
     let sistemaTop = "—", maxCount = 0;
     Object.keys(contagemPorSistema).forEach(s => {
       if (contagemPorSistema[s] > maxCount) { maxCount = contagemPorSistema[s]; sistemaTop = s; }
     });
-    const ultimoAcesso = RAW_ACESSOS.length
-      ? RAW_ACESSOS.reduce((max, r) => (r.DataHora > max ? r.DataHora : max), RAW_ACESSOS[0].DataHora)
+    const ultimoAcesso = janela.length
+      ? janela.reduce((max, r) => (r.DataHora > max ? r.DataHora : max), janela[0].DataHora)
       : null;
-    const totalPendentes = RAW_ACESSOS.filter(r => r.Pendente).length;
+    const totalPendentes = janela.filter(r => r.Pendente).length;
 
-    document.getElementById("num-acessos-total").textContent = fmtNum(RAW_ACESSOS.length);
+    document.getElementById("num-acessos-total").textContent = fmtNum(janela.length);
+    document.getElementById("lbl-acessos-total").textContent =
+      periodoSel.value === "dia" ? "Acessos hoje" : periodoSel.value === "mes" ? "Acessos no mês" : "Total de acessos";
     document.getElementById("num-acessos-usuarios").textContent = fmtNum(usuariosDistintos);
     document.getElementById("num-acessos-sistema-top").textContent = sistemaTop;
     document.getElementById("num-acessos-ultimo").textContent = fmtDataHora(ultimoAcesso);
@@ -2594,6 +2619,7 @@ function cidadeUfHtml(cidade, uf) {
     lastRendered = rows;
   }
 
+  periodoSel.addEventListener("change", render);
   sistemaSel.addEventListener("change", render);
   buscaInput.addEventListener("input", render);
   statusSel.addEventListener("change", render);
