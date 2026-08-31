@@ -484,7 +484,7 @@
   }
   .field { display: flex; flex-direction: column; gap: 2px; }
   .field label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-faint); font-weight: 700; }
-  select, input[type="search"], input[type="number"], input[type="text"] {
+  select, input[type="search"], input[type="number"], input[type="text"], input[type="date"] {
     font-family: var(--sans);
     font-size: 12px;
     padding: 5px 8px;
@@ -494,6 +494,7 @@
     color: var(--text);
     min-width: 140px;
   }
+  input[type="date"] { min-width: 130px; color-scheme: light dark; }
   input[type="search"] { min-width: 180px; }
   #cmp-dia-limite { min-width: 0; width: 72px; }
   select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -1408,7 +1409,16 @@
               <option value="dia" selected>Dia (hoje)</option>
               <option value="mes">Mês corrente</option>
               <option value="todos">Todo o histórico</option>
+              <option value="range">Período (datas)</option>
             </select>
+          </div>
+          <div class="field" id="acessos-range-ini" style="display:none">
+            <label for="acessos-data-ini">De</label>
+            <input type="date" id="acessos-data-ini" />
+          </div>
+          <div class="field" id="acessos-range-fim" style="display:none">
+            <label for="acessos-data-fim">Até</label>
+            <input type="date" id="acessos-data-fim" />
           </div>
           <div class="field">
             <label for="acessos-sistema">Sistema</label>
@@ -2531,6 +2541,10 @@ function cidadeUfHtml(cidade, uf) {
   }
 
   const periodoSel = document.getElementById("acessos-periodo");
+  const dataIni = document.getElementById("acessos-data-ini");
+  const dataFim = document.getElementById("acessos-data-fim");
+  const rangeIniWrap = document.getElementById("acessos-range-ini");
+  const rangeFimWrap = document.getElementById("acessos-range-fim");
   const sistemaSel = document.getElementById("acessos-sistema");
   const buscaInput = document.getElementById("acessos-busca");
   const statusSel = document.getElementById("acessos-status");
@@ -2538,12 +2552,29 @@ function cidadeUfHtml(cidade, uf) {
 
   const HOJE_STR = TODAY_ISO_STR;              // "yyyy-MM-dd"
   const MES_STR = TODAY_ISO_STR.slice(0, 7);   // "yyyy-MM"
+
+  function toggleRangeInputs() {
+    const show = periodoSel.value === "range";
+    rangeIniWrap.style.display = show ? "" : "none";
+    rangeFimWrap.style.display = show ? "" : "none";
+    if (show && !dataIni.value && !dataFim.value) {
+      dataIni.value = MES_STR + "-01"; // padrão: 1º dia do mês até hoje
+      dataFim.value = HOJE_STR;
+    }
+  }
+
   function noPeriodo(r) {
     const p = periodoSel.value;
     if (p === "todos") return true;
     if (!r.DataHora) return false;
-    if (p === "dia") return String(r.DataHora).slice(0, 10) === HOJE_STR;
-    if (p === "mes") return String(r.DataHora).slice(0, 7) === MES_STR;
+    const d = String(r.DataHora).slice(0, 10);
+    if (p === "dia") return d === HOJE_STR;
+    if (p === "mes") return d.slice(0, 7) === MES_STR;
+    if (p === "range") {
+      if (dataIni.value && d < dataIni.value) return false;
+      if (dataFim.value && d > dataFim.value) return false;
+      return true;
+    }
     return true;
   }
 
@@ -2610,7 +2641,8 @@ function cidadeUfHtml(cidade, uf) {
 
     document.getElementById("num-acessos-total").textContent = fmtNum(janela.length);
     document.getElementById("lbl-acessos-total").textContent =
-      periodoSel.value === "dia" ? "Acessos hoje" : periodoSel.value === "mes" ? "Acessos no mês" : "Total de acessos";
+      periodoSel.value === "dia" ? "Acessos hoje" : periodoSel.value === "mes" ? "Acessos no mês"
+      : periodoSel.value === "range" ? "Acessos no período" : "Total de acessos";
     document.getElementById("num-acessos-usuarios").textContent = fmtNum(usuariosDistintos);
     document.getElementById("num-acessos-sistema-top").textContent = sistemaTop;
     document.getElementById("num-acessos-ultimo").textContent = fmtDataHora(ultimoAcesso);
@@ -2619,7 +2651,9 @@ function cidadeUfHtml(cidade, uf) {
     lastRendered = rows;
   }
 
-  periodoSel.addEventListener("change", render);
+  periodoSel.addEventListener("change", () => { toggleRangeInputs(); render(); });
+  dataIni.addEventListener("change", render);
+  dataFim.addEventListener("change", render);
   sistemaSel.addEventListener("change", render);
   buscaInput.addEventListener("input", render);
   statusSel.addEventListener("change", render);
@@ -2650,6 +2684,7 @@ function cidadeUfHtml(cidade, uf) {
     copyToExcel(headers, rowsOut, document.getElementById("copy-acessos-status"));
   });
 
+  toggleRangeInputs();
   window.renderAcessos = render;
 })();
 
