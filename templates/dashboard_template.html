@@ -497,6 +497,14 @@
   input[type="date"] { min-width: 130px; color-scheme: light dark; }
   #tbody-acessos tr.acesso-login-row { cursor: pointer; }
   #tbody-acessos tr.acesso-login-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  /* aba Acessos: dados centralizados sob o cabeçalho; só o Login fica alinhado à esquerda */
+  #acessos-table thead th { text-align: center; }
+  #acessos-table thead th button { justify-content: center; }
+  #acessos-table tbody td { text-align: center; }
+  #acessos-table thead th:first-child,
+  #acessos-table thead th:first-child button { text-align: left; justify-content: flex-start; }
+  #acessos-table tbody td:first-child { text-align: left; }
+  #acessos-table tbody td.num-cell { text-align: center; }
   input[type="search"] { min-width: 180px; }
   #cmp-dia-limite { min-width: 0; width: 72px; }
   select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -1444,7 +1452,7 @@
           <span class="copy-status" id="copy-acessos-status"></span>
         </div>
         <div class="table-scroll">
-          <table>
+          <table id="acessos-table">
             <thead>
               <tr>
                 <th data-key="Login"><button>Login <span class="sort-arrow"></span></button></th>
