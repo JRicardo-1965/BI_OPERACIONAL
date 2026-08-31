@@ -1393,11 +1393,12 @@
       <p class="tab-context-note">
         <b>Acessos</b> · quem acessou qual sistema e quando, via login único do Portal BI &middot; mostra <b>todos os sistemas</b>, independente do seu acesso nas demais abas.
       </p>
-      <div class="kpis kpis-4" id="kpis-acessos">
+      <div class="kpis kpis-5" id="kpis-acessos">
         <div class="kpi kpi-static"><div class="num" id="num-acessos-total">–</div><div class="lbl">Total de acessos</div></div>
         <div class="kpi kpi-static"><div class="num" id="num-acessos-usuarios">–</div><div class="lbl">Usuários distintos</div></div>
         <div class="kpi kpi-static"><div class="num" id="num-acessos-sistema-top" style="font-size:15px;">–</div><div class="lbl">Sistema mais acessado</div></div>
         <div class="kpi kpi-static"><div class="num" id="num-acessos-ultimo" style="font-size:14px;">–</div><div class="lbl">Último acesso</div></div>
+        <div class="kpi kpi-static" id="kpi-acessos-pendentes" tabindex="0" role="button" aria-pressed="false" title="Clique pra filtrar"><div class="num" id="num-acessos-pendentes">–</div><div class="lbl">Aguardando gravação no Access</div></div>
       </div>
       <div class="panel">
         <div class="filters">
@@ -1408,6 +1409,14 @@
           <div class="field">
             <label for="acessos-busca">Usuário</label>
             <input type="search" id="acessos-busca" placeholder="Buscar por e-mail..." />
+          </div>
+          <div class="field">
+            <label for="acessos-status">Status</label>
+            <select id="acessos-status">
+              <option value="">Todos</option>
+              <option value="gravado">Gravado no Access</option>
+              <option value="pendente">Pendente</option>
+            </select>
           </div>
           <div class="spacer"></div>
           <span class="result-count" id="result-count-acessos"></span>
@@ -1421,7 +1430,9 @@
                 <th data-key="DataHora"><button>Data/Hora <span class="sort-arrow">▼</span></button></th>
                 <th data-key="Usuario"><button>Usuário <span class="sort-arrow"></span></button></th>
                 <th data-key="Sistema"><button>Sistema <span class="sort-arrow"></span></button></th>
+                <th data-key="Aba"><button>Aba <span class="sort-arrow"></span></button></th>
                 <th data-key="IP"><button>IP <span class="sort-arrow"></span></button></th>
+                <th data-key="Pendente"><button>Status <span class="sort-arrow"></span></button></th>
               </tr>
             </thead>
             <tbody id="tbody-acessos"></tbody>
@@ -1430,7 +1441,8 @@
         <div class="empty-state" id="empty-state-acessos" style="display:none;">Nenhum acesso registrado ainda, ou nenhum corresponde aos filtros aplicados.</div>
       </div>
       <div class="footnote">
-        Fonte: tabela <code>LOG_ACESSOS_BI</code> no Access &middot; gravada pelo Portal BI toda vez que alguém escolhe um sistema pra entrar (login único) &middot; o histórico começa a partir de 28/08/2026, quando essa captura foi ligada — acessos anteriores a essa data não ficaram registrados.
+        Fonte: tabela <code>LOG_ACESSOS_BI</code> no Access &middot; gravada pelo Portal BI toda vez que alguém escolhe um sistema pra entrar (login único) &middot; o histórico começa a partir de 31/08/2026, quando essa captura passou a gravar de verdade — acessos anteriores a essa data não ficaram registrados (bug corrigido nesse dia) &middot;
+        <b>Pendente</b> = o Portal já capturou o evento, mas ele ainda não foi gravado de vez na tabela do Access (deve virar "Gravado" no próximo ciclo de atualização, ~15 min).
       </div>
     </div>
 
@@ -2512,6 +2524,7 @@ function cidadeUfHtml(cidade, uf) {
 
   const sistemaSel = document.getElementById("acessos-sistema");
   const buscaInput = document.getElementById("acessos-busca");
+  const statusSel = document.getElementById("acessos-status");
   const tbody = document.getElementById("tbody-acessos");
 
   Array.from(new Set(RAW_ACESSOS.map(r => r.Sistema))).sort().forEach(s => {
@@ -2528,10 +2541,13 @@ function cidadeUfHtml(cidade, uf) {
   function render() {
     const sistemaVal = sistemaSel.value;
     const buscaVal = buscaInput.value.trim().toLowerCase();
+    const statusVal = statusSel.value;
 
     let rows = RAW_ACESSOS.slice();
     if (sistemaVal) rows = rows.filter(r => r.Sistema === sistemaVal);
     if (buscaVal) rows = rows.filter(r => (r.Usuario || "").toLowerCase().includes(buscaVal));
+    if (statusVal === "gravado") rows = rows.filter(r => !r.Pendente);
+    if (statusVal === "pendente") rows = rows.filter(r => r.Pendente);
 
     rows.sort((a, b) => {
       const av = a[sortKey], bv = b[sortKey];
@@ -2542,11 +2558,13 @@ function cidadeUfHtml(cidade, uf) {
     });
 
     tbody.innerHTML = rows.map(r => `
-      <tr>
+      <tr${r.Pendente ? ' class="row-warning"' : ""}>
         <td>${fmtDataHora(r.DataHora)}</td>
         <td>${r.Usuario || "—"}</td>
         <td>${r.Sistema || "—"}</td>
+        <td>${r.Aba || "—"}</td>
         <td>${r.IP || "—"}</td>
+        <td>${r.Pendente ? '<span class="chip c-warning">PENDENTE</span>' : '<span class="chip c-ok">GRAVADO</span>'}</td>
       </tr>
     `).join("");
 
@@ -2565,17 +2583,29 @@ function cidadeUfHtml(cidade, uf) {
     const ultimoAcesso = RAW_ACESSOS.length
       ? RAW_ACESSOS.reduce((max, r) => (r.DataHora > max ? r.DataHora : max), RAW_ACESSOS[0].DataHora)
       : null;
+    const totalPendentes = RAW_ACESSOS.filter(r => r.Pendente).length;
 
     document.getElementById("num-acessos-total").textContent = fmtNum(RAW_ACESSOS.length);
     document.getElementById("num-acessos-usuarios").textContent = fmtNum(usuariosDistintos);
     document.getElementById("num-acessos-sistema-top").textContent = sistemaTop;
     document.getElementById("num-acessos-ultimo").textContent = fmtDataHora(ultimoAcesso);
+    document.getElementById("num-acessos-pendentes").textContent = fmtNum(totalPendentes);
 
     lastRendered = rows;
   }
 
   sistemaSel.addEventListener("change", render);
   buscaInput.addEventListener("input", render);
+  statusSel.addEventListener("change", render);
+
+  const kpiPendentesEl = document.getElementById("kpi-acessos-pendentes");
+  kpiPendentesEl.addEventListener("click", () => {
+    statusSel.value = statusSel.value === "pendente" ? "" : "pendente";
+    render();
+  });
+  kpiPendentesEl.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); kpiPendentesEl.click(); }
+  });
 
   document.querySelectorAll('#tab-content-acessos th[data-key] button').forEach(btn => {
     btn.addEventListener("click", () => {
@@ -2589,8 +2619,8 @@ function cidadeUfHtml(cidade, uf) {
   });
 
   document.getElementById("copy-acessos-btn").addEventListener("click", () => {
-    const headers = ["Data/Hora", "Usuário", "Sistema", "IP"];
-    const rowsOut = lastRendered.map(r => [r.DataHora, r.Usuario, r.Sistema, r.IP]);
+    const headers = ["Data/Hora", "Usuário", "Sistema", "Aba", "IP", "Status"];
+    const rowsOut = lastRendered.map(r => [r.DataHora, r.Usuario, r.Sistema, r.Aba || "", r.IP, r.Pendente ? "PENDENTE" : "GRAVADO"]);
     copyToExcel(headers, rowsOut, document.getElementById("copy-acessos-status"));
   });
 
