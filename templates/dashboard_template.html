@@ -2645,6 +2645,16 @@ function cidadeUfHtml(cidade, uf) {
     if (tab === "vendas-detalhe" && window.renderVendasDetalhe) window.renderVendasDetalhe();
     if (tab === "estoquefilial" && window.renderEstoqueFilial) window.renderEstoqueFilial();
     if (tab === "acessos" && window.renderAcessos) window.renderAcessos();
+
+    // log de acessos por aba (fase 2) - so na versao hospedada (tem sessao/usuario logado),
+    // fire-and-forget: nunca deve travar/atrasar a troca de aba, mesmo se a chamada falhar.
+    if (HOSTED_SESSION) {
+      fetch("/api/registrar-aba", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ aba: tab })
+      }).catch(() => {});
+    }
   }
   for (const t of tabs) btns[t].addEventListener("click", () => activate(t));
 })();
