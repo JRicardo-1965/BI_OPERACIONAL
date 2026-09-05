@@ -833,6 +833,23 @@
   .local-update-trigger-btn:disabled { opacity: 0.55; cursor: default; }
   .icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
+  /* Seletor "Trocar de módulo" (cabeçalho, só hospedado com mais de 1 sistema liberado) - link de
+     volta pro Portal BI (/ir/:sistema), que faz o handoff via SSO sem pedir senha de novo. */
+  .modulo-switch-wrap { position: relative; flex-shrink: 0; }
+  .modulo-switch-wrap.is-hidden { display: none; }
+  .modulo-switch-panel {
+    display: none; position: absolute; top: calc(100% + 6px); right: 0; z-index: 80;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(20,15,10,.18); min-width: 200px; padding: 6px;
+  }
+  .modulo-switch-panel.is-open { display: block; }
+  .modulo-switch-item {
+    display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 7px;
+    text-decoration: none; color: var(--text); font-family: var(--sans); font-size: 12.5px; font-weight: 600;
+  }
+  .modulo-switch-item:hover { background: var(--surface-2); }
+  .modulo-switch-swatch { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -1132,8 +1149,12 @@
         <button id="refresh-page-btn" class="icon-btn" type="button" title="Atualizar a página (recarrega com os últimos dados publicados)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
         </button>
-        <button id="local-update-btn" class="local-update-trigger-btn is-hidden" type="button" title="Atualizar dados agora (extrai do Access e reconstrói o dashboard) — disponível só rodando local">🔄 Atualizar dados</button>
+        <button id="local-update-btn" class="local-update-trigger-btn is-hidden" type="button" title="Atualizar dados agora (extrai do Access e reconstrói o dashboard) — disponível só rodando local">🔄</button>
         <span class="local-update-trigger-btn is-hidden" id="hosted-user-badge" title="Usuário logado"></span>
+        <div class="modulo-switch-wrap is-hidden" id="modulo-switch-wrap">
+          <button id="modulo-switch-btn" class="local-update-trigger-btn" type="button" aria-haspopup="true" aria-expanded="false" title="Trocar de módulo">🔀</button>
+          <div class="modulo-switch-panel" id="modulo-switch-panel"></div>
+        </div>
         <button id="hosted-logout-btn" class="local-update-trigger-btn is-hidden" type="button">Sair</button>
         <div class="theme-toggle-wrap">
           <span class="freshness-dot" id="freshness-dot"></span>
@@ -1614,6 +1635,9 @@ const RAW_ACESSOS = __ACESSOS_JSON__;
 // initHostedSession() abaixo nunca ativa nesses dois casos.
 const HOSTED_USER_LABEL = "__HOSTED_USER_LABEL__";
 const HOSTED_SESSION = "__HOSTED_SESSION__" === "1";
+// Outros módulos BI que este usuário também acessa (seletor "Trocar de módulo" no cabeçalho) -
+// vazio no build local e no hospedado quando o usuário só tem acesso a este BI.
+const RAW_OUTROS_SISTEMAS = __OUTROS_SISTEMAS_JSON__;
 
 const today = new Date("__TODAY_ISO__T00:00:00");
 const TODAY_ISO_STR = "__TODAY_ISO__";
@@ -2958,5 +2982,28 @@ if (window.renderStatus) window.renderStatus();
     try { await fetch("/api/logout", { method: "POST" }); } catch (err) {}
     location.href = "/login";
   });
+})();
+
+// Seletor "Trocar de módulo" — só aparece hospedado, e só quando o usuário tem acesso a mais de
+// 1 sistema (RAW_OUTROS_SISTEMAS não é a fonte de autorização - só decide se o botão aparece;
+// quem confere de verdade é o Portal, de novo, ao clicar em /ir/:sistema).
+(function initModuloSwitch() {
+  if (!HOSTED_SESSION || !RAW_OUTROS_SISTEMAS.length) return;
+  const wrap = document.getElementById("modulo-switch-wrap");
+  const btn = document.getElementById("modulo-switch-btn");
+  const panel = document.getElementById("modulo-switch-panel");
+  panel.innerHTML = RAW_OUTROS_SISTEMAS.map(s =>
+    `<a class="modulo-switch-item" href="${s.url}"><span class="modulo-switch-swatch" style="background:${s.cor}"></span>${s.label}</a>`
+  ).join("");
+  wrap.classList.remove("is-hidden");
+  function fechar() { panel.classList.remove("is-open"); btn.setAttribute("aria-expanded", "false"); }
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const abrindo = !panel.classList.contains("is-open");
+    panel.classList.toggle("is-open", abrindo);
+    btn.setAttribute("aria-expanded", String(abrindo));
+  });
+  document.addEventListener("click", (e) => { if (!wrap.contains(e.target)) fechar(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") fechar(); });
 })();
 </script>
