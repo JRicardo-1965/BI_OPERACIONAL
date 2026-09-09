@@ -264,6 +264,8 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
       // acessos tambem sem filtro por empresa (nao tem esse conceito - e log de login por
       // sistema, mesma regra de "mostra tudo" do estoque/transferencias acima).
       acessos: body.acessos || [],
+      comparativo: body.comparativo || [],
+      comparativoTotais: body.comparativoTotais || [],
       meta: body.meta || {},
       usuarios,
       usuariosEmpresas: (body.usuariosEmpresas || []).map((v) => ({ email: v.email, empresa: String(v.empresa) })),
@@ -323,6 +325,8 @@ app.get('/', requireAuth, (req, res) => {
   const estoque = latestData.estoque || [];
   const transferencias = latestData.transferencias || [];
   const acessos = latestData.acessos || [];
+  const comparativo = filterByEmpresas(latestData.comparativo, allowed);
+  const comparativoTotais = filterByEmpresas(latestData.comparativoTotais, allowed);
   const meta = latestData.meta || {};
   const outrosSistemas = outrosSistemasDoUsuario(req.userEmail);
 
@@ -337,6 +341,8 @@ app.get('/', requireAuth, (req, res) => {
     .replaceAll('__ESTOQUE_JSON__', jsonForScript(estoque))
     .replaceAll('__TRANSFERENCIAS_JSON__', jsonForScript(transferencias))
     .replaceAll('__ACESSOS_JSON__', jsonForScript(acessos))
+    .replaceAll('__COMPARATIVO_JSON__', jsonForScript(comparativo))
+    .replaceAll('__COMPARATIVO_TOTAIS_JSON__', jsonForScript(comparativoTotais))
     .replaceAll('__TODAY_ISO__', new Date().toISOString().slice(0, 10))
     .replaceAll('__PROCESSADO_EM__', meta.ProcessadoEm || 'desconhecido')
     .replaceAll('__HOSTED_USER_LABEL__', escapeHtml(req.userNome))

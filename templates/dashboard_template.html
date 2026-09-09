@@ -1173,6 +1173,7 @@
       <button class="tab-btn" id="tab-btn-vendas-detalhe" type="button" data-tab="vendas-detalhe">Vendas Detalhadas</button>
       <button class="tab-btn" id="tab-btn-estoquefilial" type="button" data-tab="estoquefilial">Estoque por Filial</button>
       <button class="tab-btn" id="tab-btn-acessos" type="button" data-tab="acessos">Acessos</button>
+      <button class="tab-btn" id="tab-btn-comparar" type="button" data-tab="comparar">Comparar Períodos</button>
     </div>
 
     <!-- ===================== TAB: STATUS DOS PEDIDOS ===================== -->
@@ -1499,6 +1500,64 @@
       </div>
     </div>
 
+    <!-- ===================== TAB: COMPARAR PERÍODOS ===================== -->
+    <!-- Trazido do BI Comercial em 2026-09-09 (ficava escondida lá, sem uso). -->
+    <div id="tab-content-comparar" class="is-hidden">
+    <div class="panel">
+      <div class="filters">
+        <div class="field">
+          <label for="cmp-empresa">Empresa</label>
+          <select id="cmp-empresa"><option value="">Todas as empresas</option></select>
+        </div>
+        <div class="field">
+          <label for="cmp-segmento">Segmento</label>
+          <select id="cmp-segmento"><option value="">Todos os segmentos</option></select>
+        </div>
+        <div class="field">
+          <label for="cmp-periodo-1">Período 1</label>
+          <select id="cmp-periodo-1"></select>
+        </div>
+        <div class="field">
+          <label for="cmp-periodo-2">Período 2</label>
+          <select id="cmp-periodo-2"></select>
+        </div>
+        <div class="field">
+          <label for="cmp-periodo-3">Período 3</label>
+          <select id="cmp-periodo-3"><option value="">Nenhum</option></select>
+        </div>
+        <div class="field">
+          <label for="cmp-periodo-4">Período 4</label>
+          <select id="cmp-periodo-4"><option value="">Nenhum</option></select>
+        </div>
+        <div class="field">
+          <label for="cmp-dia-limite">Limitar até o dia</label>
+          <input type="number" id="cmp-dia-limite" min="1" max="31" step="1" placeholder="Mês inteiro" title="Compara só até esse dia do mês em todos os períodos ativos - útil pra comparar um mês em andamento com meses já fechados de forma justa" />
+        </div>
+      </div>
+
+      <div class="cmp-metric-toggle" id="cmp-metric-toggle">
+        <button type="button" class="cmp-metric-btn is-active" data-metric="clientes">👥 Clientes únicos</button>
+        <button type="button" class="cmp-metric-btn" data-metric="vendas">🧾 Nr. Total de Pedidos</button>
+        <button type="button" class="cmp-metric-btn" data-metric="itens">📦 Itens vendidos</button>
+        <button type="button" class="cmp-metric-btn" data-metric="financeiro">💰 Financeiro</button>
+      </div>
+
+      <div class="cmp-chart-row">
+        <div class="cmp-chart-wrap" id="cmp-chart-wrap">
+          <div id="cmp-chart"></div>
+        </div>
+        <div class="cmp-summary-cards" id="cmp-summary-cards"></div>
+      </div>
+      <div class="cmp-legend" id="cmp-legend"></div>
+
+      <div class="footnote">
+        Cada linha é um período (Ano/Mês) selecionado acima, alinhado por dia do mês para comparar diretamente &middot;
+        Clique num ponto do gráfico para ver o detalhamento daquele dia em todos os períodos comparados, nas 4 métricas &middot;
+        Segmento é atributo do cliente (não da venda) &middot; "Limitar até o dia" corta todos os períodos ativos no mesmo dia do mês, útil pra comparar um mês em andamento com meses já fechados sem viés (some sozinho quando o período mais recente é o mês atual) &middot; dados de histórico completo (<code>VENDAS_CLIENTES</code>), excluindo FRETE.
+      </div>
+    </div>
+    </div>
+
     <p class="footer-note" style="font-size:10.5px;color:var(--text-faint);text-align:center;padding:4px 0 0;">BI Operacional — Aqui Tem Mais · dados processados em <b>__PROCESSADO_EM__</b></p>
   </div>
 </div>
@@ -1611,6 +1670,17 @@
   </div>
 </div>
 
+<div class="modal-overlay is-hidden" id="cmp-dia-modal">
+  <div class="modal-card modal-card-wide is-compact" role="dialog" aria-modal="true" aria-labelledby="cmp-dia-title">
+    <h2 id="cmp-dia-title">Dia</h2>
+    <p class="modal-sub" id="cmp-dia-sub"></p>
+    <table class="modal-table" id="cmp-dia-table"></table>
+    <div class="modal-close-row">
+      <button class="modal-close-btn" id="cmp-dia-close-btn" type="button">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay is-hidden" id="copy-fallback-modal">
   <div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="copy-fallback-title">
     <h2 id="copy-fallback-title">Copiar para Excel</h2>
@@ -1631,6 +1701,9 @@ const RAW_VENDAS_DETALHE = __VENDAS_DETALHE_JSON__;
 const RAW_ESTOQUE = __ESTOQUE_JSON__;
 const RAW_TRANSFERENCIAS = __TRANSFERENCIAS_JSON__;
 const RAW_ACESSOS = __ACESSOS_JSON__;
+// Trazido do BI Comercial em 2026-09-09 (aba "Comparar Períodos") - ver initCompararTab.
+const RAW_COMPARATIVO = __COMPARATIVO_JSON__;
+const RAW_COMPARATIVO_TOTAIS = __COMPARATIVO_TOTAIS_JSON__;
 
 // Preenchidos só pelo backend hospedado (Render) a cada login, sessão a sessão — o build.js do
 // Artifact público e do dashboard local sempre substitui os dois por string vazia, então o bloco
@@ -2810,8 +2883,281 @@ function cidadeUfHtml(cidade, uf) {
   window.renderAcessos = render;
 })();
 
+// ================================================================
+// ABA COMPARAR PERÍODOS (trazida do BI Comercial em 2026-09-09 - ficava escondida lá, sem uso)
+// ================================================================
+(function initCompararTab() {
+  const MESES_ABREV_CMP = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  const CMP_COLORS = ["var(--seg-1)", "var(--seg-2)", "var(--seg-3)", "var(--seg-4)"];
+
+  function periodoLabelCmp(anoMes) {
+    const [y, m] = anoMes.split("-");
+    return `${MESES_ABREV_CMP[parseInt(m, 10) - 1]}/${y}`;
+  }
+  function diasNoMesCmp(anoMes) {
+    const [y, m] = anoMes.split("-").map(Number);
+    return new Date(y, m, 0).getDate();
+  }
+  function fmtCompactCmp(v) {
+    const sinal = v < 0 ? "-" : "";
+    const av = Math.abs(v);
+    if (av >= 1000000) return sinal + (av / 1000000).toFixed(1).replace(".0", "") + "M";
+    if (av >= 1000) return sinal + (av / 1000).toFixed(1).replace(".0", "") + "k";
+    return String(Math.round(av));
+  }
+  function fmtMoneyCompactCmp(v) { return "R$ " + fmtCompactCmp(v); }
+
+  // mapa CodEmpresa -> nome, vindo de RAW_CLIENTES (fonte global ja carregada, cobre toda empresa
+  // que o usuario pode ver - RAW_COMPARATIVO so tem o codigo, nao o nome).
+  const empresaNomeMapCmp = new Map(RAW_CLIENTES.map(r => [String(r.CodEmpresa), r.Empresa]));
+
+  const cmpEmpresaSel = document.getElementById("cmp-empresa");
+  const cmpSegmentoSel = document.getElementById("cmp-segmento");
+  const periodoSelects = [
+    document.getElementById("cmp-periodo-1"),
+    document.getElementById("cmp-periodo-2"),
+    document.getElementById("cmp-periodo-3"),
+    document.getElementById("cmp-periodo-4")
+  ];
+  const cmpDiaLimiteInput = document.getElementById("cmp-dia-limite");
+  const chartEl = document.getElementById("cmp-chart");
+  const legendEl = document.getElementById("cmp-legend");
+  const summaryCardsEl = document.getElementById("cmp-summary-cards");
+
+  function clientesUnicosPeriodoCmp(anoMes, empresaVal, segmentoVal, limiteDia) {
+    let rows = RAW_COMPARATIVO_TOTAIS.filter(r => r.AnoMes === anoMes);
+    if (empresaVal) rows = rows.filter(r => String(r.CodEmpresa) === empresaVal);
+    if (segmentoVal) rows = rows.filter(r => r.Segmento === segmentoVal);
+    if (limiteDia) rows = rows.filter(r => r.Dia <= limiteDia);
+    return rows.reduce((sum, r) => sum + (r.NovosClientes || 0), 0);
+  }
+
+  const empresasCmp = [...new Set(RAW_COMPARATIVO.map(r => String(r.CodEmpresa)))]
+    .map(cod => ({ cod, nome: empresaNomeMapCmp.get(cod) || `Empresa ${cod}` }))
+    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+  for (const e of empresasCmp) {
+    const opt = document.createElement("option");
+    opt.value = e.cod; opt.textContent = e.nome;
+    cmpEmpresaSel.appendChild(opt);
+  }
+
+  const segmentosCmp = [...new Set(RAW_COMPARATIVO.map(r => r.Segmento))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+  for (const s of segmentosCmp) {
+    const opt = document.createElement("option");
+    opt.value = s; opt.textContent = s;
+    cmpSegmentoSel.appendChild(opt);
+  }
+
+  const anoMesesCmp = [...new Set(RAW_COMPARATIVO.map(r => r.AnoMes))].sort().reverse();
+  for (const sel of periodoSelects) {
+    const optNenhum = document.createElement("option");
+    optNenhum.value = ""; optNenhum.textContent = "Nenhum";
+    sel.appendChild(optNenhum);
+    for (const am of anoMesesCmp) {
+      const opt = document.createElement("option");
+      opt.value = am; opt.textContent = periodoLabelCmp(am);
+      sel.appendChild(opt);
+    }
+  }
+  if (anoMesesCmp[0]) periodoSelects[0].value = anoMesesCmp[0];
+  if (anoMesesCmp[1]) periodoSelects[1].value = anoMesesCmp[1];
+
+  if (anoMesesCmp[0] === TODAY_ISO_STR.slice(0, 7)) {
+    cmpDiaLimiteInput.value = today.getDate();
+  }
+
+  let metricAtual = "clientes";
+  let periodosAtivosAtual = [];
+
+  function buildChartSvg(periodosAtivos, metricKey, metricFmt) {
+    if (!periodosAtivos.length) {
+      return `<div class="ranking-empty">Escolha pelo menos um período acima para comparar.</div>`;
+    }
+    const W = 900, H = 300, padTop = 30, padBottom = 26, padLeft = 54, padRight = 14;
+    const plotW = W - padLeft - padRight;
+    const plotH = H - padTop - padBottom;
+    const maxDia = Math.max(...periodosAtivos.map(p => p.diasNoMes));
+    const valores = periodosAtivos.flatMap(p => Array.from(p.porDia.values()).map(v => v[metricKey] || 0));
+    const maxValor = Math.max(1, ...valores);
+
+    const xFor = (dia) => padLeft + (maxDia > 1 ? ((dia - 1) / (maxDia - 1)) * plotW : plotW / 2);
+    const yFor = (valor) => padTop + plotH - (valor / maxValor) * plotH;
+
+    const gridLevels = 4;
+    let gridSvg = "";
+    for (let i = 0; i <= gridLevels; i++) {
+      const valor = (maxValor / gridLevels) * i;
+      const y = yFor(valor);
+      gridSvg += `<line x1="${padLeft}" y1="${y.toFixed(1)}" x2="${W - padRight}" y2="${y.toFixed(1)}" style="stroke:var(--border)" stroke-width="1" />`;
+      gridSvg += `<text x="${padLeft - 8}" y="${(y + 3).toFixed(1)}" font-size="10.5" font-weight="700" text-anchor="end" style="fill:var(--text)">${metricFmt(valor)}</text>`;
+    }
+
+    const passo = maxDia > 20 ? 5 : 2;
+    let xAxisSvg = "";
+    for (let d = 1; d <= maxDia; d += passo) {
+      xAxisSvg += `<text x="${xFor(d).toFixed(1)}" y="${H - 8}" font-size="10.5" font-weight="700" text-anchor="middle" style="fill:var(--text)">${d}</text>`;
+    }
+    if ((maxDia - 1) % passo !== 0) {
+      xAxisSvg += `<text x="${xFor(maxDia).toFixed(1)}" y="${H - 8}" font-size="10.5" font-weight="700" text-anchor="middle" style="fill:var(--text)">${maxDia}</text>`;
+    }
+
+    const labelStep = periodosAtivos.length >= 3 ? passo : (periodosAtivos.length === 2 ? Math.max(1, Math.round(passo / 2)) : 1);
+
+    let linesSvg = "";
+    let pointsSvg = "";
+    let labelsSvg = "";
+    periodosAtivos.forEach((p, idx) => {
+      const dias = Array.from({ length: p.diasNoMes }, (_, i) => i + 1);
+      const pts = dias.map(d => {
+        const v = p.porDia.get(d);
+        return { x: xFor(d), y: yFor(v ? (v[metricKey] || 0) : 0), dia: d, valor: v ? (v[metricKey] || 0) : 0 };
+      });
+      const pathD = pts.map((pt, i) => (i === 0 ? "M" : "L") + pt.x.toFixed(1) + "," + pt.y.toFixed(1)).join(" ");
+      linesSvg += `<path d="${pathD}" style="fill:none;stroke:${p.color};stroke-width:2.2" />`;
+      pointsSvg += pts.map(pt => `
+        <circle class="cmp-point" cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="8" fill="transparent" data-dia="${pt.dia}" style="cursor:pointer"><title>Dia ${pt.dia} — ${p.label}: ${metricFmt(pt.valor)} — clique para detalhar</title></circle>
+        <circle cx="${pt.x.toFixed(1)}" cy="${pt.y.toFixed(1)}" r="2.6" style="fill:${p.color};pointer-events:none" />
+      `).join("");
+      labelsSvg += pts.filter((pt, i) => i % labelStep === 0 || i === pts.length - 1).map(pt => {
+        const ly = Math.max(9, pt.y - 8 - (idx % 2) * 10);
+        return `<text x="${pt.x.toFixed(1)}" y="${ly.toFixed(1)}" font-size="9" text-anchor="middle" style="fill:${p.color};font-weight:700;pointer-events:none">${metricFmt(pt.valor)}</text>`;
+      }).join("");
+    });
+
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;overflow:visible">
+      ${gridSvg}
+      ${linesSvg}
+      ${labelsSvg}
+      ${pointsSvg}
+      ${xAxisSvg}
+    </svg>`;
+  }
+
+  function render() {
+    const empresaVal = cmpEmpresaSel.value;
+    const segmentoVal = cmpSegmentoSel.value;
+    const periodosEscolhidos = periodoSelects.map(s => s.value).filter(Boolean);
+    const limiteDiaRaw = parseInt(cmpDiaLimiteInput.value, 10);
+    const limiteDia = (Number.isFinite(limiteDiaRaw) && limiteDiaRaw >= 1) ? limiteDiaRaw : null;
+
+    let filtrado = RAW_COMPARATIVO;
+    if (empresaVal) filtrado = filtrado.filter(r => String(r.CodEmpresa) === empresaVal);
+    if (segmentoVal) filtrado = filtrado.filter(r => r.Segmento === segmentoVal);
+    if (limiteDia) filtrado = filtrado.filter(r => r.Dia <= limiteDia);
+
+    const periodosAtivos = periodosEscolhidos.map((anoMes, idx) => {
+      const porDia = new Map();
+      let totFaturamento = 0, totQtdVendas = 0, totItens = 0;
+      for (const row of filtrado) {
+        if (row.AnoMes !== anoMes) continue;
+        if (!porDia.has(row.Dia)) porDia.set(row.Dia, { Faturamento: 0, QtdVendas: 0, ClientesUnicos: 0, ItensVendidos: 0 });
+        const acc = porDia.get(row.Dia);
+        acc.Faturamento += row.Faturamento;
+        acc.QtdVendas += row.QtdVendas;
+        acc.ClientesUnicos += row.ClientesUnicos;
+        acc.ItensVendidos += row.ItensVendidos || 0;
+        totFaturamento += row.Faturamento;
+        totQtdVendas += row.QtdVendas;
+        totItens += row.ItensVendidos || 0;
+      }
+      const diasNoMesReal = diasNoMesCmp(anoMes);
+      return {
+        anoMes,
+        label: periodoLabelCmp(anoMes),
+        color: CMP_COLORS[idx % CMP_COLORS.length],
+        diasNoMes: limiteDia ? Math.min(diasNoMesReal, limiteDia) : diasNoMesReal,
+        porDia,
+        totais: {
+          Faturamento: totFaturamento,
+          QtdVendas: totQtdVendas,
+          ItensVendidos: totItens,
+          ClientesUnicos: clientesUnicosPeriodoCmp(anoMes, empresaVal, segmentoVal, limiteDia)
+        }
+      };
+    });
+
+    periodosAtivosAtual = periodosAtivos;
+
+    const metricKey = { clientes: "ClientesUnicos", vendas: "QtdVendas", itens: "ItensVendidos", financeiro: "Faturamento" }[metricAtual];
+    const metricFmt = metricAtual === "financeiro" ? fmtMoneyCompactCmp : (v) => fmtNum(v);
+
+    chartEl.innerHTML = buildChartSvg(periodosAtivos, metricKey, metricFmt);
+
+    legendEl.innerHTML = periodosAtivos.length
+      ? periodosAtivos.map(p => `<span class="cmp-legend-item"><span class="cmp-legend-swatch" style="background:${p.color}"></span>${p.label}</span>`).join("")
+      : `<span class="cmp-legend-empty">Selecione ao menos um período nos filtros acima.</span>`;
+
+    summaryCardsEl.innerHTML = periodosAtivos.length
+      ? periodosAtivos.map(p => `
+          <div class="cmp-summary-card" style="--card-color:${p.color}">
+            <div class="cmp-summary-card-title"><span class="cmp-summary-card-swatch"></span>${p.label}</div>
+            <div class="cmp-summary-row"><span class="lbl">👥 Clientes únicos</span><span class="val">${fmtNum(p.totais.ClientesUnicos)}</span></div>
+            <div class="cmp-summary-row"><span class="lbl">🧾 Nr. Pedidos</span><span class="val">${fmtNum(p.totais.QtdVendas)}</span></div>
+            <div class="cmp-summary-row"><span class="lbl">📦 Itens vendidos</span><span class="val">${fmtNum(p.totais.ItensVendidos)}</span></div>
+            <div class="cmp-summary-row"><span class="lbl">💰 Total vendido</span><span class="val">${fmtMoney(p.totais.Faturamento)}</span></div>
+          </div>
+        `).join("")
+      : `<div class="cmp-summary-empty">Selecione ao menos um período para ver os totais de cada um aqui ao lado.</div>`;
+  }
+
+  function abrirDetalheDiaCmp(dia) {
+    const modal = document.getElementById("cmp-dia-modal");
+    document.getElementById("cmp-dia-title").textContent = `Dia ${dia}`;
+    const empresaLabel = cmpEmpresaSel.value ? (empresaNomeMapCmp.get(cmpEmpresaSel.value) || "") : "Todas as empresas";
+    const segmentoLabel = cmpSegmentoSel.value || "Todos os segmentos";
+    document.getElementById("cmp-dia-sub").textContent = `${empresaLabel} · ${segmentoLabel}`;
+
+    const header = `<tr style="font-size:9.5px;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);">
+      <td style="border-bottom:1px solid var(--border);">Período</td>
+      <td class="num-cell" style="border-bottom:1px solid var(--border);">Financeiro</td>
+      <td class="num-cell" style="border-bottom:1px solid var(--border);">Pedidos</td>
+      <td class="num-cell" style="border-bottom:1px solid var(--border);">Itens</td>
+      <td class="num-cell" style="border-bottom:1px solid var(--border);">Clientes</td>
+    </tr>`;
+    const linhas = periodosAtivosAtual.map(p => {
+      const v = p.porDia.get(dia) || { Faturamento: 0, QtdVendas: 0, ClientesUnicos: 0, ItensVendidos: 0 };
+      return `<tr>
+        <td><span class="cmp-legend-swatch" style="background:${p.color};margin-right:6px;"></span>${p.label}</td>
+        <td class="num-cell">${fmtMoney(v.Faturamento)}</td>
+        <td class="num-cell">${fmtNum(v.QtdVendas)}</td>
+        <td class="num-cell">${fmtNum(v.ItensVendidos || 0)}</td>
+        <td class="num-cell">${fmtNum(v.ClientesUnicos)}</td>
+      </tr>`;
+    }).join("");
+    document.getElementById("cmp-dia-table").innerHTML = header + (linhas || `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:10px 0;">Sem dados.</td></tr>`);
+    modal.classList.remove("is-hidden");
+  }
+
+  const cmpDiaModal = document.getElementById("cmp-dia-modal");
+  document.getElementById("cmp-dia-close-btn").addEventListener("click", () => cmpDiaModal.classList.add("is-hidden"));
+  cmpDiaModal.addEventListener("click", (e) => { if (e.target === cmpDiaModal) cmpDiaModal.classList.add("is-hidden"); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !cmpDiaModal.classList.contains("is-hidden")) cmpDiaModal.classList.add("is-hidden"); });
+
+  chartEl.addEventListener("click", (e) => {
+    const point = e.target.closest(".cmp-point");
+    if (!point) return;
+    abrirDetalheDiaCmp(parseInt(point.dataset.dia, 10));
+  });
+
+  document.querySelectorAll(".cmp-metric-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".cmp-metric-btn").forEach(b => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      metricAtual = btn.dataset.metric;
+      render();
+    });
+  });
+
+  cmpEmpresaSel.addEventListener("change", render);
+  cmpSegmentoSel.addEventListener("change", render);
+  for (const sel of periodoSelects) sel.addEventListener("change", render);
+  cmpDiaLimiteInput.addEventListener("input", render);
+
+  window.renderComparar = render;
+})();
+
 (function initTabs() {
-  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "acessos"];
+  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "acessos", "comparar"];
   const btns = {}, contents = {};
   for (const t of tabs) {
     btns[t] = document.getElementById("tab-btn-" + t);
@@ -2828,6 +3174,7 @@ function cidadeUfHtml(cidade, uf) {
     if (tab === "vendas-detalhe" && window.renderVendasDetalhe) window.renderVendasDetalhe();
     if (tab === "estoquefilial" && window.renderEstoqueFilial) window.renderEstoqueFilial();
     if (tab === "acessos" && window.renderAcessos) window.renderAcessos();
+    if (tab === "comparar" && window.renderComparar) window.renderComparar();
 
     // log de acessos por aba (fase 2) - so na versao hospedada (tem sessao/usuario logado),
     // fire-and-forget: nunca deve travar/atrasar a troca de aba, mesmo se a chamada falhar.
