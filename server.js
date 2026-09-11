@@ -146,7 +146,8 @@ const SISTEMA_INFO = {
   FINANCEIRO: { label: 'Financeiro', cor: '#2f5ea8' },
   COMERCIAL: { label: 'Comercial', cor: '#7a4fb5' },
   REABASTECIMENTO: { label: 'Reabastecimento', cor: '#c1651a' },
-  OPERACIONAL: { label: 'Operacional', cor: '#3f6178' }
+  OPERACIONAL: { label: 'Operacional', cor: '#3f6178' },
+  CADASTROS: { label: 'Cadastros', cor: '#b3327f' }
 };
 // "LOGÍSTICA" vem do Access com acento - remove diacríticos antes de comparar com as chaves
 // ASCII de SISTEMA_INFO acima (mesmo cuidado já usado no Portal, ver normalizaSistema lá).
