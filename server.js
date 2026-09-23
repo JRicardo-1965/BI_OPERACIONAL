@@ -148,7 +148,12 @@ const SISTEMA_INFO = {
   REABASTECIMENTO: { label: 'Reabastecimento', cor: '#c1651a' },
   OPERACIONAL: { label: 'Operacional', cor: '#3f6178' },
   CADASTROS: { label: 'Cadastros', cor: '#b3327f' },
-  CLARO: { label: 'Claro', cor: '#e30613' }
+  CLARO: { label: 'Claro', cor: '#e30613' },
+  CLARO_VALIDACAO: { label: 'Claro - Validação', cor: '#8a1420' },
+  VIVO: { label: 'Vivo', cor: '#660099' },
+  VIVO_VALIDACAO: { label: 'Vivo - Validação', cor: '#660099' },
+  CARTEIRA_CLARO: { label: 'Claro - Gestão de Carteira', cor: '#b0101b' },
+  TERRITORIAL_VIVO: { label: 'Vivo - Gestão Territorial', cor: '#4a0070' }
 };
 // "LOGÍSTICA" vem do Access com acento - remove diacríticos antes de comparar com as chaves
 // ASCII de SISTEMA_INFO acima (mesmo cuidado já usado no Portal, ver normalizaSistema lá).
