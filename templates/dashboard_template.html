@@ -497,16 +497,6 @@
     min-width: 140px;
   }
   input[type="date"] { min-width: 130px; color-scheme: light dark; }
-  #tbody-acessos tr.acesso-login-row { cursor: pointer; }
-  #tbody-acessos tr.acesso-login-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-  /* aba Acessos: dados centralizados sob o cabeçalho; só o Login fica alinhado à esquerda */
-  #acessos-table thead th { text-align: center; }
-  #acessos-table thead th button { justify-content: center; }
-  #acessos-table tbody td { text-align: center; }
-  #acessos-table thead th:first-child,
-  #acessos-table thead th:first-child button { text-align: left; justify-content: flex-start; }
-  #acessos-table tbody td:first-child { text-align: left; }
-  #acessos-table tbody td.num-cell { text-align: center; }
   input[type="search"] { min-width: 180px; }
   #cmp-dia-limite { min-width: 0; width: 72px; }
   select:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -1172,7 +1162,6 @@
       <button class="tab-btn" id="tab-btn-pedidos" type="button" data-tab="pedidos">Faturamento &amp; Pedidos</button>
       <button class="tab-btn" id="tab-btn-vendas-detalhe" type="button" data-tab="vendas-detalhe">Vendas Detalhadas</button>
       <button class="tab-btn" id="tab-btn-estoquefilial" type="button" data-tab="estoquefilial">Estoque por Filial</button>
-      <button class="tab-btn" id="tab-btn-acessos" type="button" data-tab="acessos">Acessos</button>
       <button class="tab-btn" id="tab-btn-comparar" type="button" data-tab="comparar">Comparar Períodos</button>
     </div>
 
@@ -1423,83 +1412,6 @@
     </div>
     </div>
 
-    <!-- ===================== TAB: ACESSOS ===================== -->
-    <div id="tab-content-acessos" class="is-hidden">
-      <p class="tab-context-note">
-        <b>Acessos</b> · quem acessou qual sistema e quando, via login único do Portal BI &middot; mostra <b>todos os sistemas</b>, independente do seu acesso nas demais abas.
-      </p>
-      <div class="kpis kpis-5" id="kpis-acessos">
-        <div class="kpi kpi-static"><div class="num" id="num-acessos-total">–</div><div class="lbl" id="lbl-acessos-total">Total de acessos</div></div>
-        <div class="kpi kpi-static"><div class="num" id="num-acessos-usuarios">–</div><div class="lbl">Usuários distintos</div></div>
-        <div class="kpi kpi-static"><div class="num" id="num-acessos-sistema-top" style="font-size:15px;">–</div><div class="lbl">Sistema mais acessado</div></div>
-        <div class="kpi kpi-static"><div class="num" id="num-acessos-ultimo" style="font-size:14px;">–</div><div class="lbl">Último acesso</div></div>
-        <div class="kpi kpi-static" id="kpi-acessos-pendentes" tabindex="0" role="button" aria-pressed="false" title="Clique pra filtrar"><div class="num" id="num-acessos-pendentes">–</div><div class="lbl">Aguardando gravação</div></div>
-      </div>
-      <div class="panel">
-        <div class="filters">
-          <div class="field">
-            <label for="acessos-periodo">Acessos</label>
-            <select id="acessos-periodo">
-              <option value="dia" selected>Dia (hoje)</option>
-              <option value="mes">Mês corrente</option>
-              <option value="todos">Todo o histórico</option>
-              <option value="range">Período (datas)</option>
-            </select>
-          </div>
-          <div class="field" id="acessos-range-ini" style="display:none">
-            <label for="acessos-data-ini">De</label>
-            <input type="date" id="acessos-data-ini" />
-          </div>
-          <div class="field" id="acessos-range-fim" style="display:none">
-            <label for="acessos-data-fim">Até</label>
-            <input type="date" id="acessos-data-fim" />
-          </div>
-          <div class="field">
-            <label for="acessos-sistema">Sistema</label>
-            <select id="acessos-sistema"><option value="">Todos os sistemas</option></select>
-          </div>
-          <div class="field">
-            <label for="acessos-busca">Usuário</label>
-            <input type="search" id="acessos-busca" placeholder="Buscar por e-mail..." />
-          </div>
-          <div class="field">
-            <label for="acessos-status">Status</label>
-            <select id="acessos-status">
-              <option value="">Todos</option>
-              <option value="gravado">Gravado</option>
-              <option value="pendente">Pendente</option>
-            </select>
-          </div>
-          <div class="spacer"></div>
-          <span class="result-count" id="result-count-acessos"></span>
-          <button class="clear-btn copy-btn" id="copy-acessos-btn" type="button">📋 Copiar para Excel</button>
-          <span class="copy-status" id="copy-acessos-status"></span>
-        </div>
-        <div class="table-scroll">
-          <table id="acessos-table">
-            <thead>
-              <tr>
-                <th data-key="Login"><button>Login <span class="sort-arrow"></span></button></th>
-                <th data-key="Primeiro"><button>Primeiro acesso <span class="sort-arrow"></span></button></th>
-                <th data-key="Ultimo"><button>Último acesso <span class="sort-arrow">▼</span></button></th>
-                <th data-key="Acessos"><button>Acessos no período <span class="sort-arrow"></span></button></th>
-                <th data-key="NrIps"><button>Nº IPs <span class="sort-arrow"></span></button></th>
-                <th data-key="NrTelas"><button>Nº telas <span class="sort-arrow"></span></button></th>
-              </tr>
-            </thead>
-            <tbody id="tbody-acessos"></tbody>
-          </table>
-        </div>
-        <div class="empty-state" id="empty-state-acessos" style="display:none;">Nenhum acesso registrado ainda, ou nenhum corresponde aos filtros aplicados.</div>
-      </div>
-      <div class="footnote">
-        1 linha por login no período &middot; <b>clique numa linha</b> para ver o detalhe (data/hora, sistema, tela e IP de cada acesso) &middot;
-        <b>Nº telas</b> = telas/abas distintas consultadas &middot; <b>Nº IPs</b> = endereços IP distintos de onde o login acessou &middot;
-        Fonte: <code>LOG_ACESSOS_BI</code> no Access, gravada pelo Portal BI a cada escolha de sistema no login único &middot;
-        a tag <b>PENDENTE</b> na linha indica que o login tem pelo menos um acesso ainda não gravado de vez no Access (grava no próximo ciclo, ~15 min).
-      </div>
-    </div>
-
     <!-- ===================== TAB: COMPARAR PERÍODOS ===================== -->
     <!-- Trazido do BI Comercial em 2026-09-09 (ficava escondida lá, sem uso). -->
     <div id="tab-content-comparar" class="is-hidden">
@@ -1599,30 +1511,6 @@
   </div>
 </div>
 
-<div class="modal-overlay is-hidden" id="acessos-detalhe-modal">
-  <div class="modal-card modal-card-wide is-compact" role="dialog" aria-modal="true" aria-labelledby="acessos-detalhe-title">
-    <h2 id="acessos-detalhe-title">Acessos</h2>
-    <p class="modal-sub" id="acessos-detalhe-sub"></p>
-    <div class="ranking-table-wrap">
-      <table class="ranking-table" id="acessos-detalhe-table">
-        <thead>
-          <tr>
-            <th style="width:20%">Data/Hora</th>
-            <th style="width:24%">Sistema</th>
-            <th style="width:24%">Tela</th>
-            <th style="width:20%">IP</th>
-            <th style="width:12%">Status</th>
-          </tr>
-        </thead>
-        <tbody id="acessos-detalhe-tbody"></tbody>
-      </table>
-    </div>
-    <div class="modal-close-row">
-      <button class="modal-close-btn" id="acessos-detalhe-close-btn" type="button">Fechar</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay is-hidden" id="pendentes-modal">
   <div class="modal-card modal-card-wide is-compact" role="dialog" aria-modal="true" aria-labelledby="pendentes-title">
     <h2 id="pendentes-title">Pedidos pendentes</h2>
@@ -1700,7 +1588,6 @@ const RAW_PEDIDOS_RESUMO = __PEDIDOS_RESUMO_JSON__;
 const RAW_VENDAS_DETALHE = __VENDAS_DETALHE_JSON__;
 const RAW_ESTOQUE = __ESTOQUE_JSON__;
 const RAW_TRANSFERENCIAS = __TRANSFERENCIAS_JSON__;
-const RAW_ACESSOS = __ACESSOS_JSON__;
 // Trazido do BI Comercial em 2026-09-09 (aba "Comparar Períodos") - ver initCompararTab.
 const RAW_COMPARATIVO = __COMPARATIVO_JSON__;
 const RAW_COMPARATIVO_TOTAIS = __COMPARATIVO_TOTAIS_JSON__;
@@ -2664,225 +2551,6 @@ function cidadeUfHtml(cidade, uf) {
   window.renderEstoqueFilial = render;
 })();
 
-(function initAcessosTab() {
-  // DataHora vem como "yyyy-MM-dd HH:mm:ss" (string ISO-like) - ordena certo lexicograficamente
-  // sem precisar converter pra Date, so formata pra exibir.
-  function fmtDataHora(s) {
-    if (!s) return "—";
-    const [datePart, timePart] = s.split(" ");
-    const [y, m, d] = (datePart || "").split("-");
-    const hm = (timePart || "").slice(0, 5);
-    return `${d}/${m}/${y} ${hm}`;
-  }
-
-  const periodoSel = document.getElementById("acessos-periodo");
-  const dataIni = document.getElementById("acessos-data-ini");
-  const dataFim = document.getElementById("acessos-data-fim");
-  const rangeIniWrap = document.getElementById("acessos-range-ini");
-  const rangeFimWrap = document.getElementById("acessos-range-fim");
-  const sistemaSel = document.getElementById("acessos-sistema");
-  const buscaInput = document.getElementById("acessos-busca");
-  const statusSel = document.getElementById("acessos-status");
-  const tbody = document.getElementById("tbody-acessos");
-
-  const HOJE_STR = TODAY_ISO_STR;              // "yyyy-MM-dd"
-  const MES_STR = TODAY_ISO_STR.slice(0, 7);   // "yyyy-MM"
-
-  function toggleRangeInputs() {
-    const show = periodoSel.value === "range";
-    rangeIniWrap.style.display = show ? "" : "none";
-    rangeFimWrap.style.display = show ? "" : "none";
-    if (show && !dataIni.value && !dataFim.value) {
-      dataIni.value = MES_STR + "-01"; // padrão: 1º dia do mês até hoje
-      dataFim.value = HOJE_STR;
-    }
-  }
-
-  function noPeriodo(r) {
-    const p = periodoSel.value;
-    if (p === "todos") return true;
-    if (!r.DataHora) return false;
-    const d = String(r.DataHora).slice(0, 10);
-    if (p === "dia") return d === HOJE_STR;
-    if (p === "mes") return d.slice(0, 7) === MES_STR;
-    if (p === "range") {
-      if (dataIni.value && d < dataIni.value) return false;
-      if (dataFim.value && d > dataFim.value) return false;
-      return true;
-    }
-    return true;
-  }
-
-  Array.from(new Set(RAW_ACESSOS.map(r => r.Sistema))).sort().forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s;
-    opt.textContent = s;
-    sistemaSel.appendChild(opt);
-  });
-
-  let sortKey = "Ultimo";
-  let sortDir = -1; // último acesso mais recente primeiro (bate com o ▼ já marcado no cabeçalho)
-  let lastRendered = [];      // agregados por login (pro Excel)
-  let agregadosPorLogin = {}; // login -> agregado (pro pop-up de detalhe)
-
-  function render() {
-    const sistemaVal = sistemaSel.value;
-    const buscaVal = buscaInput.value.trim().toLowerCase();
-    const statusVal = statusSel.value;
-
-    // "janela" = acessos dentro do período escolhido (Dia / Mês / Tudo / Datas). Os KPIs somam
-    // sobre a janela; Sistema/Usuário/Status recortam só os eventos que entram na agregação.
-    const janela = RAW_ACESSOS.filter(noPeriodo);
-
-    let eventos = janela.slice();
-    if (sistemaVal) eventos = eventos.filter(r => r.Sistema === sistemaVal);
-    if (buscaVal) eventos = eventos.filter(r => (r.Usuario || "").toLowerCase().includes(buscaVal));
-    if (statusVal === "gravado") eventos = eventos.filter(r => !r.Pendente);
-    if (statusVal === "pendente") eventos = eventos.filter(r => r.Pendente);
-
-    // 1 linha por login: primeiro/último acesso, nº de acessos, nº de IPs, nº de telas.
-    const porLogin = new Map();
-    for (const r of eventos) {
-      const login = r.Usuario || "(sem login)";
-      if (!porLogin.has(login)) {
-        porLogin.set(login, { Login: login, eventos: [], ips: new Set(), telas: new Set(), Primeiro: r.DataHora, Ultimo: r.DataHora, temPendente: false });
-      }
-      const g = porLogin.get(login);
-      g.eventos.push(r);
-      if (r.IP) g.ips.add(r.IP);
-      if (r.Aba) g.telas.add(r.Aba);
-      if (r.DataHora && (!g.Primeiro || r.DataHora < g.Primeiro)) g.Primeiro = r.DataHora;
-      if (r.DataHora && (!g.Ultimo || r.DataHora > g.Ultimo)) g.Ultimo = r.DataHora;
-      if (r.Pendente) g.temPendente = true;
-    }
-    const agregados = [...porLogin.values()].map(g => ({
-      Login: g.Login, Primeiro: g.Primeiro, Ultimo: g.Ultimo,
-      Acessos: g.eventos.length, NrIps: g.ips.size, NrTelas: g.telas.size,
-      temPendente: g.temPendente, eventos: g.eventos
-    }));
-
-    agregadosPorLogin = {};
-    agregados.forEach(a => { agregadosPorLogin[a.Login] = a; });
-
-    const numeric = sortKey === "Acessos" || sortKey === "NrIps" || sortKey === "NrTelas";
-    agregados.sort((a, b) => {
-      let av = a[sortKey], bv = b[sortKey];
-      if (numeric) return ((av || 0) - (bv || 0)) * sortDir;
-      av = av || ""; bv = bv || "";
-      if (av === bv) return 0;
-      return (av < bv ? -1 : 1) * sortDir;
-    });
-
-    tbody.innerHTML = agregados.map(a => `
-      <tr class="acesso-login-row${a.temPendente ? " row-warning" : ""}" data-login="${(a.Login).replace(/"/g, "&quot;")}" tabindex="0" role="button" title="Ver o detalhe dos acessos deste login">
-        <td>${a.Login}${a.temPendente ? ' <span class="chip c-warning" style="font-size:8px">PENDENTE</span>' : ""}</td>
-        <td>${fmtDataHora(a.Primeiro)}</td>
-        <td>${fmtDataHora(a.Ultimo)}</td>
-        <td class="num-cell">${fmtNum(a.Acessos)}</td>
-        <td class="num-cell">${fmtNum(a.NrIps)}</td>
-        <td class="num-cell">${fmtNum(a.NrTelas)}</td>
-      </tr>
-    `).join("");
-
-    document.getElementById("result-count-acessos").textContent = `${agregados.length} ${agregados.length === 1 ? "login" : "logins"} · ${eventos.length} ${eventos.length === 1 ? "acesso" : "acessos"}`;
-    document.getElementById("empty-state-acessos").style.display = agregados.length ? "none" : "block";
-
-    // KPIs sobre a JANELA de período (Dia/Mês/Tudo) - não sobre o recorte de Sistema/Usuário/Status.
-    const usuariosDistintos = new Set(janela.map(r => r.Usuario)).size;
-    const contagemPorSistema = {};
-    janela.forEach(r => { contagemPorSistema[r.Sistema] = (contagemPorSistema[r.Sistema] || 0) + 1; });
-    let sistemaTop = "—", maxCount = 0;
-    Object.keys(contagemPorSistema).forEach(s => {
-      if (contagemPorSistema[s] > maxCount) { maxCount = contagemPorSistema[s]; sistemaTop = s; }
-    });
-    const ultimoAcesso = janela.length
-      ? janela.reduce((max, r) => (r.DataHora > max ? r.DataHora : max), janela[0].DataHora)
-      : null;
-    const totalPendentes = janela.filter(r => r.Pendente).length;
-
-    document.getElementById("num-acessos-total").textContent = fmtNum(janela.length);
-    document.getElementById("lbl-acessos-total").textContent =
-      periodoSel.value === "dia" ? "Acessos hoje" : periodoSel.value === "mes" ? "Acessos no mês"
-      : periodoSel.value === "range" ? "Acessos no período" : "Total de acessos";
-    document.getElementById("num-acessos-usuarios").textContent = fmtNum(usuariosDistintos);
-    document.getElementById("num-acessos-sistema-top").textContent = sistemaTop;
-    document.getElementById("num-acessos-ultimo").textContent = fmtDataHora(ultimoAcesso);
-    document.getElementById("num-acessos-pendentes").textContent = fmtNum(totalPendentes);
-
-    lastRendered = agregados;
-  }
-
-  // pop-up com o detalhe dos acessos de um login (no período/filtros atuais)
-  const detModal = document.getElementById("acessos-detalhe-modal");
-  function abrirDetalheAcessos(login) {
-    const a = agregadosPorLogin[login];
-    if (!a) return;
-    const eventos = a.eventos.slice().sort((x, y) => (x.DataHora < y.DataHora ? 1 : -1)); // mais recente primeiro
-    document.getElementById("acessos-detalhe-title").textContent = login;
-    document.getElementById("acessos-detalhe-sub").textContent =
-      `${fmtNum(a.Acessos)} acessos · ${fmtNum(a.NrIps)} IP(s) · ${fmtNum(a.NrTelas)} tela(s) · de ${fmtDataHora(a.Primeiro)} a ${fmtDataHora(a.Ultimo)}`;
-    document.getElementById("acessos-detalhe-tbody").innerHTML = eventos.map(r => `
-      <tr>
-        <td>${fmtDataHora(r.DataHora)}</td>
-        <td>${r.Sistema || "—"}</td>
-        <td>${r.Aba || "—"}</td>
-        <td>${r.IP || "—"}</td>
-        <td>${r.Pendente ? '<span class="chip c-warning">PENDENTE</span>' : '<span class="chip c-ok">GRAVADO</span>'}</td>
-      </tr>`).join("");
-    detModal.classList.remove("is-hidden");
-  }
-  function fecharDetalheAcessos() { detModal.classList.add("is-hidden"); }
-  document.getElementById("acessos-detalhe-close-btn").addEventListener("click", fecharDetalheAcessos);
-  detModal.addEventListener("click", (e) => { if (e.target === detModal) fecharDetalheAcessos(); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !detModal.classList.contains("is-hidden")) fecharDetalheAcessos(); });
-
-  tbody.addEventListener("click", (e) => {
-    const tr = e.target.closest(".acesso-login-row");
-    if (tr) abrirDetalheAcessos(tr.dataset.login);
-  });
-  tbody.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" && e.key !== " ") return;
-    const tr = e.target.closest(".acesso-login-row");
-    if (tr) { e.preventDefault(); abrirDetalheAcessos(tr.dataset.login); }
-  });
-
-  periodoSel.addEventListener("change", () => { toggleRangeInputs(); render(); });
-  dataIni.addEventListener("change", render);
-  dataFim.addEventListener("change", render);
-  sistemaSel.addEventListener("change", render);
-  buscaInput.addEventListener("input", render);
-  statusSel.addEventListener("change", render);
-
-  const kpiPendentesEl = document.getElementById("kpi-acessos-pendentes");
-  kpiPendentesEl.addEventListener("click", () => {
-    statusSel.value = statusSel.value === "pendente" ? "" : "pendente";
-    render();
-  });
-  kpiPendentesEl.addEventListener("keydown", (ev) => {
-    if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); kpiPendentesEl.click(); }
-  });
-
-  document.querySelectorAll('#tab-content-acessos th[data-key] button').forEach(btn => {
-    btn.addEventListener("click", () => {
-      const th = btn.closest("th");
-      const key = th.dataset.key;
-      if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
-      document.querySelectorAll('#tab-content-acessos th[data-key] .sort-arrow').forEach(el => el.textContent = "");
-      th.querySelector(".sort-arrow").textContent = sortDir === 1 ? "▲" : "▼";
-      render();
-    });
-  });
-
-  document.getElementById("copy-acessos-btn").addEventListener("click", () => {
-    const headers = ["Login", "Primeiro acesso", "Último acesso", "Acessos no período", "Nº IPs", "Nº telas"];
-    const rowsOut = lastRendered.map(a => [a.Login, a.Primeiro, a.Ultimo, a.Acessos, a.NrIps, a.NrTelas]);
-    copyToExcel(headers, rowsOut, document.getElementById("copy-acessos-status"));
-  });
-
-  toggleRangeInputs();
-  window.renderAcessos = render;
-})();
-
 // ================================================================
 // ABA COMPARAR PERÍODOS (trazida do BI Comercial em 2026-09-09 - ficava escondida lá, sem uso)
 // ================================================================
@@ -3157,7 +2825,7 @@ function cidadeUfHtml(cidade, uf) {
 })();
 
 (function initTabs() {
-  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "acessos", "comparar"];
+  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "comparar"];
   const btns = {}, contents = {};
   for (const t of tabs) {
     btns[t] = document.getElementById("tab-btn-" + t);
@@ -3173,7 +2841,6 @@ function cidadeUfHtml(cidade, uf) {
     if (tab === "pedidos" && window.renderPedidos) window.renderPedidos();
     if (tab === "vendas-detalhe" && window.renderVendasDetalhe) window.renderVendasDetalhe();
     if (tab === "estoquefilial" && window.renderEstoqueFilial) window.renderEstoqueFilial();
-    if (tab === "acessos" && window.renderAcessos) window.renderAcessos();
     if (tab === "comparar" && window.renderComparar) window.renderComparar();
 
     // log de acessos por aba (fase 2) - so na versao hospedada (tem sessao/usuario logado),
