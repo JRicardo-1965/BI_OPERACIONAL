@@ -1172,7 +1172,6 @@
   #tab-content-faturamento .vg2-card{ background:var(--vg-surface); border:1px solid var(--vg-line); border-radius:16px; box-shadow:var(--vg-shadow-sm); padding:14px 16px 16px; min-width:0; margin-bottom:14px; }
   #tab-content-faturamento .vg2-card h3{ font-family:var(--vg-font-display); font-size:14px; font-weight:650; letter-spacing:-.1px; margin:0 0 2px; color:var(--vg-ink); }
   #tab-content-faturamento .vg2-card .cap{ font-size:10.5px; color:var(--vg-muted); margin:0 0 10px; }
-  #tab-content-faturamento .vg2-chart-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px; }
   #tab-content-faturamento .vg2-legend{ display:flex; gap:14px; font-size:10.5px; font-weight:600; color:var(--vg-muted); flex-wrap:wrap; margin-bottom:6px; }
   #tab-content-faturamento .vg2-legend .sw{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; }
   #tab-content-faturamento .vg2-chart-area{ position:relative; height:260px; }
@@ -1192,6 +1191,11 @@
   #tab-content-faturamento .vg2-chart-tooltip .t-row .dot{ width:7px; height:7px; border-radius:50%; flex:0 0 auto; }
   #tab-content-faturamento .vg2-chart-tooltip .t-row b{ color:var(--vg-ink); margin-left:auto; font-weight:600; }
   #tab-content-faturamento .vg2-metric-toggle{ display:flex; gap:6px; }
+  /* Toggle de granularidade (Mensal/Semestral/Anual) junto dos outros filtros no topo (pedido do
+     usuário: "o filtro não fica colocado no gráfico e sim junto aos outros") - align-self:center
+     evita que ele estique pra altura de .vg2-filter (mesmo recurso já usado no BI Comercial pro
+     toggle Operadora da aba Ativações). */
+  #tab-content-faturamento .vg2-filters .vg2-metric-toggle{ align-self:center; }
   #tab-content-faturamento .vg2-metric-btn{ font-family:var(--vg-font-body); font-size:11px; font-weight:700; background:var(--vg-line-soft); border:1px solid var(--vg-line); color:var(--vg-muted); padding:4px 11px; border-radius:100px; cursor:pointer; }
   #tab-content-faturamento .vg2-metric-btn:hover{ border-color:var(--vg-accent); color:var(--vg-accent-ink); }
   #tab-content-faturamento .vg2-metric-btn.is-active{ background:var(--vg-accent); border-color:var(--vg-accent); color:#fff; }
@@ -1504,20 +1508,17 @@
             <label for="fat-operadora">Operadora</label>
             <select id="fat-operadora"><option value="">Todas as operadoras</option></select>
           </div>
+          <div class="vg2-metric-toggle" id="fat-periodo-toggle">
+            <button type="button" class="vg2-metric-btn is-active" data-modo="mensal">Mensal</button>
+            <button type="button" class="vg2-metric-btn" data-modo="semestral">Semestral</button>
+            <button type="button" class="vg2-metric-btn" data-modo="anual">Anual</button>
+          </div>
         </div>
       </div>
 
       <div class="vg2-card">
-        <div class="vg2-chart-head">
-          <div>
-            <h3>Faturamento por Período</h3>
-            <p class="cap">Barras por mês ou semestre, com linha de tendência</p>
-          </div>
-          <div class="vg2-metric-toggle" id="fat-periodo-toggle">
-            <button type="button" class="vg2-metric-btn is-active" data-modo="mensal">Mensal</button>
-            <button type="button" class="vg2-metric-btn" data-modo="semestral">Semestral</button>
-          </div>
-        </div>
+        <h3>Faturamento por Período</h3>
+        <p class="cap">Barras por mês, semestre ou ano, com linha de tendência</p>
         <div class="vg2-legend">
           <span><span class="sw" style="background:var(--vg-accent)"></span>Faturamento</span>
           <span><span class="sw" style="background:var(--vg-gold)"></span>Tendência</span>
@@ -1525,22 +1526,6 @@
         <div class="vg2-chart-area" id="fat-periodo-chart-wrap">
           <div id="fat-periodo-chart"></div>
           <div class="vg2-chart-tooltip" id="fat-periodo-tooltip" style="display:none"></div>
-        </div>
-      </div>
-
-      <div class="vg2-card">
-        <div class="vg2-chart-head">
-          <div>
-            <h3>Faturamento Diário</h3>
-            <p class="cap">Últimos 90 dias com movimento</p>
-          </div>
-        </div>
-        <div class="vg2-legend">
-          <span><span class="sw" style="background:var(--vg-teal)"></span>Faturamento do dia</span>
-        </div>
-        <div class="vg2-chart-area" id="fat-diario-chart-wrap">
-          <div id="fat-diario-chart"></div>
-          <div class="vg2-chart-tooltip" id="fat-diario-tooltip" style="display:none"></div>
         </div>
       </div>
     </div>
@@ -2972,13 +2957,9 @@ function cidadeUfHtml(cidade, uf) {
   const periodoChartEl = document.getElementById("fat-periodo-chart");
   const periodoWrap = document.getElementById("fat-periodo-chart-wrap");
   const periodoTooltip = document.getElementById("fat-periodo-tooltip");
-  const diarioChartEl = document.getElementById("fat-diario-chart");
-  const diarioWrap = document.getElementById("fat-diario-chart-wrap");
-  const diarioTooltip = document.getElementById("fat-diario-tooltip");
 
   let modoPeriodo = "mensal";
   let periodoLayout = null, periodoDados = [];
-  let diarioLayout = null, diarioDados = [];
 
   const empresasFat = Array.from(new Set(RAW_FATURAMENTO.map(r => r.Empresa).filter(Boolean))).sort((a, b) => a.localeCompare(b, "pt-BR"));
   for (const nome of empresasFat) {
@@ -3000,6 +2981,17 @@ function cidadeUfHtml(cidade, uf) {
     return RAW_FATURAMENTO.filter(r => (!empresa || r.Empresa === empresa) && (!operadora || r.Operadora === operadora));
   }
 
+  // Mesmo padrão compacto do "Comparar Períodos" (fmtMoneyCompactCmp), mas privado a esta IIFE -
+  // usado nos rótulos em cima das barras (pedido do usuário), onde "R$ 12.345,00" não cabe.
+  function fmtCompactFat(v) {
+    const sinal = v < 0 ? "-" : "";
+    const av = Math.abs(v);
+    if (av >= 1000000) return sinal + (av / 1000000).toFixed(1).replace(".0", "") + "M";
+    if (av >= 1000) return sinal + (av / 1000).toFixed(1).replace(".0", "") + "k";
+    return String(Math.round(av));
+  }
+  function fmtMoneyCompactFat(v) { return "R$ " + fmtCompactFat(v); }
+
   // Regressão linear simples (mínimos quadrados) sobre o índice do período (0..n-1) x Total - só
   // pra desenhar a linha de tendência sobre as barras (pedido do usuário).
   function calcularTendencia(valores) {
@@ -3016,7 +3008,9 @@ function cidadeUfHtml(cidade, uf) {
   function buildPeriodoChart(dados) {
     periodoDados = dados;
     if (!dados.length) { periodoLayout = null; return `<div class="vg2-empty">Sem dados no período.</div>`; }
-    const W = 900, H = 260, padTop = 18, padBottom = 26, padX = 30;
+    // padTop maior que o padrão (vs. buildVgComboChart) - sobra espaço pro rótulo de valor que
+    // fica em cima de cada barra (pedido do usuário), inclusive a mais alta.
+    const W = 900, H = 260, padTop = 34, padBottom = 26, padX = 30;
     const valores = dados.map(d => d.Total);
     const tendencia = calcularTendencia(valores);
     const maxTotal = Math.max(1, ...valores, ...tendencia);
@@ -3033,12 +3027,22 @@ function cidadeUfHtml(cidade, uf) {
       const y = padTop + plotH - barH;
       return `<rect class="vg-dia-bar" data-idx="${i}" x="${x.toFixed(2)}" y="${y.toFixed(1)}" width="${barW.toFixed(2)}" height="${Math.max(0, barH).toFixed(1)}" rx="3" style="fill:var(--vg-accent);cursor:pointer"></rect>`;
     }).join("");
+    // Valor em cima de cada barra - só quando a barra é larga o bastante pra caber o texto sem
+    // virar sopa de letrinhas (histórico mensal longo pode ter dezenas de barras finas).
+    const valueLabels = barW < 13 ? "" : dados.map((d, i) => {
+      if (!d.Total) return "";
+      const x = padX + i * slot + barW / 2;
+      const barH = (d.Total / maxTotal) * plotH;
+      const y = Math.max(10, padTop + plotH - barH - 5);
+      return `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" font-size="8" text-anchor="middle" style="fill:var(--vg-ink);font-weight:600">${fmtMoneyCompactFat(d.Total)}</text>`;
+    }).join("");
     const pts = tendencia.map((v, i) => ({ x: padX + i * slot + barW / 2, y: padTop + plotH - (v / maxTotal) * plotH }));
     const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
     const labels = dados.map((d, i) => (i % labelStep === 0) ? `<text x="${(padX + i * slot + barW / 2).toFixed(1)}" y="${H - 6}" font-size="8.5" text-anchor="middle" style="fill:var(--vg-faint)">${d.label}</text>` : "").join("");
     return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;overflow:visible" font-family="var(--vg-font-mono)" class="fat-periodo-svg">
       ${bars}
       <path d="${pathD}" style="fill:none;stroke:var(--vg-gold);stroke-width:2;stroke-dasharray:5 4;stroke-linecap:round;pointer-events:none"></path>
+      ${valueLabels}
       ${labels}
       <line class="vg-chart-cross" x1="0" y1="${padTop}" x2="0" y2="${(padTop + plotH).toFixed(1)}" style="stroke:var(--vg-faint);stroke-width:1;stroke-dasharray:2 2;opacity:0;pointer-events:none"></line>
     </svg>`;
@@ -3079,75 +3083,19 @@ function cidadeUfHtml(cidade, uf) {
     });
   }
 
-  function buildDiarioChart(dados) {
-    diarioDados = dados;
-    if (!dados.length) { diarioLayout = null; return `<div class="vg2-empty">Sem dados no período.</div>`; }
-    const W = 900, H = 260, padTop = 18, padBottom = 26, padX = 20;
-    const maxTotal = Math.max(1, ...dados.map(d => d.Total));
-    const plotH = H - padTop - padBottom;
-    const n = dados.length;
-    const slot = n > 1 ? (W - padX * 2) / (n - 1) : 0;
-    const labelStep = Math.max(1, Math.ceil(n / 10));
-    diarioLayout = { W, H, padTop, padBottom, padX, plotH, slot, maxTotal };
-    const pts = dados.map((d, i) => ({ x: padX + i * slot, y: padTop + plotH - (d.Total / maxTotal) * plotH }));
-    const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
-    const baseline = (padTop + plotH).toFixed(1);
-    const areaD = `${pathD} L${pts[pts.length - 1].x.toFixed(1)},${baseline} L${pts[0].x.toFixed(1)},${baseline} Z`;
-    const dots = pts.map((p, i) => `<circle class="vg-chart-dot" data-idx="${i}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.2" style="fill:var(--vg-teal)"></circle>`).join("");
-    const labels = dados.map((d, i) => (i % labelStep === 0 || i === n - 1) ? `<text x="${(padX + i * slot).toFixed(1)}" y="${H - 6}" font-size="8.5" text-anchor="middle" style="fill:var(--vg-faint)">${fmtDate(d.Data).slice(0, 5)}</text>` : "").join("");
-    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;overflow:visible" font-family="var(--vg-font-mono)" class="fat-diario-svg">
-      <defs><linearGradient id="fatDiarioGrad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="var(--vg-teal)" stop-opacity="0.32"></stop>
-        <stop offset="100%" stop-color="var(--vg-teal)" stop-opacity="0"></stop>
-      </linearGradient></defs>
-      <path d="${areaD}" fill="url(#fatDiarioGrad)" stroke="none" style="pointer-events:none"></path>
-      <path d="${pathD}" style="fill:none;stroke:var(--vg-teal);stroke-width:2;stroke-linecap:round;pointer-events:none"></path>
-      ${dots}
-      ${labels}
-      <line class="vg-chart-cross" x1="0" y1="${padTop}" x2="0" y2="${(padTop + plotH).toFixed(1)}" style="stroke:var(--vg-faint);stroke-width:1;stroke-dasharray:2 2;opacity:0;pointer-events:none"></line>
-    </svg>`;
-  }
-
-  function wireDiarioHover() {
-    diarioWrap.addEventListener("mousemove", (e) => {
-      const svg = diarioWrap.querySelector(".fat-diario-svg");
-      const layout = diarioLayout;
-      if (!svg || !layout || !diarioDados.length) return;
-      const pt = svg.createSVGPoint();
-      pt.x = e.clientX; pt.y = e.clientY;
-      const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
-      let idx = layout.slot > 0 ? Math.round((loc.x - layout.padX) / layout.slot) : 0;
-      idx = Math.max(0, Math.min(diarioDados.length - 1, idx));
-      const d = diarioDados[idx];
-      const cx = layout.padX + idx * layout.slot;
-      svg.querySelectorAll(".vg-chart-dot.is-hover").forEach(el => el.classList.remove("is-hover"));
-      svg.querySelector(`.vg-chart-dot[data-idx="${idx}"]`)?.classList.add("is-hover");
-      const cross = svg.querySelector(".vg-chart-cross");
-      cross.setAttribute("x1", cx.toFixed(1)); cross.setAttribute("x2", cx.toFixed(1));
-      cross.style.opacity = "1";
-      diarioTooltip.innerHTML = `
-        <div class="t-title">${fmtDate(d.Data)}</div>
-        <div class="t-row"><span class="dot" style="background:var(--vg-teal)"></span>Faturamento <b>${fmtMoney(d.Total)}</b></div>
-      `;
-      diarioTooltip.style.left = `${((cx / layout.W) * 100).toFixed(2)}%`;
-      diarioTooltip.style.top = "6px";
-      diarioTooltip.style.display = "block";
-    });
-    diarioWrap.addEventListener("mouseleave", () => {
-      diarioTooltip.style.display = "none";
-      const svg = diarioWrap.querySelector(".fat-diario-svg");
-      if (!svg) return;
-      svg.querySelectorAll(".vg-chart-dot.is-hover").forEach(el => el.classList.remove("is-hover"));
-      const cross = svg.querySelector(".vg-chart-cross");
-      if (cross) cross.style.opacity = "0";
-    });
-  }
-
   function render() {
     const rows = escopoFat();
 
     let dadosPeriodo;
-    if (modoPeriodo === "semestral") {
+    if (modoPeriodo === "anual") {
+      const porAno = new Map();
+      for (const r of rows) {
+        const ano = r.Data.slice(0, 4);
+        porAno.set(ano, (porAno.get(ano) || 0) + r.Total);
+      }
+      const chaves = Array.from(porAno.keys()).sort();
+      dadosPeriodo = chaves.map(k => ({ label: k, Total: porAno.get(k) }));
+    } else if (modoPeriodo === "semestral") {
       const porSemestre = new Map();
       for (const r of rows) {
         const [ano, mes] = r.Data.split("-");
@@ -3167,13 +3115,6 @@ function cidadeUfHtml(cidade, uf) {
       dadosPeriodo = chaves.map(k => ({ label: fmtMesLabel(k), Total: porMes.get(k) }));
     }
     periodoChartEl.innerHTML = buildPeriodoChart(dadosPeriodo);
-
-    const porDia = new Map();
-    for (const r of rows) porDia.set(r.Data, (porDia.get(r.Data) || 0) + r.Total);
-    const diasOrdenados = Array.from(porDia.keys()).sort();
-    const ultimos90 = diasOrdenados.slice(-90);
-    const dadosDiario = ultimos90.map(d => ({ Data: d, Total: porDia.get(d) }));
-    diarioChartEl.innerHTML = buildDiarioChart(dadosDiario);
   }
 
   empresaSelect.addEventListener("change", render);
@@ -3186,7 +3127,6 @@ function cidadeUfHtml(cidade, uf) {
     });
   });
   wirePeriodoHover();
-  wireDiarioHover();
 
   window.renderFaturamento = render;
 })();
