@@ -1,6 +1,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>BI Operacional — Aqui Tem Mais</title>
+<!-- Fontes da aba "Faturamento" (Por Período/Diário) - obedece a folha de estilos do BI Comercial
+     ("Visão Geral", redesign 2026-08-31), pedido explícito do usuário. Só essas 3 famílias, só
+     usadas dentro de #tab-content-faturamento (ver tokens --vg-* escopados mais abaixo). -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;650;750&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #f6f5f2;
@@ -1121,6 +1127,75 @@
   @media (prefers-reduced-motion: reduce) {
     .toast { transition: opacity .01ms; }
   }
+
+  /* ================================================================
+     ABA "FATURAMENTO" (Por Período / Diário) - obedece a folha de estilos do BI Comercial
+     ("Visão Geral", redesign aprovado 2026-08-31): tokens --vg-*, fontes Sora/Manrope/JetBrains
+     Mono, tema claro quente + tema escuro navy/teal próprio. Escopado 100% a
+     #tab-content-faturamento - não interfere no visual do resto do BI Operacional (mesmo
+     mecanismo de escopo por seletor de ID já usado no BI Comercial pras abas vg2-*).
+     ================================================================ */
+  #tab-content-faturamento {
+    --vg-bg: #f3f0ea; --vg-bg-2: #e9e4da; --vg-surface: #fffefc; --vg-surface-veil: rgba(255,254,252,.92);
+    --vg-ink: #211c2a; --vg-muted: #6d6577; --vg-faint: #9992a1; --vg-line: #e2dccd; --vg-line-soft: #ede8db;
+    --vg-accent: #6a45ad; --vg-accent-ink: #4a2f82; --vg-accent-soft: #efe8fb; --vg-accent-2: #9c7ad4;
+    --vg-terracotta: #bf5b2e; --vg-teal: #2c7d6e; --vg-gold: #b8862f; --vg-maroon: #7a2530;
+    --vg-ok: #2f8f6b; --vg-ok-soft: #e2f3ec;
+    --vg-shadow-sm: 0 2px 9px rgba(35,26,15,.06);
+    --vg-font-display: 'Sora', var(--sans); --vg-font-body: 'Manrope', var(--sans); --vg-font-mono: 'JetBrains Mono', var(--mono);
+  }
+  :root[data-theme="dark"] #tab-content-faturamento {
+    --vg-bg: #090e1a; --vg-bg-2: #060a12; --vg-surface: #161f3a; --vg-surface-veil: rgba(22,31,58,.92);
+    --vg-ink: #eef1f7; --vg-muted: #8f97ae; --vg-faint: #626b87; --vg-line: #2b3556; --vg-line-soft: #1e2743;
+    --vg-accent: #2dd4bf; --vg-accent-ink: #6ee8d6; --vg-accent-soft: #0f2b27; --vg-accent-2: #1f9e8f;
+    --vg-terracotta: #ec9666; --vg-teal: #38bdf8; --vg-gold: #eab63e; --vg-maroon: #e0798a;
+    --vg-ok: #34d399; --vg-ok-soft: #0f2e22;
+    --vg-shadow-sm: 0 2px 10px rgba(0,0,0,.4);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) #tab-content-faturamento {
+      --vg-bg: #090e1a; --vg-bg-2: #060a12; --vg-surface: #161f3a; --vg-surface-veil: rgba(22,31,58,.92);
+      --vg-ink: #eef1f7; --vg-muted: #8f97ae; --vg-faint: #626b87; --vg-line: #2b3556; --vg-line-soft: #1e2743;
+      --vg-accent: #2dd4bf; --vg-accent-ink: #6ee8d6; --vg-accent-soft: #0f2b27; --vg-accent-2: #1f9e8f;
+      --vg-terracotta: #ec9666; --vg-teal: #38bdf8; --vg-gold: #eab63e; --vg-maroon: #e0798a;
+      --vg-ok: #34d399; --vg-ok-soft: #0f2e22;
+      --vg-shadow-sm: 0 2px 10px rgba(0,0,0,.4);
+    }
+  }
+  #tab-content-faturamento { background: var(--vg-bg); font-family: var(--vg-font-body); color: var(--vg-ink); padding: 16px; border-radius: 12px; }
+  #tab-content-faturamento .vg2-top{ display:flex; align-items:flex-end; justify-content:flex-start; gap:20px; flex-wrap:wrap; margin-bottom:16px; }
+  #tab-content-faturamento .vg2-filters{ display:flex; gap:6px; flex-wrap:wrap; }
+  #tab-content-faturamento .vg2-filter{ display:flex; flex-direction:column; gap:2px; background:var(--vg-surface-veil); border:1px solid var(--vg-line); border-radius:10px; padding:6px 12px; min-width:150px; box-shadow:var(--vg-shadow-sm); }
+  #tab-content-faturamento .vg2-filter label{ font-size:9px; text-transform:uppercase; letter-spacing:.06em; color:var(--vg-faint); font-weight:600; }
+  #tab-content-faturamento .vg2-filter select{ border:0; background:transparent; color:var(--vg-ink); font-weight:600; font-size:12.5px; font-family:var(--vg-font-body); outline:none; padding:0; min-width:0; width:100%; }
+  @media (max-width:680px) { #tab-content-faturamento .vg2-filter{ flex: 1 1 calc(50% - 4px); min-width: 0; } }
+  #tab-content-faturamento .vg2-card{ background:var(--vg-surface); border:1px solid var(--vg-line); border-radius:16px; box-shadow:var(--vg-shadow-sm); padding:14px 16px 16px; min-width:0; margin-bottom:14px; }
+  #tab-content-faturamento .vg2-card h3{ font-family:var(--vg-font-display); font-size:14px; font-weight:650; letter-spacing:-.1px; margin:0 0 2px; color:var(--vg-ink); }
+  #tab-content-faturamento .vg2-card .cap{ font-size:10.5px; color:var(--vg-muted); margin:0 0 10px; }
+  #tab-content-faturamento .vg2-chart-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:8px; }
+  #tab-content-faturamento .vg2-legend{ display:flex; gap:14px; font-size:10.5px; font-weight:600; color:var(--vg-muted); flex-wrap:wrap; margin-bottom:6px; }
+  #tab-content-faturamento .vg2-legend .sw{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; }
+  #tab-content-faturamento .vg2-chart-area{ position:relative; height:260px; }
+  #tab-content-faturamento .vg2-chart-area > div:first-child{ height:100%; }
+  #tab-content-faturamento .vg2-chart-area svg{ width:100%; height:100%; overflow:visible; }
+  #tab-content-faturamento .vg-dia-bar{ transition:opacity .12s ease; }
+  #tab-content-faturamento .vg-dia-bar.is-hover{ opacity:.72; }
+  #tab-content-faturamento .vg-chart-dot{ transition:r .12s ease; }
+  #tab-content-faturamento .vg-chart-dot.is-hover{ r:4.5; }
+  #tab-content-faturamento .vg2-chart-tooltip{
+    position:absolute; top:0; left:0; transform:translate(-50%,-100%); margin-top:-8px;
+    background:var(--vg-surface); border:1px solid var(--vg-line); border-radius:9px; box-shadow:var(--vg-shadow-sm);
+    padding:7px 10px; font-size:10.5px; line-height:1.5; white-space:nowrap; pointer-events:none; z-index:2;
+  }
+  #tab-content-faturamento .vg2-chart-tooltip .t-title{ font-family:var(--vg-font-display); font-weight:650; color:var(--vg-ink); margin-bottom:2px; }
+  #tab-content-faturamento .vg2-chart-tooltip .t-row{ display:flex; align-items:center; gap:6px; color:var(--vg-muted); font-family:var(--vg-font-mono); }
+  #tab-content-faturamento .vg2-chart-tooltip .t-row .dot{ width:7px; height:7px; border-radius:50%; flex:0 0 auto; }
+  #tab-content-faturamento .vg2-chart-tooltip .t-row b{ color:var(--vg-ink); margin-left:auto; font-weight:600; }
+  #tab-content-faturamento .vg2-metric-toggle{ display:flex; gap:6px; }
+  #tab-content-faturamento .vg2-metric-btn{ font-family:var(--vg-font-body); font-size:11px; font-weight:700; background:var(--vg-line-soft); border:1px solid var(--vg-line); color:var(--vg-muted); padding:4px 11px; border-radius:100px; cursor:pointer; }
+  #tab-content-faturamento .vg2-metric-btn:hover{ border-color:var(--vg-accent); color:var(--vg-accent-ink); }
+  #tab-content-faturamento .vg2-metric-btn.is-active{ background:var(--vg-accent); border-color:var(--vg-accent); color:#fff; }
+  #tab-content-faturamento .vg2-empty{ padding:24px; text-align:center; color:var(--vg-muted); font-size:11.5px; }
 </style>
 
 <div class="app">
@@ -1162,6 +1237,7 @@
       <button class="tab-btn" id="tab-btn-pedidos" type="button" data-tab="pedidos">Faturamento &amp; Pedidos</button>
       <button class="tab-btn" id="tab-btn-vendas-detalhe" type="button" data-tab="vendas-detalhe">Vendas Detalhadas</button>
       <button class="tab-btn" id="tab-btn-estoquefilial" type="button" data-tab="estoquefilial">Estoque por Filial</button>
+      <button class="tab-btn" id="tab-btn-faturamento" type="button" data-tab="faturamento">Evolução de Faturamento</button>
       <button class="tab-btn" id="tab-btn-comparar" type="button" data-tab="comparar">Comparar Períodos</button>
     </div>
 
@@ -1412,6 +1488,63 @@
     </div>
     </div>
 
+    <!-- ===================== TAB: EVOLUÇÃO DE FATURAMENTO ===================== -->
+    <!-- Visual obedece a folha de estilos do BI Comercial (aba "Visão Geral") - tokens --vg-*
+         escopados a #tab-content-faturamento (ver <style> acima), markup vg2-* (mesmas classes,
+         mesmo desenho de filtro/card/gráfico). Fonte: op_faturamento.json (Data+CodEmpresa+
+         Operadora+Total, histórico completo, agregado no extract_op.ps1). -->
+    <div id="tab-content-faturamento" class="is-hidden">
+      <div class="vg2-top">
+        <div class="vg2-filters">
+          <div class="vg2-filter">
+            <label for="fat-empresa">Empresa</label>
+            <select id="fat-empresa"><option value="">Todas as empresas</option></select>
+          </div>
+          <div class="vg2-filter">
+            <label for="fat-operadora">Operadora</label>
+            <select id="fat-operadora"><option value="">Todas as operadoras</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="vg2-card">
+        <div class="vg2-chart-head">
+          <div>
+            <h3>Faturamento por Período</h3>
+            <p class="cap">Barras por mês ou semestre, com linha de tendência</p>
+          </div>
+          <div class="vg2-metric-toggle" id="fat-periodo-toggle">
+            <button type="button" class="vg2-metric-btn is-active" data-modo="mensal">Mensal</button>
+            <button type="button" class="vg2-metric-btn" data-modo="semestral">Semestral</button>
+          </div>
+        </div>
+        <div class="vg2-legend">
+          <span><span class="sw" style="background:var(--vg-accent)"></span>Faturamento</span>
+          <span><span class="sw" style="background:var(--vg-gold)"></span>Tendência</span>
+        </div>
+        <div class="vg2-chart-area" id="fat-periodo-chart-wrap">
+          <div id="fat-periodo-chart"></div>
+          <div class="vg2-chart-tooltip" id="fat-periodo-tooltip" style="display:none"></div>
+        </div>
+      </div>
+
+      <div class="vg2-card">
+        <div class="vg2-chart-head">
+          <div>
+            <h3>Faturamento Diário</h3>
+            <p class="cap">Últimos 90 dias com movimento</p>
+          </div>
+        </div>
+        <div class="vg2-legend">
+          <span><span class="sw" style="background:var(--vg-teal)"></span>Faturamento do dia</span>
+        </div>
+        <div class="vg2-chart-area" id="fat-diario-chart-wrap">
+          <div id="fat-diario-chart"></div>
+          <div class="vg2-chart-tooltip" id="fat-diario-tooltip" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ===================== TAB: COMPARAR PERÍODOS ===================== -->
     <!-- Trazido do BI Comercial em 2026-09-09 (ficava escondida lá, sem uso). -->
     <div id="tab-content-comparar" class="is-hidden">
@@ -1591,6 +1724,8 @@ const RAW_TRANSFERENCIAS = __TRANSFERENCIAS_JSON__;
 // Trazido do BI Comercial em 2026-09-09 (aba "Comparar Períodos") - ver initCompararTab.
 const RAW_COMPARATIVO = __COMPARATIVO_JSON__;
 const RAW_COMPARATIVO_TOTAIS = __COMPARATIVO_TOTAIS_JSON__;
+// Aba "Evolução de Faturamento" - Data+CodEmpresa+Operadora+Total, histórico completo (ver initFaturamentoTab).
+const RAW_FATURAMENTO = __FATURAMENTO_JSON__;
 
 // Preenchidos só pelo backend hospedado (Render) a cada login, sessão a sessão — o build.js do
 // Artifact público e do dashboard local sempre substitui os dois por string vazia, então o bloco
@@ -2824,8 +2959,240 @@ function cidadeUfHtml(cidade, uf) {
   window.renderComparar = render;
 })();
 
+// ================================================================
+// ABA "EVOLUÇÃO DE FATURAMENTO" (Por Período / Diário) - visual obedece a folha de estilos do BI
+// Comercial (aba "Visão Geral", tokens --vg-* / markup vg2-*, ver <style> acima). Fonte:
+// RAW_FATURAMENTO (op_faturamento.json), 1 linha por Data+CodEmpresa+Operadora, histórico
+// completo, já agregado no extract_op.ps1 (evita mandar venda linha-a-linha pro navegador).
+// ================================================================
+(function initFaturamentoTab() {
+  const empresaSelect = document.getElementById("fat-empresa");
+  const operadoraSelect = document.getElementById("fat-operadora");
+  const periodoToggle = document.getElementById("fat-periodo-toggle");
+  const periodoChartEl = document.getElementById("fat-periodo-chart");
+  const periodoWrap = document.getElementById("fat-periodo-chart-wrap");
+  const periodoTooltip = document.getElementById("fat-periodo-tooltip");
+  const diarioChartEl = document.getElementById("fat-diario-chart");
+  const diarioWrap = document.getElementById("fat-diario-chart-wrap");
+  const diarioTooltip = document.getElementById("fat-diario-tooltip");
+
+  let modoPeriodo = "mensal";
+  let periodoLayout = null, periodoDados = [];
+  let diarioLayout = null, diarioDados = [];
+
+  const empresasFat = Array.from(new Set(RAW_FATURAMENTO.map(r => r.Empresa).filter(Boolean))).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  for (const nome of empresasFat) {
+    const opt = document.createElement("option");
+    opt.value = nome; opt.textContent = empresaAbrev(nome);
+    empresaSelect.appendChild(opt);
+  }
+  const ordemOperadora = ["Claro", "Tim", "Vivo", "Outros"];
+  const operadorasFat = Array.from(new Set(RAW_FATURAMENTO.map(r => r.Operadora).filter(Boolean)))
+    .sort((a, b) => ordemOperadora.indexOf(a) - ordemOperadora.indexOf(b));
+  for (const op of operadorasFat) {
+    const opt = document.createElement("option");
+    opt.value = op; opt.textContent = op;
+    operadoraSelect.appendChild(opt);
+  }
+
+  function escopoFat() {
+    const empresa = empresaSelect.value, operadora = operadoraSelect.value;
+    return RAW_FATURAMENTO.filter(r => (!empresa || r.Empresa === empresa) && (!operadora || r.Operadora === operadora));
+  }
+
+  // Regressão linear simples (mínimos quadrados) sobre o índice do período (0..n-1) x Total - só
+  // pra desenhar a linha de tendência sobre as barras (pedido do usuário).
+  function calcularTendencia(valores) {
+    const n = valores.length;
+    if (n < 2) return valores.map(() => valores[0] || 0);
+    let somaX = 0, somaY = 0, somaXY = 0, somaXX = 0;
+    for (let i = 0; i < n; i++) { somaX += i; somaY += valores[i]; somaXY += i * valores[i]; somaXX += i * i; }
+    const den = n * somaXX - somaX * somaX;
+    const slope = den === 0 ? 0 : (n * somaXY - somaX * somaY) / den;
+    const intercept = (somaY - slope * somaX) / n;
+    return valores.map((_, i) => Math.max(0, slope * i + intercept));
+  }
+
+  function buildPeriodoChart(dados) {
+    periodoDados = dados;
+    if (!dados.length) { periodoLayout = null; return `<div class="vg2-empty">Sem dados no período.</div>`; }
+    const W = 900, H = 260, padTop = 18, padBottom = 26, padX = 30;
+    const valores = dados.map(d => d.Total);
+    const tendencia = calcularTendencia(valores);
+    const maxTotal = Math.max(1, ...valores, ...tendencia);
+    const plotH = H - padTop - padBottom;
+    const n = dados.length;
+    const slot = (W - padX * 2) / n;
+    const gap = Math.min(10, slot * 0.3);
+    const barW = Math.max(0.6, slot - gap);
+    const labelStep = Math.max(1, Math.ceil(n / 14));
+    periodoLayout = { W, H, padTop, padBottom, padX, plotH, slot, barW, maxTotal };
+    const bars = dados.map((d, i) => {
+      const x = padX + i * slot;
+      const barH = (d.Total / maxTotal) * plotH;
+      const y = padTop + plotH - barH;
+      return `<rect class="vg-dia-bar" data-idx="${i}" x="${x.toFixed(2)}" y="${y.toFixed(1)}" width="${barW.toFixed(2)}" height="${Math.max(0, barH).toFixed(1)}" rx="3" style="fill:var(--vg-accent);cursor:pointer"></rect>`;
+    }).join("");
+    const pts = tendencia.map((v, i) => ({ x: padX + i * slot + barW / 2, y: padTop + plotH - (v / maxTotal) * plotH }));
+    const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+    const labels = dados.map((d, i) => (i % labelStep === 0) ? `<text x="${(padX + i * slot + barW / 2).toFixed(1)}" y="${H - 6}" font-size="8.5" text-anchor="middle" style="fill:var(--vg-faint)">${d.label}</text>` : "").join("");
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;overflow:visible" font-family="var(--vg-font-mono)" class="fat-periodo-svg">
+      ${bars}
+      <path d="${pathD}" style="fill:none;stroke:var(--vg-gold);stroke-width:2;stroke-dasharray:5 4;stroke-linecap:round;pointer-events:none"></path>
+      ${labels}
+      <line class="vg-chart-cross" x1="0" y1="${padTop}" x2="0" y2="${(padTop + plotH).toFixed(1)}" style="stroke:var(--vg-faint);stroke-width:1;stroke-dasharray:2 2;opacity:0;pointer-events:none"></line>
+    </svg>`;
+  }
+
+  function wirePeriodoHover() {
+    periodoWrap.addEventListener("mousemove", (e) => {
+      const svg = periodoWrap.querySelector(".fat-periodo-svg");
+      const layout = periodoLayout;
+      if (!svg || !layout || !periodoDados.length) return;
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX; pt.y = e.clientY;
+      const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+      let idx = Math.round((loc.x - layout.padX - layout.slot / 2) / layout.slot);
+      idx = Math.max(0, Math.min(periodoDados.length - 1, idx));
+      const d = periodoDados[idx];
+      const cx = layout.padX + idx * layout.slot + layout.barW / 2;
+      svg.querySelectorAll(".vg-dia-bar.is-hover").forEach(el => el.classList.remove("is-hover"));
+      svg.querySelector(`.vg-dia-bar[data-idx="${idx}"]`)?.classList.add("is-hover");
+      const cross = svg.querySelector(".vg-chart-cross");
+      cross.setAttribute("x1", cx.toFixed(1)); cross.setAttribute("x2", cx.toFixed(1));
+      cross.style.opacity = "1";
+      periodoTooltip.innerHTML = `
+        <div class="t-title">${d.label}</div>
+        <div class="t-row"><span class="dot" style="background:var(--vg-accent)"></span>Faturamento <b>${fmtMoney(d.Total)}</b></div>
+      `;
+      periodoTooltip.style.left = `${((cx / layout.W) * 100).toFixed(2)}%`;
+      periodoTooltip.style.top = "6px";
+      periodoTooltip.style.display = "block";
+    });
+    periodoWrap.addEventListener("mouseleave", () => {
+      periodoTooltip.style.display = "none";
+      const svg = periodoWrap.querySelector(".fat-periodo-svg");
+      if (!svg) return;
+      svg.querySelectorAll(".vg-dia-bar.is-hover").forEach(el => el.classList.remove("is-hover"));
+      const cross = svg.querySelector(".vg-chart-cross");
+      if (cross) cross.style.opacity = "0";
+    });
+  }
+
+  function buildDiarioChart(dados) {
+    diarioDados = dados;
+    if (!dados.length) { diarioLayout = null; return `<div class="vg2-empty">Sem dados no período.</div>`; }
+    const W = 900, H = 260, padTop = 18, padBottom = 26, padX = 20;
+    const maxTotal = Math.max(1, ...dados.map(d => d.Total));
+    const plotH = H - padTop - padBottom;
+    const n = dados.length;
+    const slot = n > 1 ? (W - padX * 2) / (n - 1) : 0;
+    const labelStep = Math.max(1, Math.ceil(n / 10));
+    diarioLayout = { W, H, padTop, padBottom, padX, plotH, slot, maxTotal };
+    const pts = dados.map((d, i) => ({ x: padX + i * slot, y: padTop + plotH - (d.Total / maxTotal) * plotH }));
+    const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ");
+    const baseline = (padTop + plotH).toFixed(1);
+    const areaD = `${pathD} L${pts[pts.length - 1].x.toFixed(1)},${baseline} L${pts[0].x.toFixed(1)},${baseline} Z`;
+    const dots = pts.map((p, i) => `<circle class="vg-chart-dot" data-idx="${i}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="2.2" style="fill:var(--vg-teal)"></circle>`).join("");
+    const labels = dados.map((d, i) => (i % labelStep === 0 || i === n - 1) ? `<text x="${(padX + i * slot).toFixed(1)}" y="${H - 6}" font-size="8.5" text-anchor="middle" style="fill:var(--vg-faint)">${fmtDate(d.Data).slice(0, 5)}</text>` : "").join("");
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;overflow:visible" font-family="var(--vg-font-mono)" class="fat-diario-svg">
+      <defs><linearGradient id="fatDiarioGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--vg-teal)" stop-opacity="0.32"></stop>
+        <stop offset="100%" stop-color="var(--vg-teal)" stop-opacity="0"></stop>
+      </linearGradient></defs>
+      <path d="${areaD}" fill="url(#fatDiarioGrad)" stroke="none" style="pointer-events:none"></path>
+      <path d="${pathD}" style="fill:none;stroke:var(--vg-teal);stroke-width:2;stroke-linecap:round;pointer-events:none"></path>
+      ${dots}
+      ${labels}
+      <line class="vg-chart-cross" x1="0" y1="${padTop}" x2="0" y2="${(padTop + plotH).toFixed(1)}" style="stroke:var(--vg-faint);stroke-width:1;stroke-dasharray:2 2;opacity:0;pointer-events:none"></line>
+    </svg>`;
+  }
+
+  function wireDiarioHover() {
+    diarioWrap.addEventListener("mousemove", (e) => {
+      const svg = diarioWrap.querySelector(".fat-diario-svg");
+      const layout = diarioLayout;
+      if (!svg || !layout || !diarioDados.length) return;
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX; pt.y = e.clientY;
+      const loc = pt.matrixTransform(svg.getScreenCTM().inverse());
+      let idx = layout.slot > 0 ? Math.round((loc.x - layout.padX) / layout.slot) : 0;
+      idx = Math.max(0, Math.min(diarioDados.length - 1, idx));
+      const d = diarioDados[idx];
+      const cx = layout.padX + idx * layout.slot;
+      svg.querySelectorAll(".vg-chart-dot.is-hover").forEach(el => el.classList.remove("is-hover"));
+      svg.querySelector(`.vg-chart-dot[data-idx="${idx}"]`)?.classList.add("is-hover");
+      const cross = svg.querySelector(".vg-chart-cross");
+      cross.setAttribute("x1", cx.toFixed(1)); cross.setAttribute("x2", cx.toFixed(1));
+      cross.style.opacity = "1";
+      diarioTooltip.innerHTML = `
+        <div class="t-title">${fmtDate(d.Data)}</div>
+        <div class="t-row"><span class="dot" style="background:var(--vg-teal)"></span>Faturamento <b>${fmtMoney(d.Total)}</b></div>
+      `;
+      diarioTooltip.style.left = `${((cx / layout.W) * 100).toFixed(2)}%`;
+      diarioTooltip.style.top = "6px";
+      diarioTooltip.style.display = "block";
+    });
+    diarioWrap.addEventListener("mouseleave", () => {
+      diarioTooltip.style.display = "none";
+      const svg = diarioWrap.querySelector(".fat-diario-svg");
+      if (!svg) return;
+      svg.querySelectorAll(".vg-chart-dot.is-hover").forEach(el => el.classList.remove("is-hover"));
+      const cross = svg.querySelector(".vg-chart-cross");
+      if (cross) cross.style.opacity = "0";
+    });
+  }
+
+  function render() {
+    const rows = escopoFat();
+
+    let dadosPeriodo;
+    if (modoPeriodo === "semestral") {
+      const porSemestre = new Map();
+      for (const r of rows) {
+        const [ano, mes] = r.Data.split("-");
+        const sem = parseInt(mes, 10) <= 6 ? "S1" : "S2";
+        const key = `${ano}-${sem}`;
+        porSemestre.set(key, (porSemestre.get(key) || 0) + r.Total);
+      }
+      const chaves = Array.from(porSemestre.keys()).sort();
+      dadosPeriodo = chaves.map(k => ({ label: k.replace("-", " "), Total: porSemestre.get(k) }));
+    } else {
+      const porMes = new Map();
+      for (const r of rows) {
+        const anoMes = r.Data.slice(0, 7);
+        porMes.set(anoMes, (porMes.get(anoMes) || 0) + r.Total);
+      }
+      const chaves = Array.from(porMes.keys()).sort();
+      dadosPeriodo = chaves.map(k => ({ label: fmtMesLabel(k), Total: porMes.get(k) }));
+    }
+    periodoChartEl.innerHTML = buildPeriodoChart(dadosPeriodo);
+
+    const porDia = new Map();
+    for (const r of rows) porDia.set(r.Data, (porDia.get(r.Data) || 0) + r.Total);
+    const diasOrdenados = Array.from(porDia.keys()).sort();
+    const ultimos90 = diasOrdenados.slice(-90);
+    const dadosDiario = ultimos90.map(d => ({ Data: d, Total: porDia.get(d) }));
+    diarioChartEl.innerHTML = buildDiarioChart(dadosDiario);
+  }
+
+  empresaSelect.addEventListener("change", render);
+  operadoraSelect.addEventListener("change", render);
+  periodoToggle.querySelectorAll(".vg2-metric-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      modoPeriodo = btn.dataset.modo;
+      periodoToggle.querySelectorAll(".vg2-metric-btn").forEach(b => b.classList.toggle("is-active", b === btn));
+      render();
+    });
+  });
+  wirePeriodoHover();
+  wireDiarioHover();
+
+  window.renderFaturamento = render;
+})();
+
 (function initTabs() {
-  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "comparar"];
+  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar"];
   const btns = {}, contents = {};
   for (const t of tabs) {
     btns[t] = document.getElementById("tab-btn-" + t);
@@ -2841,6 +3208,7 @@ function cidadeUfHtml(cidade, uf) {
     if (tab === "pedidos" && window.renderPedidos) window.renderPedidos();
     if (tab === "vendas-detalhe" && window.renderVendasDetalhe) window.renderVendasDetalhe();
     if (tab === "estoquefilial" && window.renderEstoqueFilial) window.renderEstoqueFilial();
+    if (tab === "faturamento" && window.renderFaturamento) window.renderFaturamento();
     if (tab === "comparar" && window.renderComparar) window.renderComparar();
 
     // log de acessos por aba (fase 2) - so na versao hospedada (tem sessao/usuario logado),

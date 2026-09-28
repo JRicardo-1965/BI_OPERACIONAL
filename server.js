@@ -270,6 +270,7 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
       transferencias: body.transferencias || [],
       comparativo: body.comparativo || [],
       comparativoTotais: body.comparativoTotais || [],
+      faturamento: body.faturamento || [],
       meta: body.meta || {},
       usuarios,
       usuariosEmpresas: (body.usuariosEmpresas || []).map((v) => ({ email: v.email, empresa: String(v.empresa) })),
@@ -330,6 +331,7 @@ app.get('/', requireAuth, (req, res) => {
   const transferencias = latestData.transferencias || [];
   const comparativo = filterByEmpresas(latestData.comparativo, allowed);
   const comparativoTotais = filterByEmpresas(latestData.comparativoTotais, allowed);
+  const faturamento = filterByEmpresas(latestData.faturamento, allowed);
   const meta = latestData.meta || {};
   const outrosSistemas = outrosSistemasDoUsuario(req.userEmail);
 
@@ -345,6 +347,7 @@ app.get('/', requireAuth, (req, res) => {
     .replaceAll('__TRANSFERENCIAS_JSON__', jsonForScript(transferencias))
     .replaceAll('__COMPARATIVO_JSON__', jsonForScript(comparativo))
     .replaceAll('__COMPARATIVO_TOTAIS_JSON__', jsonForScript(comparativoTotais))
+    .replaceAll('__FATURAMENTO_JSON__', jsonForScript(faturamento))
     .replaceAll('__TODAY_ISO__', new Date().toISOString().slice(0, 10))
     .replaceAll('__PROCESSADO_EM__', meta.ProcessadoEm || 'desconhecido')
     .replaceAll('__HOSTED_USER_LABEL__', escapeHtml(req.userNome))
