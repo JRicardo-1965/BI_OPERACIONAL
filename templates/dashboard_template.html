@@ -2574,7 +2574,7 @@ function cidadeUfHtml(cidade, uf) {
     const idx = EMPRESA_ORDER.findIndex(o => nomeAbrev.includes(o));
     return idx === -1 ? 999 : idx;
   }
-  function filialLabel(nomeAbrev) { return nomeAbrev; }
+  function filialLabel(nomeAbrev) { return nomeAbrev.replace(/\s*-\s*AQT\+\s*$/i, ""); }
 
   const thead = document.getElementById("thead-estoquefilial");
   const tbody = document.getElementById("tbody-estoquefilial");
