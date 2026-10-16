@@ -1206,49 +1206,55 @@
      Escopado a #tab-content-inadimplencia, cores = variáveis do próprio BI Operacional (tema claro/escuro).
      ================================================================ */
   #tab-content-inadimplencia .inad-tabs{ display:flex; gap:4px; margin:10px 0; border-bottom:1px solid var(--border); }
-  #tab-content-inadimplencia .inad-tabs button{ border:0; background:none; color:var(--text-muted); font:inherit; font-weight:600; font-size:13.5px; padding:9px 14px; border-bottom:2px solid transparent; cursor:pointer; }
+  /* tamanhos alinhados às outras abas do BI (Vendas Detalhadas: filtros 12px, tabela 11.5px) */
+  #tab-content-inadimplencia .inad-tabs button{ border:0; background:none; color:var(--text-muted); font:inherit; font-weight:600; font-size:12.5px; padding:7px 12px; border-bottom:2px solid transparent; cursor:pointer; }
   #tab-content-inadimplencia .inad-tabs button.is-on{ color:var(--text); border-bottom-color:var(--accent); }
-  #tab-content-inadimplencia .inad-chips{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
-  #tab-content-inadimplencia .inad-chip{ border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:8px; padding:7px 10px; cursor:pointer; text-align:left; font:inherit; min-width:180px; }
-  #tab-content-inadimplencia .inad-chip .t{ font-size:12px; color:var(--text-muted); }
-  #tab-content-inadimplencia .inad-chip .v{ font-weight:700; font-variant-numeric:tabular-nums; }
-  #tab-content-inadimplencia .inad-chip .tag{ font-size:11px; color:var(--text-faint); }
+  #tab-content-inadimplencia .inad-chips{ display:grid; grid-template-columns:repeat(auto-fill, minmax(165px, 1fr)); gap:8px; margin:8px 0 12px; }
+  /* recuo interno: o .panel do BI não tem padding (nas outras abas quem recua são .filters/.footnote, 12px) */
+  #tab-content-inadimplencia > .panel{ padding:14px 16px 10px; }
+  #tab-content-inadimplencia > .panel > .footnote{ padding:10px 0 2px; }
+  /* cartões: título sempre em 2 linhas reservadas e contagem em 1 linha, para valor e contagem ficarem
+     na mesma altura em todos os cartões (texto que não cabe aparece inteiro no title) */
+  #tab-content-inadimplencia .inad-chip{ display:flex; flex-direction:column; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:8px; padding:7px 10px; cursor:pointer; text-align:left; font:inherit; font-size:12px; min-width:0; }
+  #tab-content-inadimplencia .inad-chip .t{ font-size:11px; color:var(--text-muted); line-height:1.3; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  #tab-content-inadimplencia .inad-chip .v{ font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; margin:3px 0 1px; white-space:nowrap; }
+  #tab-content-inadimplencia .inad-chip .tag{ font-size:10.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #tab-content-inadimplencia .inad-chip.is-on{ border-color:var(--accent); background:var(--accent-soft); }
   #tab-content-inadimplencia .inad-bar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:4px 0 10px; }
-  #tab-content-inadimplencia .inad-bar input, #tab-content-inadimplencia .inad-bar select{ font:inherit; font-size:13px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:6px 9px; max-width:230px; }
-  #tab-content-inadimplencia .inad-bar input[type=search]{ min-width:240px; flex:1 1 240px; max-width:380px; }
-  #tab-content-inadimplencia .inad-chk{ color:var(--text-muted); font-size:13px; display:flex; gap:6px; align-items:center; }
-  #tab-content-inadimplencia .inad-tot{ color:var(--text-muted); font-size:13px; margin:0 0 8px; }
+  #tab-content-inadimplencia .inad-bar input, #tab-content-inadimplencia .inad-bar select{ font:inherit; font-size:12px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:5px 8px; max-width:200px; }
+  #tab-content-inadimplencia .inad-bar input[type=search]{ min-width:220px; flex:1 1 220px; max-width:320px; }
+  #tab-content-inadimplencia .inad-chk{ color:var(--text-muted); font-size:12px; display:flex; gap:6px; align-items:center; }
+  #tab-content-inadimplencia .inad-tot{ color:var(--text-muted); font-size:12px; margin:0 0 8px; }
   #tab-content-inadimplencia .inad-tot b{ color:var(--text); font-variant-numeric:tabular-nums; }
   #tab-content-inadimplencia .inad-msg{ padding:30px; text-align:center; color:var(--text-muted); }
   #tab-content-inadimplencia .inad-tw{ overflow:auto; max-height:calc(100vh - 320px); min-height:300px; border:1px solid var(--border); border-radius:10px; background:var(--surface); }
-  #tab-content-inadimplencia .inad-table{ border-collapse:separate; border-spacing:0; width:max-content; min-width:100%; font-size:12.5px; }
-  #tab-content-inadimplencia .inad-table th{ position:sticky; top:0; background:var(--surface); z-index:1; text-align:left; font-weight:600; color:var(--text-muted); padding:8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer; user-select:none; }
+  #tab-content-inadimplencia .inad-table{ border-collapse:separate; border-spacing:0; width:max-content; min-width:100%; font-size:11.5px; }
+  #tab-content-inadimplencia .inad-table th{ position:sticky; top:0; background:var(--surface); z-index:1; text-align:left; font-weight:600; color:var(--text-muted); padding:6px 8px; border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer; user-select:none; }
   #tab-content-inadimplencia .inad-table th.s::after{ content:" ▲"; font-size:10px; }
   #tab-content-inadimplencia .inad-table th.s.desc::after{ content:" ▼"; }
-  #tab-content-inadimplencia .inad-table td{ padding:6px 10px; border-bottom:1px solid var(--border); vertical-align:top; white-space:nowrap; color:var(--text); }
+  #tab-content-inadimplencia .inad-table td{ font-size:11.5px; padding:5px 8px; border-bottom:1px solid var(--border); vertical-align:top; white-space:nowrap; color:var(--text); }
   #tab-content-inadimplencia .inad-table tbody tr{ cursor:pointer; }
   #tab-content-inadimplencia .inad-table tbody tr:hover td{ background:var(--surface-2); }
   #tab-content-inadimplencia .inad-table td.nm{ white-space:normal; min-width:150px; max-width:240px; }
   #tab-content-inadimplencia .inad-table td.tx{ max-width:220px; overflow:hidden; text-overflow:ellipsis; }
   #tab-content-inadimplencia .inad-table td.fl{ white-space:normal; min-width:250px; max-width:340px; }
   #tab-content-inadimplencia .inad-table .num{ text-align:right; font-variant-numeric:tabular-nums; }
-  #tab-content-inadimplencia .inad-cat{ display:inline-block; font-size:12px; padding:1px 8px; border-radius:99px; border:1px solid var(--border); color:var(--text-muted); white-space:nowrap; }
-  #tab-content-inadimplencia .inad-flag{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; padding:0 7px; border-radius:99px; border:1px solid var(--border); color:var(--text-muted); margin:1px 3px 1px 0; white-space:nowrap; }
+  #tab-content-inadimplencia .inad-cat{ display:inline-block; font-size:11px; padding:1px 7px; border-radius:99px; border:1px solid var(--border); color:var(--text-muted); white-space:nowrap; }
+  #tab-content-inadimplencia .inad-flag{ display:inline-flex; align-items:center; gap:5px; font-size:10.5px; padding:0 6px; border-radius:99px; border:1px solid var(--border); color:var(--text-muted); margin:1px 3px 1px 0; white-space:nowrap; }
   #tab-content-inadimplencia .inad-flag i{ width:7px; height:7px; border-radius:50%; display:inline-block; background:var(--text-faint); }
   #tab-content-inadimplencia .inad-flag.good i{ background:var(--ok); }
   #tab-content-inadimplencia .inad-flag.warn i{ background:var(--warning); }
   #tab-content-inadimplencia .inad-flag.crit i{ background:var(--danger); }
   #tab-content-inadimplencia .inad-flag.info i{ background:var(--accent); }
-  #tab-content-inadimplencia .inad-bol{ font:inherit; font-size:12.5px; max-width:190px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border:1px solid var(--border); background:transparent; color:var(--accent); border-radius:6px; padding:1px 7px; cursor:pointer; display:inline-block; vertical-align:top; }
+  #tab-content-inadimplencia .inad-bol{ font:inherit; font-size:11.5px; max-width:190px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border:1px solid var(--border); background:transparent; color:var(--accent); border-radius:6px; padding:1px 7px; cursor:pointer; display:inline-block; vertical-align:top; }
   #tab-content-inadimplencia .inad-ov{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:1000; }
   #tab-content-inadimplencia .inad-ov.is-on{ display:block; }
   #tab-content-inadimplencia .inad-dr{ position:fixed; top:0; right:0; height:100%; width:min(760px,100vw); background:var(--surface); color:var(--text); border-left:1px solid var(--border); box-shadow:-8px 0 24px rgba(0,0,0,.18); transform:translateX(105%); transition:transform .18s ease; z-index:1001; overflow:auto; padding:18px 18px 40px; }
   #tab-content-inadimplencia .inad-dr.is-on{ transform:none; }
-  #tab-content-inadimplencia .inad-dr h2{ font-size:17px; margin:0 30px 4px 0; }
-  #tab-content-inadimplencia .inad-dr h3{ font-size:13px; margin:18px 0 6px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.03em; }
+  #tab-content-inadimplencia .inad-dr h2{ font-size:15px; margin:0 30px 4px 0; }
+  #tab-content-inadimplencia .inad-dr h3{ font-size:11.5px; margin:16px 0 6px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.03em; }
   #tab-content-inadimplencia .inad-x{ position:absolute; top:12px; right:12px; font-size:20px; line-height:1; border:0; background:none; color:var(--text-muted); cursor:pointer; padding:4px 8px; }
-  #tab-content-inadimplencia .inad-kv{ display:grid; grid-template-columns:170px 1fr; gap:4px 12px; font-size:13.5px; margin:0; }
+  #tab-content-inadimplencia .inad-kv{ display:grid; grid-template-columns:160px 1fr; gap:4px 12px; font-size:12px; margin:0; }
   #tab-content-inadimplencia .inad-kv dt{ color:var(--text-muted); }
   #tab-content-inadimplencia .inad-kv dd{ margin:0; }
   #tab-content-inadimplencia .inad-dr .inad-tw{ max-height:none; min-height:0; }
@@ -3082,7 +3088,8 @@ function cidadeUfHtml(cidade, uf) {
     const html = ordem.map(f => {
       const rs = tot.filter(r => r.cat === f.cat); if (!rs.length) return "";
       const soma = rs.reduce((a, r) => a + saldoProprio(r), 0);
-      return '<button type="button" class="inad-chip' + (st.cats.has(f.cat) ? " is-on" : "") + '" data-cat="' + esc(f.cat) + '"><div class="t">' + esc(f.cat) + '</div><div class="v">R$ ' + BRL(soma) + '</div><div class="tag">' + rs.length + " linhas" + (f.tag ? " · " + esc(f.tag) : "") + "</div></button>";
+      const dica = f.cat + " · R$ " + BRL(soma) + " · " + rs.length + " linhas" + (f.tag ? " · " + f.tag : "");
+      return '<button type="button" class="inad-chip' + (st.cats.has(f.cat) ? " is-on" : "") + '" data-cat="' + esc(f.cat) + '" title="' + esc(dica) + '"><div class="t">' + esc(f.cat) + '</div><div class="v">R$ ' + BRL(soma) + '</div><div class="tag">' + rs.length + " linhas" + (f.tag ? " · " + esc(f.tag) : "") + "</div></button>";
     }).join("");
     el("inad-chips").innerHTML = html;
     el("inad-chips").querySelectorAll(".inad-chip").forEach(b => b.onclick = () => { const c = b.dataset.cat; st.cats.has(c) ? st.cats.delete(c) : st.cats.add(c); render(); });
