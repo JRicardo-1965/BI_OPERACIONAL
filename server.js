@@ -46,6 +46,18 @@ const LOGO_PATH = path.join(__dirname, 'logo_b64.txt');
 const TEMPLATE = fs.readFileSync(TEMPLATE_PATH, 'utf8').replace(/^﻿/, '');
 const LOGO_B64 = fs.existsSync(LOGO_PATH) ? fs.readFileSync(LOGO_PATH, 'utf8').replace(/^﻿/, '').trim() : '';
 
+// Aba "Detalhamento Inadimplência": conjunto à parte (nome, CPF/CNPJ e títulos) - chega por
+// POST /api/sync-inad e sai filtrado por empresa em GET /api/inadimplencia; nunca vai embutido no HTML.
+const INAD_FILE = path.join(__dirname, 'data', 'inad.json');
+let latestInad = null;
+if (fs.existsSync(INAD_FILE)) {
+  try {
+    latestInad = JSON.parse(fs.readFileSync(INAD_FILE, 'utf8'));
+  } catch (err) {
+    console.error('Não consegui ler data/inad.json existente, começando sem inadimplência:', err.message);
+  }
+}
+
 let latestData = null;
 if (fs.existsSync(DATA_FILE)) {
   try {
@@ -287,6 +299,36 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
     console.error('Erro processando /api/sync:', err);
     res.status(500).json({ ok: false, error: 'Erro ao processar sincronização.' });
   }
+});
+
+// --- Detalhamento Inadimplência (aqtm_prod x Mira org 21) ---------------------------------------
+app.post('/api/sync-inad', express.json({ limit: '25mb' }), (req, res) => {
+  const secret = req.header('X-Sync-Secret');
+  if (!secret || secret !== SYNC_SECRET) return res.status(403).json({ ok: false, error: 'Segredo de sincronização inválido.' });
+  const body = req.body || {};
+  const det = body.detalhe || {};
+  if (!Array.isArray(det.mira) || !Array.isArray(det.aqt)) return res.status(400).json({ ok: false, error: 'Detalhe inválido.' });
+  try {
+    latestInad = { mira: det.mira, aqt: det.aqt, meta: body.meta || {}, syncedAt: new Date().toISOString() };
+    fs.mkdirSync(path.dirname(INAD_FILE), { recursive: true });
+    fs.writeFileSync(INAD_FILE, JSON.stringify(latestInad));
+    res.json({ ok: true, syncedAt: latestInad.syncedAt, mira: det.mira.length, aqt: det.aqt.length });
+  } catch (err) {
+    console.error('Erro processando /api/sync-inad:', err);
+    res.status(500).json({ ok: false, error: 'Erro ao processar sincronização da inadimplência.' });
+  }
+});
+
+// Linha com codEmpresa: só para quem tem a empresa. Linha sem empresa (distribuidores antigos e
+// faturas sem pedido): só para quem tem TODAS as empresas que existem em USUARIOS_EMPRESAS.
+app.get('/api/inadimplencia', requireAuth, (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!latestInad) return res.json({ ok: false, motivo: 'sem_dados' });
+  const allowed = empresasDoUsuario(req.userEmail);
+  const universo = [...new Set((latestData.usuariosEmpresas || []).map((v) => String(v.empresa)))];
+  const temTodas = universo.length > 0 && universo.every((e) => allowed.includes(e));
+  const pode = (r) => (r.codEmpresa ? allowed.includes(String(r.codEmpresa)) : temTodas);
+  res.json({ ok: true, meta: latestInad.meta, mira: latestInad.mira.filter(pode), aqt: latestInad.aqt.filter(pode), temTodas });
 });
 
 // --- log de acessos por aba (fase 2) ------------------------------------------

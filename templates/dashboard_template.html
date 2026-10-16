@@ -1200,6 +1200,61 @@
   #tab-content-faturamento .vg2-metric-btn:hover{ border-color:var(--vg-accent); color:var(--vg-accent-ink); }
   #tab-content-faturamento .vg2-metric-btn.is-active{ background:var(--vg-accent); border-color:var(--vg-accent); color:#fff; }
   #tab-content-faturamento .vg2-empty{ padding:24px; text-align:center; color:var(--vg-muted); font-size:11.5px; }
+
+  /* ================================================================
+     ABA "DETALHAMENTO INADIMPLÊNCIA" - port do detalhe_inadimplencia.html da análise Aqui Tem+ x Mira.
+     Escopado a #tab-content-inadimplencia, cores = variáveis do próprio BI Operacional (tema claro/escuro).
+     ================================================================ */
+  #tab-content-inadimplencia .inad-tabs{ display:flex; gap:4px; margin:10px 0; border-bottom:1px solid var(--border); }
+  #tab-content-inadimplencia .inad-tabs button{ border:0; background:none; color:var(--text-muted); font:inherit; font-weight:600; font-size:13.5px; padding:9px 14px; border-bottom:2px solid transparent; cursor:pointer; }
+  #tab-content-inadimplencia .inad-tabs button.is-on{ color:var(--text); border-bottom-color:var(--accent); }
+  #tab-content-inadimplencia .inad-chips{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 12px; }
+  #tab-content-inadimplencia .inad-chip{ border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:8px; padding:7px 10px; cursor:pointer; text-align:left; font:inherit; min-width:180px; }
+  #tab-content-inadimplencia .inad-chip .t{ font-size:12px; color:var(--text-muted); }
+  #tab-content-inadimplencia .inad-chip .v{ font-weight:700; font-variant-numeric:tabular-nums; }
+  #tab-content-inadimplencia .inad-chip .tag{ font-size:11px; color:var(--text-faint); }
+  #tab-content-inadimplencia .inad-chip.is-on{ border-color:var(--accent); background:var(--accent-soft); }
+  #tab-content-inadimplencia .inad-bar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:4px 0 10px; }
+  #tab-content-inadimplencia .inad-bar input, #tab-content-inadimplencia .inad-bar select{ font:inherit; font-size:13px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:6px 9px; max-width:230px; }
+  #tab-content-inadimplencia .inad-bar input[type=search]{ min-width:240px; flex:1 1 240px; max-width:380px; }
+  #tab-content-inadimplencia .inad-chk{ color:var(--text-muted); font-size:13px; display:flex; gap:6px; align-items:center; }
+  #tab-content-inadimplencia .inad-tot{ color:var(--text-muted); font-size:13px; margin:0 0 8px; }
+  #tab-content-inadimplencia .inad-tot b{ color:var(--text); font-variant-numeric:tabular-nums; }
+  #tab-content-inadimplencia .inad-msg{ padding:30px; text-align:center; color:var(--text-muted); }
+  #tab-content-inadimplencia .inad-tw{ overflow:auto; max-height:calc(100vh - 320px); min-height:300px; border:1px solid var(--border); border-radius:10px; background:var(--surface); }
+  #tab-content-inadimplencia .inad-table{ border-collapse:separate; border-spacing:0; width:max-content; min-width:100%; font-size:12.5px; }
+  #tab-content-inadimplencia .inad-table th{ position:sticky; top:0; background:var(--surface); z-index:1; text-align:left; font-weight:600; color:var(--text-muted); padding:8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer; user-select:none; }
+  #tab-content-inadimplencia .inad-table th.s::after{ content:" ▲"; font-size:10px; }
+  #tab-content-inadimplencia .inad-table th.s.desc::after{ content:" ▼"; }
+  #tab-content-inadimplencia .inad-table td{ padding:6px 10px; border-bottom:1px solid var(--border); vertical-align:top; white-space:nowrap; color:var(--text); }
+  #tab-content-inadimplencia .inad-table tbody tr{ cursor:pointer; }
+  #tab-content-inadimplencia .inad-table tbody tr:hover td{ background:var(--surface-2); }
+  #tab-content-inadimplencia .inad-table td.nm{ white-space:normal; min-width:150px; max-width:240px; }
+  #tab-content-inadimplencia .inad-table td.tx{ max-width:220px; overflow:hidden; text-overflow:ellipsis; }
+  #tab-content-inadimplencia .inad-table td.fl{ white-space:normal; min-width:250px; max-width:340px; }
+  #tab-content-inadimplencia .inad-table .num{ text-align:right; font-variant-numeric:tabular-nums; }
+  #tab-content-inadimplencia .inad-cat{ display:inline-block; font-size:12px; padding:1px 8px; border-radius:99px; border:1px solid var(--border); color:var(--text-muted); white-space:nowrap; }
+  #tab-content-inadimplencia .inad-flag{ display:inline-flex; align-items:center; gap:5px; font-size:11.5px; padding:0 7px; border-radius:99px; border:1px solid var(--border); color:var(--text-muted); margin:1px 3px 1px 0; white-space:nowrap; }
+  #tab-content-inadimplencia .inad-flag i{ width:7px; height:7px; border-radius:50%; display:inline-block; background:var(--text-faint); }
+  #tab-content-inadimplencia .inad-flag.good i{ background:var(--ok); }
+  #tab-content-inadimplencia .inad-flag.warn i{ background:var(--warning); }
+  #tab-content-inadimplencia .inad-flag.crit i{ background:var(--danger); }
+  #tab-content-inadimplencia .inad-flag.info i{ background:var(--accent); }
+  #tab-content-inadimplencia .inad-bol{ font:inherit; font-size:12.5px; max-width:190px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border:1px solid var(--border); background:transparent; color:var(--accent); border-radius:6px; padding:1px 7px; cursor:pointer; display:inline-block; vertical-align:top; }
+  #tab-content-inadimplencia .inad-ov{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:1000; }
+  #tab-content-inadimplencia .inad-ov.is-on{ display:block; }
+  #tab-content-inadimplencia .inad-dr{ position:fixed; top:0; right:0; height:100%; width:min(760px,100vw); background:var(--surface); color:var(--text); border-left:1px solid var(--border); box-shadow:-8px 0 24px rgba(0,0,0,.18); transform:translateX(105%); transition:transform .18s ease; z-index:1001; overflow:auto; padding:18px 18px 40px; }
+  #tab-content-inadimplencia .inad-dr.is-on{ transform:none; }
+  #tab-content-inadimplencia .inad-dr h2{ font-size:17px; margin:0 30px 4px 0; }
+  #tab-content-inadimplencia .inad-dr h3{ font-size:13px; margin:18px 0 6px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.03em; }
+  #tab-content-inadimplencia .inad-x{ position:absolute; top:12px; right:12px; font-size:20px; line-height:1; border:0; background:none; color:var(--text-muted); cursor:pointer; padding:4px 8px; }
+  #tab-content-inadimplencia .inad-kv{ display:grid; grid-template-columns:170px 1fr; gap:4px 12px; font-size:13.5px; margin:0; }
+  #tab-content-inadimplencia .inad-kv dt{ color:var(--text-muted); }
+  #tab-content-inadimplencia .inad-kv dd{ margin:0; }
+  #tab-content-inadimplencia .inad-dr .inad-tw{ max-height:none; min-height:0; }
+  #tab-content-inadimplencia .inad-dr .inad-table{ width:100%; min-width:0; }
+  #tab-content-inadimplencia .inad-dr .inad-table td, #tab-content-inadimplencia .inad-dr .inad-table th{ cursor:default; padding:5px 7px; }
+  #tab-content-inadimplencia .inad-muted{ color:var(--text-faint); }
 </style>
 
 <div class="app">
@@ -1243,6 +1298,7 @@
       <button class="tab-btn" id="tab-btn-estoquefilial" type="button" data-tab="estoquefilial">Estoque por Filial</button>
       <button class="tab-btn" id="tab-btn-faturamento" type="button" data-tab="faturamento">Evolução de Faturamento</button>
       <button class="tab-btn" id="tab-btn-comparar" type="button" data-tab="comparar">Comparar Períodos</button>
+      <button class="tab-btn" id="tab-btn-inadimplencia" type="button" data-tab="inadimplencia">Detalhamento Inadimplência</button>
     </div>
 
     <!-- ===================== TAB: STATUS DOS PEDIDOS ===================== -->
@@ -1586,6 +1642,41 @@
         Segmento é atributo do cliente (não da venda) &middot; "Limitar até o dia" corta todos os períodos ativos no mesmo dia do mês, útil pra comparar um mês em andamento com meses já fechados sem viés (some sozinho quando o período mais recente é o mês atual) &middot; dados de histórico completo (<code>VENDAS_CLIENTES</code>), excluindo FRETE.
       </div>
     </div>
+    </div>
+
+    <!-- ===================== TAB: DETALHAMENTO INADIMPLÊNCIA ===================== -->
+    <!-- Dados NÃO vêm embutidos na página (têm nome e CPF/CNPJ): buscados em GET /api/inadimplencia,
+         já filtrados pelas empresas do usuário, só quando a aba é aberta. Ver initInadimplenciaTab. -->
+    <div id="tab-content-inadimplencia" class="is-hidden">
+    <div class="panel">
+      <p class="tab-context-note">
+        <b>Detalhamento Inadimplência</b> · cruzamento Aqui Tem+ × Mira, uma linha por título vencido · posição de <b id="inad-posicao">—</b> &middot;
+        clique numa categoria para filtrar (dá para marcar várias), no cabeçalho para ordenar e numa linha para ver boletos e pagamentos.
+      </p>
+      <div class="inad-tabs" id="inad-tabs">
+        <button type="button" data-inad-tab="mira" class="is-on">Vencido no Mira</button>
+        <button type="button" data-inad-tab="aqt">Vencido no Aqui Tem+</button>
+      </div>
+      <div class="inad-chips" id="inad-chips"></div>
+      <div class="inad-bar">
+        <input type="search" id="inad-q" placeholder="Buscar nome, CPF/CNPJ, código, pedido, título, boleto…">
+        <select id="inad-fil"></select><select id="inad-for"></select><select id="inad-tipo"></select><select id="inad-forma"></select><select id="inad-flag"></select>
+        <select id="inad-atr"><option value="">Todo atraso</option><option>1-30</option><option>31-60</option><option>61-90</option><option>91-180</option><option>181-365</option><option>&gt;365</option></select>
+        <label class="inad-chk"><input type="checkbox" id="inad-mais"> mais colunas</label>
+        <button class="clear-btn" id="inad-limpa" type="button">Limpar filtros</button>
+        <button class="clear-btn copy-btn" id="inad-xls" type="button">📋 Exportar para Excel</button>
+      </div>
+      <p class="inad-tot" id="inad-tot"></p>
+      <div class="inad-tw"><table class="inad-table"><thead id="inad-th"></thead><tbody id="inad-tb"><tr><td class="inad-msg">Carregando…</td></tr></tbody></table></div>
+      <div class="footnote" id="inad-nota">
+        Tipo de boleto = prazo escolhido no pedido do Aqui Tem+ (À vista, 7, 10, 14, 21 ou 28 dias); o Aqui Tem+ só grava esse prazo desde 06/07/2026, os pedidos anteriores aparecem como "Não informado" &middot;
+        <b>Pendente de comprovante</b> = nenhum dos dois sistemas registra pagamento (título aberto no Mira e sem pagamento no Aqui Tem+) e nenhum comprovante foi enviado: se o cliente pagou por fora (Pix direto, por exemplo), é preciso o comprovante para dar baixa &middot;
+        formas de pagamento do Aqui Tem+ deduzidas dos dados (boleto, Pix, Pix do boleto, saldo da loja, crédito) &middot; o total soma só o saldo do próprio sistema &middot;
+        Mira = organização 21 (as 12 empresas do grupo) &middot; linhas sem empresa (distribuidores antigos e faturas sem pedido) só aparecem para quem tem acesso a todas as empresas.
+      </div>
+    </div>
+    <div class="inad-ov" id="inad-ov"></div>
+    <aside class="inad-dr" id="inad-dr" aria-hidden="true"><button class="inad-x" id="inad-fecha" type="button" title="Fechar (Esc)">×</button><div id="inad-drc"></div></aside>
     </div>
 
     <p class="footer-note" style="font-size:10.5px;color:var(--text-faint);text-align:center;padding:4px 0 0;">BI Operacional — Aqui Tem Mais · dados processados em <b>__PROCESSADO_EM__</b></p>
@@ -2945,6 +3036,161 @@ function cidadeUfHtml(cidade, uf) {
 })();
 
 // ================================================================
+// ABA "DETALHAMENTO INADIMPLÊNCIA" - port do detalhe_inadimplencia.html (análise Aqui Tem+ x Mira).
+// Dados buscados em GET /api/inadimplencia (backend: já filtrado por empresa; local_server: sem
+// filtro) só na 1a abertura da aba. Sem barra invertida neste bloco (some em alguns caminhos de
+// edição): usa [0-9], new RegExp e String.fromCharCode.
+// ================================================================
+(function initInadimplenciaTab() {
+  const el = id => document.getElementById(id);
+  let D = null, carregando = false;
+  const BRL = v => (v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const DT = v => v ? String(v).slice(0, 10).split("-").reverse().join("/") : "";
+  const faixa = a => a <= 30 ? "1-30" : a <= 60 ? "31-60" : a <= 90 ? "61-90" : a <= 180 ? "91-180" : a <= 365 ? "181-365" : ">365";
+  const esc = s => String(s == null ? "" : s).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;");
+  const SO_NUMEROS = new RegExp("^[0-9 ./-]+$");
+  // família de cada flag: good = resolvido, warn = pendente, crit = cancelado, info = parcial
+  const FAM = { "Pago no AQT": "good", "Baixado no Mira": "good", "Comprovante marcado como baixado": "good", "Pendente de comprovante": "warn", "Comprovante enviado": "warn", "Pago, mas com boleto em aberto": "warn",
+    "Cancelado no AQT": "crit", "Cancelado no Mira": "crit", "Pedido cancelado no AQT": "crit", "Boleto cancelado/reemitido": "crit", "Pagamento parcial no Mira": "info", "Pagamento parcial no AQT": "info" };
+  const flagHtml = f => '<span class="inad-flag ' + (FAM[f] || "") + '"><i></i>' + esc(f) + "</span>";
+  // colunas: [chave, título, tipo, só em "mais colunas"?]  tipos: t texto, tx texto cortado, nm nome, n valor, n0 inteiro, d data, cat, fl flags, bol boletos
+  const COLS = {
+    mira: [["cat","Categoria","cat"],["flags","Flags","fl"],["filial","Filial do cliente","t"],["cliMira","Cód. cliente","t"],["nomeCli","Cliente Mira","nm"],["docCli","CPF/CNPJ","t"],["pedMira","Pedido Mira","t"],["titMira","Título Mira","t"],["vencM","Venc. Mira","d"],["atraso","Dias","n0"],["saldoM","Saldo Mira","n"],
+           ["pedAQT","Pedido AQT","t"],["titAQT","Título(s) AQT","tx"],["tipo","Tipo de boleto","t"],["bolResumo","Boletos","bol"],["sitAQT","Situação no AQT","t"],["formaPg","Forma de pagamento AQT","t"],["saldoA","Em aberto no AQT","n"],["pagoAQT","Pago no AQT em","d",1],["fornecedor","Fornecedor AQT","t"],["nomeLoja","Loja AQT","nm"],["lojaAQT","Cód. loja AQT","t",1],["ligacao","Ligação","t",1]],
+    aqt:  [["cat","Categoria","cat"],["flags","Flags","fl"],["nomeLoja","Loja AQT","nm"],["lojaAQT","Cód. loja AQT","t",1],["fornecedor","Fornecedor AQT","t"],["pedAQT","Pedido AQT","t"],["titAQT","Título AQT","t"],["tipo","Tipo de boleto","t"],["bolResumo","Boletos","bol"],["formaPg","Forma de pagamento AQT","t"],["vencA","Venc. AQT","d"],["atraso","Dias","n0"],["saldoA","Saldo AQT","n"],
+           ["filial","Filial Mira","t"],["nomeCli","Cliente Mira","nm"],["cliMira","Cód. cliente Mira","t",1],["docCli","CPF/CNPJ cliente Mira","t",1],["pedMira","Pedido Mira","t"],["titMira","Título(s) Mira","tx"],["sitMira","Situação no Mira","t"],["saldoM","Saldo Mira","n"],["empVia","Empresa por","t",1],["ligacao","Ligação","t",1]],
+  };
+  const ehNum = c => c[2] === "n" || c[2] === "n0";
+  const SEM_FLAG = "(sem flag)";
+  const st = { tab: "mira", cats: new Set(), q: "", fil: "", forn: "", tipo: "", forma: "", flag: "", atr: "", mais: false, sort: { mira: ["atraso", -1], aqt: ["atraso", -1] }, rows: [] };
+  const linhas = () => D[st.tab];
+  const saldoProprio = r => st.tab === "mira" ? r.saldoM : r.saldoA;
+
+  function opts(sel, vals, rot) { sel.innerHTML = '<option value="">' + rot + "</option>" + vals.map(v => '<option value="' + esc(v) + '">' + esc(v) + "</option>").join(""); }
+  function filtra() {
+    const q = st.q.trim().toLowerCase();
+    const qd = SO_NUMEROS.test(q) ? q.replace(/[^0-9]/g, "") : "";   // só números: acha documento/boleto com ou sem pontuação
+    const casa = v => { const s = (Array.isArray(v) ? JSON.stringify(v) : String(v)).toLowerCase(); return s.includes(q) || (qd.length >= 4 && s.replace(/[^0-9]/g, "").includes(qd)); };
+    return linhas().filter(r => (!st.cats.size || st.cats.has(r.cat)) && (!st.fil || r.filial === st.fil) && (!st.forn || r.fornecedor === st.forn) && (!st.tipo || r.tipo === st.tipo)
+      && (!st.forma || (st.forma === "Sem pagamento" ? !r.pgtos.length : r.pgtos.some(p => p.forma === st.forma)))
+      && (!st.flag || (st.flag === SEM_FLAG ? !r.flags.length : r.flags.includes(st.flag))) && (!st.atr || faixa(r.atraso) === st.atr) && (!q || Object.values(r).some(casa)));
+  }
+  // cards: ordem global das categorias (meta), contagem e valor só das linhas que o usuário vê
+  function chips() {
+    const tot = linhas();
+    const ordem = (st.tab === "mira" ? D.meta.catsMira : D.meta.catsAQT) || [];
+    const html = ordem.map(f => {
+      const rs = tot.filter(r => r.cat === f.cat); if (!rs.length) return "";
+      const soma = rs.reduce((a, r) => a + saldoProprio(r), 0);
+      return '<button type="button" class="inad-chip' + (st.cats.has(f.cat) ? " is-on" : "") + '" data-cat="' + esc(f.cat) + '"><div class="t">' + esc(f.cat) + '</div><div class="v">R$ ' + BRL(soma) + '</div><div class="tag">' + rs.length + " linhas" + (f.tag ? " · " + esc(f.tag) : "") + "</div></button>";
+    }).join("");
+    el("inad-chips").innerHTML = html;
+    el("inad-chips").querySelectorAll(".inad-chip").forEach(b => b.onclick = () => { const c = b.dataset.cat; st.cats.has(c) ? st.cats.delete(c) : st.cats.add(c); render(); });
+  }
+  function fmt(c, v, i) {
+    switch (c[2]) {
+      case "n": return BRL(v); case "n0": return v; case "d": return DT(v);
+      case "cat": return '<span class="inad-cat">' + esc(v) + "</span>";
+      case "fl": return (v || []).map(flagHtml).join("");
+      case "bol": return v ? '<button type="button" class="inad-bol" data-i="' + i + '" title="' + esc(v) + ' (clique para ver)">' + esc(v) + "</button>" : '<span class="inad-muted">—</span>';
+      default: return esc(v);
+    }
+  }
+  const tdCls = c => ehNum(c) ? "num" : (c[2] === "nm" || c[2] === "tx" || c[2] === "fl") ? c[2] : "";
+  function render() {
+    if (!D) return;
+    chips();
+    const cols = COLS[st.tab].filter(c => st.mais || !c[3]);
+    const [sk, sd] = st.sort[st.tab];
+    el("inad-th").innerHTML = "<tr>" + cols.map(c => '<th data-k="' + c[0] + '" class="' + (ehNum(c) ? "num " : "") + (sk === c[0] ? "s" + (sd < 0 ? " desc" : "") : "") + '">' + c[1] + "</th>").join("") + "</tr>";
+    el("inad-th").querySelectorAll("th").forEach(h => h.onclick = () => { const k = h.dataset.k; const s = st.sort[st.tab]; st.sort[st.tab] = [k, s[0] === k ? -s[1] : (ehNum(COLS[st.tab].find(c => c[0] === k)) ? -1 : 1)]; render(); });
+    const val = (r, k) => k === "flags" ? r.flags.join(", ") : k === "bolResumo" ? r.bols.length : r[k];
+    const rows = filtra().sort((a, b) => { const x = val(a, sk), y = val(b, sk); return (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y), "pt-BR", { numeric: true })) * sd; });
+    st.rows = rows;
+    el("inad-tb").innerHTML = rows.length ? rows.map((r, i) => '<tr data-i="' + i + '">' + cols.map(c => '<td class="' + tdCls(c) + '"' + (c[2] === "tx" ? ' title="' + esc(r[c[0]]) + '"' : "") + ">" + fmt(c, r[c[0]], i) + "</td>").join("") + "</tr>").join("")
+      : '<tr><td class="inad-msg" colspan="' + cols.length + '">Nenhuma linha com esses filtros.</td></tr>';
+    const soma = rows.reduce((a, r) => a + (saldoProprio(r) || 0), 0);
+    // só o saldo do próprio sistema: a coluna do outro repete o valor quando o pedido tem mais de um título
+    el("inad-tot").innerHTML = "<b>" + rows.length + "</b> de " + linhas().length + " linhas · " + (st.tab === "mira" ? "saldo vencido no Mira" : "saldo vencido no Aqui Tem+") + " <b>R$ " + BRL(soma) + "</b>";
+  }
+  // ---- painel lateral da linha
+  function abre(r) {
+    const kv = pares => '<dl class="inad-kv">' + pares.filter(p => p[1] !== "" && p[1] != null).map(p => "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>").join("") + "</dl>";
+    const tabela = (cab, corpo) => '<div class="inad-tw"><table class="inad-table"><thead><tr>' + cab + "</tr></thead><tbody>" + corpo + "</tbody></table></div>";
+    const bols = r.bols.length ? tabela("<th>Nº do boleto</th><th>Banco</th><th>Vencimento</th><th class='num'>Valor</th><th>Situação</th><th>Pago em</th><th>Título</th>",
+      r.bols.map(b => "<tr><td>" + esc(b.n) + "</td><td>" + esc(b.bco) + "</td><td>" + DT(b.venc) + "</td><td class='num'>" + BRL(b.val) + "</td><td>" + esc(b.st) + "</td><td>" + DT(b.pg) + "</td><td>" + esc(b.tit) + "</td></tr>").join(""))
+      : '<p class="inad-muted">Nenhum boleto no Aqui Tem+ para esta linha.</p>';
+    const pgs = r.pgtos.length ? tabela("<th>Forma</th><th>Data</th><th class='num'>Valor</th><th>Título</th>",
+      r.pgtos.map(p => "<tr><td>" + esc(p.forma) + "</td><td>" + DT(p.data) + "</td><td class='num'>" + BRL(p.valor) + "</td><td>" + esc(p.tit) + "</td></tr>").join(""))
+      : '<p class="inad-muted">Nenhum pagamento registrado no Aqui Tem+.</p>';
+    const mira = kv([["Filial", esc(r.filial)], ["Cliente", esc(r.nomeCli) + (r.cliMira ? " <span class='inad-muted'>(cód. " + esc(r.cliMira) + ")</span>" : "")], ["CPF/CNPJ", esc(r.docCli)], ["Pedido", esc(r.pedMira)], ["Título(s)", esc(r.titMira)],
+      ["Vencimento", DT(r.vencM)], ["Situação", esc(r.sitMira)], ["Saldo", r.saldoM != null ? "R$ " + BRL(r.saldoM) : ""], ["Empresa atribuída por", esc(r.empVia)]]);
+    const aqt = kv([["Loja", esc(r.nomeLoja) + (r.lojaAQT ? " <span class='inad-muted'>(cód. " + esc(r.lojaAQT) + ")</span>" : "")], ["Fornecedor", esc(r.fornecedor)], ["Pedido", esc(r.pedAQT)], ["Tipo de boleto", esc(r.tipo)],
+      ["Título(s)", esc(r.titAQT)], ["Vencimento", DT(r.vencA)], ["Situação", esc(r.sitAQT)], [st.tab === "mira" ? "Em aberto" : "Saldo", r.saldoA != null ? "R$ " + BRL(r.saldoA) : ""], ["Pago em", DT(r.pagoAQT)], ["Ligação com o Mira", esc(r.ligacao)]]);
+    el("inad-drc").innerHTML = "<h2>" + esc(r.cat) + "</h2>" + '<div style="margin:6px 0 4px">' + (r.flags.length ? r.flags.map(flagHtml).join("") : '<span class="inad-muted" style="font-size:13px">sem flag</span>') + "</div>"
+      + "<h3>Boletos no Aqui Tem+ (" + r.bols.length + ")</h3>" + bols + "<h3>Pagamentos no Aqui Tem+ (" + r.pgtos.length + ")</h3>" + pgs
+      + (st.tab === "mira" ? "<h3>Mira</h3>" + mira + "<h3>Aqui Tem+</h3>" + aqt : "<h3>Aqui Tem+</h3>" + aqt + "<h3>Mira</h3>" + mira);
+    el("inad-dr").classList.add("is-on"); el("inad-ov").classList.add("is-on"); el("inad-dr").setAttribute("aria-hidden", "false");
+  }
+  function fecha() { el("inad-dr").classList.remove("is-on"); el("inad-ov").classList.remove("is-on"); el("inad-dr").setAttribute("aria-hidden", "true"); }
+  el("inad-tb").addEventListener("click", e => {
+    if (!D || (window.getSelection && String(window.getSelection()).length)) return;
+    const tr = e.target.closest("tr[data-i]"); if (tr) abre(st.rows[+tr.dataset.i]);
+  });
+  el("inad-fecha").onclick = fecha; el("inad-ov").onclick = fecha;
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && el("inad-dr").classList.contains("is-on")) fecha(); });
+  // ---- abas internas e filtros
+  function trocaAba(t) {
+    st.tab = t; st.cats.clear(); st.fil = st.forn = st.tipo = st.forma = st.flag = ""; fecha();
+    document.querySelectorAll("#inad-tabs button").forEach(b => b.classList.toggle("is-on", b.dataset.inadTab === t));
+    const L = linhas(), uni = f => [...new Set(L.flatMap(f).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
+    opts(el("inad-fil"), uni(r => [r.filial]), "Toda filial"); opts(el("inad-for"), uni(r => [r.fornecedor]), "Todo fornecedor");
+    const ORD_TIPO = ["À vista", "7 dias", "10 dias", "14 dias", "21 dias", "28 dias", "Não informado", "Sem pedido AQT", "Sem pedido"];
+    opts(el("inad-tipo"), uni(r => [r.tipo]).sort((a, b) => (ORD_TIPO.indexOf(a) + 99) % 99 - (ORD_TIPO.indexOf(b) + 99) % 99), "Todo tipo de boleto");
+    opts(el("inad-forma"), [...uni(r => r.pgtos.map(p => p.forma)), "Sem pagamento"], "Toda forma de pagamento");
+    opts(el("inad-flag"), [...uni(r => r.flags), SEM_FLAG], "Toda flag");
+    render();
+  }
+  document.querySelectorAll("#inad-tabs button").forEach(b => b.onclick = () => { if (D) trocaAba(b.dataset.inadTab); });
+  el("inad-q").oninput = e => { st.q = e.target.value; render(); };
+  el("inad-fil").onchange = e => { st.fil = e.target.value; render(); }; el("inad-for").onchange = e => { st.forn = e.target.value; render(); };
+  el("inad-tipo").onchange = e => { st.tipo = e.target.value; render(); }; el("inad-forma").onchange = e => { st.forma = e.target.value; render(); };
+  el("inad-flag").onchange = e => { st.flag = e.target.value; render(); }; el("inad-atr").onchange = e => { st.atr = e.target.value; render(); };
+  el("inad-mais").onchange = e => { st.mais = e.target.checked; render(); };
+  el("inad-limpa").onclick = () => { st.cats.clear(); st.q = st.fil = st.forn = st.tipo = st.forma = st.flag = st.atr = ""; ["inad-q", "inad-fil", "inad-for", "inad-tipo", "inad-forma", "inad-flag", "inad-atr"].forEach(id => el(id).value = ""); render(); };
+  // ---- exportação: CSV com ; e BOM (abre direto no Excel), só as linhas filtradas
+  el("inad-xls").onclick = () => {
+    if (!D) return;
+    const cols = COLS[st.tab];
+    const txt = s => '"' + String(s == null ? "" : s).split('"').join('""') + '"';
+    const cel = (c, v) => { if (v == null || v === "") return ""; if (c[2] === "n") return String(v).replace(".", ","); if (c[2] === "n0") return String(v); if (c[2] === "d") return DT(v); if (c[2] === "fl") return txt(v.join("; ")); const s = String(v); return /^[0-9]{6,}$/.test(s) ? '="' + s + '"' : txt(s); };
+    const detBol = r => txt(r.bols.map(b => b.n + " (" + b.bco + ", venc. " + DT(b.venc) + ", R$ " + BRL(b.val) + ", " + b.st + (b.pg ? ", pago " + DT(b.pg) : "") + ")").join(" | "));
+    const detPg = r => txt(r.pgtos.map(p => p.forma + " R$ " + BRL(p.valor) + (p.data ? " em " + DT(p.data) : "")).join(" | "));
+    const NL = String.fromCharCode(13, 10);
+    const corpo = [cols.map(c => c[1]).concat("Boletos (detalhe)", "Pagamentos AQT (detalhe)").join(";")].concat(st.rows.map(r => cols.map(c => cel(c, r[c[0]])).concat(detBol(r), detPg(r)).join(";"))).join(NL);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([String.fromCharCode(0xFEFF) + corpo], { type: "text/csv;charset=utf-8" }));
+    a.download = "inadimplencia_" + st.tab + "_" + D.meta.hoje + ".csv"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  // ---- carga sob demanda
+  function msg(t) { el("inad-th").innerHTML = ""; el("inad-tb").innerHTML = '<tr><td class="inad-msg">' + esc(t) + "</td></tr>"; el("inad-tot").textContent = ""; el("inad-chips").innerHTML = ""; }
+  function carregar() {
+    if (carregando) return; carregando = true; msg("Carregando…");
+    fetch("/api/inadimplencia", { credentials: "same-origin", cache: "no-store" })
+      .then(r => { const ct = r.headers.get("content-type") || ""; if (!r.ok || ct.indexOf("json") < 0) throw new Error("sessao"); return r.json(); })
+      .then(j => {
+        carregando = false;
+        if (!j.ok) { msg("Os dados de inadimplência ainda não foram sincronizados. Tente de novo depois do próximo ciclo de atualização."); return; }
+        D = { mira: j.mira || [], aqt: j.aqt || [], meta: j.meta || {} };
+        el("inad-posicao").textContent = j.meta && j.meta.geradoEm ? new Date(j.meta.geradoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : DT(j.meta && j.meta.hoje);
+        document.querySelectorAll("#inad-tabs button").forEach(b => { b.textContent = (b.dataset.inadTab === "mira" ? "Vencido no Mira" : "Vencido no Aqui Tem+") + " (" + D[b.dataset.inadTab].length + ")"; });
+        trocaAba(st.tab);
+      })
+      .catch(() => { carregando = false; msg("Não consegui carregar os dados. Se a sessão expirou, recarregue a página e entre de novo."); });
+  }
+  window.renderInadimplencia = () => { if (D) render(); else carregar(); };
+})();
+
+// ================================================================
 // ABA "EVOLUÇÃO DE FATURAMENTO" (Por Período / Diário) - visual obedece a folha de estilos do BI
 // Comercial (aba "Visão Geral", tokens --vg-* / markup vg2-*, ver <style> acima). Fonte:
 // RAW_FATURAMENTO (op_faturamento.json), 1 linha por Data+CodEmpresa+Operadora, histórico
@@ -3132,7 +3378,7 @@ function cidadeUfHtml(cidade, uf) {
 })();
 
 (function initTabs() {
-  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar"];
+  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar", "inadimplencia"];
   const btns = {}, contents = {};
   for (const t of tabs) {
     btns[t] = document.getElementById("tab-btn-" + t);
@@ -3150,6 +3396,7 @@ function cidadeUfHtml(cidade, uf) {
     if (tab === "estoquefilial" && window.renderEstoqueFilial) window.renderEstoqueFilial();
     if (tab === "faturamento" && window.renderFaturamento) window.renderFaturamento();
     if (tab === "comparar" && window.renderComparar) window.renderComparar();
+    if (tab === "inadimplencia" && window.renderInadimplencia) window.renderInadimplencia();
 
     // log de acessos por aba (fase 2) - so na versao hospedada (tem sessao/usuario logado),
     // fire-and-forget: nunca deve travar/atrasar a troca de aba, mesmo se a chamada falhar.
