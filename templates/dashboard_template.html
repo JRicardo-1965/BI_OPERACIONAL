@@ -1817,6 +1817,9 @@ const HOSTED_SESSION = "__HOSTED_SESSION__" === "1";
 // Outros módulos BI que este usuário também acessa (seletor "Trocar de módulo" no cabeçalho) -
 // vazio no build local e no hospedado quando o usuário só tem acesso a este BI.
 const RAW_OUTROS_SISTEMAS = __OUTROS_SISTEMAS_JSON__;
+// Abas liberadas para este usuario (Modulo de Acessos -> Portal). null = todas. O servidor ja nao manda
+// os dados das abas nao liberadas; aqui so some com os botoes e abre na primeira aba liberada.
+const ABAS_PERMITIDAS = __ABAS_PERMITIDAS_JSON__;
 
 const today = new Date("__TODAY_ISO__T00:00:00");
 const TODAY_ISO_STR = "__TODAY_ISO__";
@@ -3416,10 +3419,25 @@ function cidadeUfHtml(cidade, uf) {
     }
   }
   for (const t of tabs) btns[t].addEventListener("click", () => activate(t));
+
+  // permissao por aba: tira o botao das abas nao liberadas e, se "Status dos Pedidos" nao estiver
+  // liberada, abre na primeira que estiver (o conteudo das outras fica escondido e sem dados)
+  const liberadas = tabs.filter((t) => !Array.isArray(ABAS_PERMITIDAS) || ABAS_PERMITIDAS.includes(t));
+  window.ABA_INICIAL = liberadas[0] || null;
+  if (liberadas.length < tabs.length) {
+    for (const t of tabs) if (!liberadas.includes(t)) btns[t].remove();
+    if (!liberadas.length) {
+      for (const t of tabs) contents[t].classList.add("is-hidden");
+      const aviso = document.createElement("p");
+      aviso.className = "tab-context-note";
+      aviso.textContent = "Nenhuma aba deste módulo está liberada para o seu usuário. Fale com o administrador.";
+      contents[tabs[0]].parentNode.insertBefore(aviso, contents[tabs[0]]);
+    } else if (window.ABA_INICIAL !== "status") activate(window.ABA_INICIAL);
+  }
 })();
 
-// "Status dos Pedidos" é a aba visível no load - dispara o render dela uma vez.
-if (window.renderStatus) window.renderStatus();
+// "Status dos Pedidos" é a aba visível no load - dispara o render dela uma vez (se estiver liberada).
+if (window.ABA_INICIAL === "status" && window.renderStatus) window.renderStatus();
 
 // ================================================================
 // TEMA, BOTÃO ATUALIZAR, FRESCOR, SESSÃO HOSPEDADA
