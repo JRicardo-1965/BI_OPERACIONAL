@@ -1220,10 +1220,16 @@
   #tab-content-inadimplencia .inad-chip .v{ font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; margin:3px 0 1px; white-space:nowrap; }
   #tab-content-inadimplencia .inad-chip .tag{ font-size:10.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #tab-content-inadimplencia .inad-chip.is-on{ border-color:var(--accent); background:var(--accent-soft); }
-  #tab-content-inadimplencia .inad-bar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:4px 0 10px; }
-  #tab-content-inadimplencia .inad-bar input, #tab-content-inadimplencia .inad-bar select{ font:inherit; font-size:12px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:5px 8px; max-width:200px; }
-  #tab-content-inadimplencia .inad-bar input[type=search]{ min-width:220px; flex:1 1 220px; max-width:320px; }
-  #tab-content-inadimplencia .inad-chk{ color:var(--text-muted); font-size:12px; display:flex; gap:6px; align-items:center; }
+  /* filtros em GRADE: largura de cada campo vem da coluna, não do texto das opções - assim as duas
+     abas internas (Mira / Aqui Tem+) quebram a linha exatamente no mesmo lugar */
+  /* 1 linha: busca, filial, fornecedor, tipo de boleto, forma de pagamento, flag, atraso */
+  #tab-content-inadimplencia .inad-bar{ display:grid; grid-template-columns:1.3fr 1fr 1fr 1fr 1.25fr 1fr 0.9fr; gap:8px; margin:4px 0 8px; }
+  #tab-content-inadimplencia .inad-bar input, #tab-content-inadimplencia .inad-bar select{ font:inherit; font-size:12px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:5px 8px; width:100%; min-width:0; box-sizing:border-box; text-overflow:ellipsis; }
+  @media (max-width:1100px){
+    #tab-content-inadimplencia .inad-bar{ grid-template-columns:repeat(4, minmax(0, 1fr)); }
+    #tab-content-inadimplencia .inad-bar input[type=search]{ grid-column:span 2; }
+  }
+  #tab-content-inadimplencia .inad-acoes{ display:flex; gap:8px; align-items:center; margin:0 0 10px; }
   #tab-content-inadimplencia .inad-tot{ color:var(--text-muted); font-size:12px; margin:0 0 8px; }
   #tab-content-inadimplencia .inad-tot b{ color:var(--text); font-variant-numeric:tabular-nums; }
   #tab-content-inadimplencia .inad-msg{ padding:30px; text-align:center; color:var(--text-muted); }
@@ -1668,7 +1674,8 @@
         <input type="search" id="inad-q" placeholder="Buscar nome, CPF/CNPJ, código, pedido, título, boleto…">
         <select id="inad-fil"></select><select id="inad-for"></select><select id="inad-tipo"></select><select id="inad-forma"></select><select id="inad-flag"></select>
         <select id="inad-atr"><option value="">Todo atraso</option><option>1-30</option><option>31-60</option><option>61-90</option><option>91-180</option><option>181-365</option><option>&gt;365</option></select>
-        <label class="inad-chk"><input type="checkbox" id="inad-mais"> mais colunas</label>
+      </div>
+      <div class="inad-acoes">
         <button class="clear-btn" id="inad-limpa" type="button">Limpar filtros</button>
         <button class="clear-btn copy-btn" id="inad-xls" type="button">📋 Exportar para Excel</button>
       </div>
@@ -3062,7 +3069,7 @@ function cidadeUfHtml(cidade, uf) {
   const FAM = { "Pago no AQT": "good", "Baixado no Mira": "good", "Comprovante marcado como baixado": "good", "Pendente de comprovante": "warn", "Comprovante enviado": "warn", "Pago, mas com boleto em aberto": "warn",
     "Cancelado no AQT": "crit", "Cancelado no Mira": "crit", "Pedido cancelado no AQT": "crit", "Boleto cancelado/reemitido": "crit", "Pagamento parcial no Mira": "info", "Pagamento parcial no AQT": "info" };
   const flagHtml = f => '<span class="inad-flag ' + (FAM[f] || "") + '"><i></i>' + esc(f) + "</span>";
-  // colunas: [chave, título, tipo, só em "mais colunas"?]  tipos: t texto, tx texto cortado, nm nome, n valor, n0 inteiro, d data, cat, fl flags, bol boletos
+  // colunas: [chave, título, tipo] - todas sempre visíveis (o "mais colunas" saiu a pedido em 19/10)  tipos: t texto, tx texto cortado, nm nome, n valor, n0 inteiro, d data, cat, fl flags, bol boletos
   const COLS = {
     mira: [["cat","Categoria","cat"],["flags","Flags","fl"],["filial","Filial do cliente","t"],["cliMira","Cód. cliente","t"],["nomeCli","Cliente Mira","nm"],["docCli","CPF/CNPJ","t"],["pedMira","Pedido Mira","t"],["titMira","Título Mira","t"],["vencM","Venc. Mira","d"],["atraso","Dias","n0"],["saldoM","Saldo Mira","n"],
            ["pedAQT","Pedido AQT","t"],["titAQT","Título(s) AQT","tx"],["tipo","Tipo de boleto","t"],["bolResumo","Boletos","bol"],["sitAQT","Situação no AQT","t"],["formaPg","Forma de pagamento AQT","t"],["saldoA","Em aberto no AQT","n"],["pagoAQT","Pago no AQT em","d",1],["fornecedor","Fornecedor AQT","t"],["nomeLoja","Loja AQT","nm"],["lojaAQT","Cód. loja AQT","t",1],["ligacao","Ligação","t",1]],
@@ -3071,7 +3078,7 @@ function cidadeUfHtml(cidade, uf) {
   };
   const ehNum = c => c[2] === "n" || c[2] === "n0";
   const SEM_FLAG = "(sem flag)";
-  const st = { tab: "mira", cats: new Set(), q: "", fil: "", forn: "", tipo: "", forma: "", flag: "", atr: "", mais: false, sort: { mira: ["atraso", -1], aqt: ["atraso", -1] }, rows: [] };
+  const st = { tab: "mira", cats: new Set(), q: "", fil: "", forn: "", tipo: "", forma: "", flag: "", atr: "", sort: { mira: ["atraso", -1], aqt: ["atraso", -1] }, rows: [] };
   const linhas = () => D[st.tab];
   const saldoProprio = r => st.tab === "mira" ? r.saldoM : r.saldoA;
 
@@ -3110,7 +3117,7 @@ function cidadeUfHtml(cidade, uf) {
   function render() {
     if (!D) return;
     chips();
-    const cols = COLS[st.tab].filter(c => st.mais || !c[3]);
+    const cols = COLS[st.tab];
     const [sk, sd] = st.sort[st.tab];
     el("inad-th").innerHTML = "<tr>" + cols.map(c => '<th data-k="' + c[0] + '" class="' + (ehNum(c) ? "num " : "") + (sk === c[0] ? "s" + (sd < 0 ? " desc" : "") : "") + '">' + c[1] + "</th>").join("") + "</tr>";
     el("inad-th").querySelectorAll("th").forEach(h => h.onclick = () => { const k = h.dataset.k; const s = st.sort[st.tab]; st.sort[st.tab] = [k, s[0] === k ? -s[1] : (ehNum(COLS[st.tab].find(c => c[0] === k)) ? -1 : 1)]; render(); });
@@ -3166,7 +3173,6 @@ function cidadeUfHtml(cidade, uf) {
   el("inad-fil").onchange = e => { st.fil = e.target.value; render(); }; el("inad-for").onchange = e => { st.forn = e.target.value; render(); };
   el("inad-tipo").onchange = e => { st.tipo = e.target.value; render(); }; el("inad-forma").onchange = e => { st.forma = e.target.value; render(); };
   el("inad-flag").onchange = e => { st.flag = e.target.value; render(); }; el("inad-atr").onchange = e => { st.atr = e.target.value; render(); };
-  el("inad-mais").onchange = e => { st.mais = e.target.checked; render(); };
   el("inad-limpa").onclick = () => { st.cats.clear(); st.q = st.fil = st.forn = st.tipo = st.forma = st.flag = st.atr = ""; ["inad-q", "inad-fil", "inad-for", "inad-tipo", "inad-forma", "inad-flag", "inad-atr"].forEach(id => el(id).value = ""); render(); };
   // ---- exportação: CSV com ; e BOM (abre direto no Excel), só as linhas filtradas
   el("inad-xls").onclick = () => {
