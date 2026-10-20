@@ -3174,18 +3174,92 @@ function cidadeUfHtml(cidade, uf) {
   el("inad-tipo").onchange = e => { st.tipo = e.target.value; render(); }; el("inad-forma").onchange = e => { st.forma = e.target.value; render(); };
   el("inad-flag").onchange = e => { st.flag = e.target.value; render(); }; el("inad-atr").onchange = e => { st.atr = e.target.value; render(); };
   el("inad-limpa").onclick = () => { st.cats.clear(); st.q = st.fil = st.forn = st.tipo = st.forma = st.flag = st.atr = ""; ["inad-q", "inad-fil", "inad-for", "inad-tipo", "inad-forma", "inad-flag", "inad-atr"].forEach(id => el(id).value = ""); render(); };
-  // ---- exportação: CSV com ; e BOM (abre direto no Excel), só as linhas filtradas
+  // ---- exportação: .xlsx de verdade, montado no navegador SEM biblioteca externa (a página tem CPF/CNPJ,
+  // não carrega script de terceiro). Zip "store" (sem compressão) com os XML mínimos do formato Office Open
+  // XML. 3 planilhas, só com as linhas filtradas: títulos, boletos (1 por linha) e pagamentos (1 por linha).
+  const xesc = s => { let r = ""; for (const ch of String(s)) { const k = ch.codePointAt(0); if (k < 32 && k !== 9 && k !== 10 && k !== 13) continue; r += ch === "&" ? "&amp;" : ch === "<" ? "&lt;" : ch === ">" ? "&gt;" : ch === '"' ? "&quot;" : ch; } return r; };
+  const letra = i => { let s = ""; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  const serialData = iso => { const p = String(iso || "").slice(0, 10).split("-").map(Number); if (p.length < 3 || !p[0] || !p[1] || !p[2]) return null; return (Date.UTC(p[0], p[1] - 1, p[2]) - Date.UTC(1899, 11, 30)) / 86400000; };
+  // cols: [título, tipo, função(linha) -> valor]   tipos: t texto, n moeda, n0 inteiro, d data
+  function planilhaXml(cols, linhas) {
+    const larg = cols.map(c => Math.min(60, Math.max(c[1] === "d" ? 11 : c[1] === "n" ? 14 : 8, c[0].length + 2)));
+    const celula = (c, v, ref, i) => {
+      if (v == null || v === "") return "";
+      if (c[1] === "n" || c[1] === "n0") { const x = Number(v); return isFinite(x) ? '<c r="' + ref + '" s="' + (c[1] === "n" ? 2 : 3) + '"><v>' + x + "</v></c>" : ""; }
+      if (c[1] === "d") { const x = serialData(v); return x == null ? "" : '<c r="' + ref + '" s="4"><v>' + x + "</v></c>"; }
+      const s = String(v); larg[i] = Math.min(60, Math.max(larg[i], s.length + 2));
+      return '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + xesc(s) + "</t></is></c>";
+    };
+    const cab = '<row r="1">' + cols.map((c, i) => '<c r="' + letra(i) + '1" s="1" t="inlineStr"><is><t>' + xesc(c[0]) + "</t></is></c>").join("") + "</row>";
+    const corpo = linhas.map((l, j) => '<row r="' + (j + 2) + '">' + cols.map((c, i) => celula(c, c[2](l), letra(i) + (j + 2), i)).join("") + "</row>").join("");
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+      + '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+      + "<cols>" + larg.map((w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join("") + "</cols>"
+      + "<sheetData>" + cab + corpo + "</sheetData>" + '<autoFilter ref="A1:' + letra(cols.length - 1) + (linhas.length + 1) + '"/></worksheet>';
+  }
+  const CRC_TAB = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; } return t; })();
+  const crc32 = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC_TAB[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function zipStore(arquivos) {
+    const enc = new TextEncoder(), agora = new Date();
+    const hora = (agora.getHours() << 11) | (agora.getMinutes() << 5) | (agora.getSeconds() >> 1);
+    const data = ((agora.getFullYear() - 1980) << 9) | ((agora.getMonth() + 1) << 5) | agora.getDate();
+    const partes = [], central = []; let pos = 0;
+    for (const f of arquivos) {
+      const nome = enc.encode(f.nome), dados = enc.encode(f.texto), crc = crc32(dados);
+      const h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true); h.setUint16(10, hora, true); h.setUint16(12, data, true);
+      h.setUint32(14, crc, true); h.setUint32(18, dados.length, true); h.setUint32(22, dados.length, true); h.setUint16(26, nome.length, true); h.setUint16(28, 0, true);
+      const c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true); c.setUint16(12, hora, true); c.setUint16(14, data, true);
+      c.setUint32(16, crc, true); c.setUint32(20, dados.length, true); c.setUint32(24, dados.length, true); c.setUint16(28, nome.length, true); c.setUint32(42, pos, true);
+      partes.push(h, nome, dados); central.push(c, nome);
+      pos += 30 + nome.length + dados.length;
+    }
+    const fim = new DataView(new ArrayBuffer(22));
+    fim.setUint32(0, 0x06054b50, true); fim.setUint16(8, arquivos.length, true); fim.setUint16(10, arquivos.length, true);
+    fim.setUint32(12, central.reduce((s, x) => s + x.byteLength, 0), true); fim.setUint32(16, pos, true);
+    return new Blob([...partes, ...central, fim], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+  function montaXlsx(abas) {
+    const XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+    const NS_REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+    const tipos = XML + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'
+      + '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+      + abas.map((a, i) => '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join("") + "</Types>";
+    const rels = XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + NS_REL + '/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+    const wb = XML + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="' + NS_REL + '"><sheets>'
+      + abas.map((a, i) => '<sheet name="' + xesc(a.nome) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join("") + "</sheets></workbook>";
+    const wbRels = XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      + abas.map((a, i) => '<Relationship Id="rId' + (i + 1) + '" Type="' + NS_REL + '/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join("")
+      + '<Relationship Id="rId' + (abas.length + 1) + '" Type="' + NS_REL + '/styles" Target="styles.xml"/></Relationships>';
+    // estilos: 0 normal, 1 cabeçalho em negrito, 2 moeda (#,##0.00), 3 inteiro, 4 data dd/mm/aaaa
+    const estilos = XML + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/></numFmts>'
+      + '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'
+      + '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>'
+      + '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+      + '<cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+      + '<xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+      + '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+    return zipStore([{ nome: "[Content_Types].xml", texto: tipos }, { nome: "_rels/.rels", texto: rels }, { nome: "xl/workbook.xml", texto: wb }, { nome: "xl/_rels/workbook.xml.rels", texto: wbRels }, { nome: "xl/styles.xml", texto: estilos }]
+      .concat(abas.map((a, i) => ({ nome: "xl/worksheets/sheet" + (i + 1) + ".xml", texto: a.xml }))));
+  }
+  function gerarXlsx() {
+    const ehMira = st.tab === "mira";
+    const tipoX = t => (t === "n" || t === "n0" || t === "d") ? t : "t";
+    const colsT = COLS[st.tab].map(c => [c[1], tipoX(c[2]), r => c[2] === "fl" ? (r.flags || []).join("; ") : r[c[0]]]);
+    const chave = ehMira ? [["Título Mira", "t", x => x.r.titMira], ["Pedido Mira", "t", x => x.r.pedMira], ["Pedido AQT", "t", x => x.r.pedAQT]]
+                         : [["Título AQT", "t", x => x.r.titAQT], ["Pedido AQT", "t", x => x.r.pedAQT], ["Pedido Mira", "t", x => x.r.pedMira]];
+    const quem = [["Filial", "t", x => x.r.filial], [ehMira ? "Cliente Mira" : "Loja AQT", "t", x => ehMira ? x.r.nomeCli : x.r.nomeLoja]];
+    const bols = st.rows.flatMap(r => r.bols.map(b => ({ r, b })));
+    const pgs = st.rows.flatMap(r => r.pgtos.map(p => ({ r, p })));
+    const colsB = chave.concat(quem, [["Nº do boleto", "t", x => x.b.n], ["Banco", "t", x => x.b.bco], ["Vencimento", "d", x => x.b.venc], ["Valor", "n", x => x.b.val], ["Situação", "t", x => x.b.st], ["Pago em", "d", x => x.b.pg], ["Título do boleto", "t", x => x.b.tit]]);
+    const colsP = chave.concat(quem, [["Forma", "t", x => x.p.forma], ["Data", "d", x => x.p.data], ["Valor", "n", x => x.p.valor], ["Título", "t", x => x.p.tit]]);
+    return montaXlsx([{ nome: ehMira ? "Vencido no Mira" : "Vencido no Aqui Tem+", xml: planilhaXml(colsT, st.rows) }, { nome: "Boletos", xml: planilhaXml(colsB, bols) }, { nome: "Pagamentos", xml: planilhaXml(colsP, pgs) }]);
+  }
   el("inad-xls").onclick = () => {
     if (!D) return;
-    const cols = COLS[st.tab];
-    const txt = s => '"' + String(s == null ? "" : s).split('"').join('""') + '"';
-    const cel = (c, v) => { if (v == null || v === "") return ""; if (c[2] === "n") return String(v).replace(".", ","); if (c[2] === "n0") return String(v); if (c[2] === "d") return DT(v); if (c[2] === "fl") return txt(v.join("; ")); const s = String(v); return /^[0-9]{6,}$/.test(s) ? '="' + s + '"' : txt(s); };
-    const detBol = r => txt(r.bols.map(b => b.n + " (" + b.bco + ", venc. " + DT(b.venc) + ", R$ " + BRL(b.val) + ", " + b.st + (b.pg ? ", pago " + DT(b.pg) : "") + ")").join(" | "));
-    const detPg = r => txt(r.pgtos.map(p => p.forma + " R$ " + BRL(p.valor) + (p.data ? " em " + DT(p.data) : "")).join(" | "));
-    const NL = String.fromCharCode(13, 10);
-    const corpo = [cols.map(c => c[1]).concat("Boletos (detalhe)", "Pagamentos AQT (detalhe)").join(";")].concat(st.rows.map(r => cols.map(c => cel(c, r[c[0]])).concat(detBol(r), detPg(r)).join(";"))).join(NL);
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([String.fromCharCode(0xFEFF) + corpo], { type: "text/csv;charset=utf-8" }));
-    a.download = "inadimplencia_" + st.tab + "_" + D.meta.hoje + ".csv"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(gerarXlsx());
+    a.download = "inadimplencia_" + st.tab + "_" + D.meta.hoje + ".xlsx"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };
   // ---- carga sob demanda
   function msg(t) { el("inad-th").innerHTML = ""; el("inad-tb").innerHTML = '<tr><td class="inad-msg">' + esc(t) + "</td></tr>"; el("inad-tot").textContent = ""; el("inad-chips").innerHTML = ""; }
