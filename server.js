@@ -58,6 +58,18 @@ if (fs.existsSync(INAD_FILE)) {
   }
 }
 
+// Aba "Rastreio de Envios": mesmo esquema da inadimplência (nomes de clientes e códigos de rastreio) - chega por
+// POST /api/sync-rastreio e sai filtrado por empresa em GET /api/rastreio; nunca vai embutido no HTML.
+const RASTREIO_FILE = path.join(__dirname, 'data', 'rastreio.json');
+let latestRastreio = null;
+if (fs.existsSync(RASTREIO_FILE)) {
+  try {
+    latestRastreio = JSON.parse(fs.readFileSync(RASTREIO_FILE, 'utf8'));
+  } catch (err) {
+    console.error('Não consegui ler data/rastreio.json existente, começando sem rastreio:', err.message);
+  }
+}
+
 let latestData = null;
 if (fs.existsSync(DATA_FILE)) {
   try {
@@ -209,7 +221,7 @@ function requireAuth(req, res, next) {
 // O Portal manda no token do /sso a lista de abas do usuario neste BI SO quando ha restricao
 // (USUARIOS_SIS_BI_ABAS); sem o campo = todas. A lista fica no cookie de sessao (assinado) e vale ate o
 // proximo login pelo Portal. Aba nao liberada: some da tela E o servidor nao manda os dados dela.
-const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'faturamento', 'comparar', 'inadimplencia'];
+const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'faturamento', 'comparar', 'inadimplencia', 'rastreio'];
 function abasValidas(abas) {
   if (!Array.isArray(abas)) return null;
   // lado seguro: lista que so tem abas desconhecidas vira "nenhuma aba", nunca "todas"
@@ -334,6 +346,35 @@ app.get('/api/inadimplencia', requireAuth, (req, res) => {
   const temTodas = universo.length > 0 && universo.every((e) => allowed.includes(e));
   const pode = (r) => (r.codEmpresa ? allowed.includes(String(r.codEmpresa)) : temTodas);
   res.json({ ok: true, meta: latestInad.meta, mira: latestInad.mira.filter(pode), aqt: latestInad.aqt.filter(pode), temTodas });
+});
+
+// --- Rastreio de Envios (banco correios_gateway da API dos Correios x Aqui Tem+ x Mira org 21) -------------------
+app.post('/api/sync-rastreio', express.json({ limit: '25mb' }), (req, res) => {
+  const secret = req.header('X-Sync-Secret');
+  if (!secret || secret !== SYNC_SECRET) return res.status(403).json({ ok: false, error: 'Segredo de sincronização inválido.' });
+  const body = req.body || {};
+  if (!Array.isArray(body.envios) || !Array.isArray(body.cobertura)) return res.status(400).json({ ok: false, error: 'Dados de rastreio inválidos.' });
+  try {
+    latestRastreio = { envios: body.envios, cobertura: body.cobertura, meta: body.meta || {}, syncedAt: new Date().toISOString() };
+    fs.mkdirSync(path.dirname(RASTREIO_FILE), { recursive: true });
+    fs.writeFileSync(RASTREIO_FILE, JSON.stringify(latestRastreio));
+    res.json({ ok: true, syncedAt: latestRastreio.syncedAt, envios: body.envios.length, cobertura: body.cobertura.length });
+  } catch (err) {
+    console.error('Erro processando /api/sync-rastreio:', err);
+    res.status(500).json({ ok: false, error: 'Erro ao processar sincronização do rastreio.' });
+  }
+});
+
+// Mesma regra da inadimplência: linha com codEmpresa só para quem tem a empresa; sem empresa, só para quem tem todas.
+app.get('/api/rastreio', requireAuth, (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!abaLiberada(req.abas, 'rastreio')) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
+  if (!latestRastreio) return res.json({ ok: false, motivo: 'sem_dados' });
+  const allowed = empresasDoUsuario(req.userEmail);
+  const universo = [...new Set((latestData.usuariosEmpresas || []).map((v) => String(v.empresa)))];
+  const temTodas = universo.length > 0 && universo.every((e) => allowed.includes(e));
+  const pode = (r) => (r.codEmpresa ? allowed.includes(String(r.codEmpresa)) : temTodas);
+  res.json({ ok: true, meta: latestRastreio.meta, envios: latestRastreio.envios.filter(pode), cobertura: latestRastreio.cobertura.filter(pode), temTodas });
 });
 
 // --- log de acessos por aba (fase 2) ------------------------------------------

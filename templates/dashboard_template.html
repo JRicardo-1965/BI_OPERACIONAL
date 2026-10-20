@@ -1267,6 +1267,77 @@
   #tab-content-inadimplencia .inad-dr .inad-table{ width:100%; min-width:0; }
   #tab-content-inadimplencia .inad-dr .inad-table td, #tab-content-inadimplencia .inad-dr .inad-table th{ cursor:default; padding:5px 7px; }
   #tab-content-inadimplencia .inad-muted{ color:var(--text-faint); }
+
+  /* ================================================================
+     ABA "RASTREIO DE ENVIOS" - objetos dos Correios (banco correios_gateway). Escopado a #tab-content-rastreio,
+     cores = variáveis do BI Operacional (tema claro/escuro), tamanhos iguais às outras abas.
+     ================================================================ */
+  #tab-content-rastreio > .panel{ padding:14px 16px 10px; }
+  #tab-content-rastreio > .panel > .footnote{ padding:10px 0 2px; }
+  #tab-content-rastreio .rast-bar{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px; margin:4px 0 12px; max-width:760px; }
+  #tab-content-rastreio .rast-bar select, #tab-content-rastreio .rast-tbar select, #tab-content-rastreio .rast-tbar input{ font:inherit; font-size:12px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:5px 8px; width:100%; min-width:0; box-sizing:border-box; }
+  #tab-content-rastreio .rast-rot{ display:block; font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.04em; margin:0 0 2px; }
+  #tab-content-rastreio .rast-kpis{ display:grid; grid-template-columns:repeat(auto-fill, minmax(165px, 1fr)); gap:8px; margin:0 0 12px; }
+  #tab-content-rastreio .rast-kpi{ border:1px solid var(--border); background:var(--surface); border-radius:8px; padding:8px 10px; min-width:0; }
+  #tab-content-rastreio .rast-kpi .t{ font-size:11px; color:var(--text-muted); line-height:1.3; min-height:2.6em; }
+  #tab-content-rastreio .rast-kpi .v{ font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0 1px; white-space:nowrap; }
+  #tab-content-rastreio .rast-kpi .s{ font-size:10.5px; color:var(--text-faint); line-height:1.35; }
+  #tab-content-rastreio .rast-kpi.is-alerta .v{ color:var(--danger); }
+  #tab-content-rastreio .rast-graficos{ display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:10px; margin:0 0 14px; }
+  @media (max-width:1100px){ #tab-content-rastreio .rast-graficos{ grid-template-columns:1fr; } }
+  #tab-content-rastreio .rast-card{ border:1px solid var(--border); background:var(--surface); border-radius:10px; padding:10px 12px; min-width:0; }
+  #tab-content-rastreio .rast-card h3{ font-size:12.5px; margin:0 0 2px; color:var(--text); }
+  #tab-content-rastreio .rast-card .cap{ font-size:10.5px; color:var(--text-faint); margin:0 0 8px; }
+  #tab-content-rastreio .rast-leg{ display:flex; flex-wrap:wrap; gap:10px; font-size:10.5px; color:var(--text-muted); margin:0 0 6px; }
+  #tab-content-rastreio .rast-leg i{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:-1px; }
+  #tab-content-rastreio .rast-hbar{ display:grid; grid-template-columns:minmax(90px, 40%) 1fr auto; gap:4px 8px; align-items:center; font-size:11px; }
+  #tab-content-rastreio .rast-hbar .l{ color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #tab-content-rastreio .rast-hbar .b{ height:12px; background:var(--surface-2); border-radius:3px; overflow:hidden; }
+  #tab-content-rastreio .rast-hbar .b span{ display:block; height:100%; border-radius:3px; }
+  #tab-content-rastreio .rast-hbar .n{ font-variant-numeric:tabular-nums; color:var(--text); text-align:right; white-space:nowrap; }
+  #tab-content-rastreio .rast-hbar .clic{ cursor:pointer; }
+  #tab-content-rastreio .rast-hbar .clic:hover{ color:var(--text); text-decoration:underline; }
+  #tab-content-rastreio .rast-vistas{ display:flex; gap:4px; margin:4px 0 8px; border-bottom:1px solid var(--border); }
+  #tab-content-rastreio .rast-vistas button{ border:0; background:none; color:var(--text-muted); font:inherit; font-weight:600; font-size:12.5px; padding:7px 12px; border-bottom:2px solid transparent; cursor:pointer; }
+  #tab-content-rastreio .rast-vistas button.is-on{ color:var(--text); border-bottom-color:var(--accent); }
+  #tab-content-rastreio .rast-tbar{ display:grid; grid-template-columns:1.6fr 1fr 1fr auto auto; gap:8px; align-items:center; margin:0 0 8px; }
+  @media (max-width:900px){ #tab-content-rastreio .rast-tbar{ grid-template-columns:1fr 1fr; } }
+  #tab-content-rastreio .rast-tot{ color:var(--text-muted); font-size:12px; margin:0 0 8px; }
+  #tab-content-rastreio .rast-tot b{ color:var(--text); }
+  #tab-content-rastreio .rast-msg{ padding:30px; text-align:center; color:var(--text-muted); }
+  #tab-content-rastreio .rast-tw{ overflow:auto; max-height:calc(100vh - 300px); min-height:260px; border:1px solid var(--border); border-radius:10px; background:var(--surface); }
+  #tab-content-rastreio .rast-table{ border-collapse:separate; border-spacing:0; width:max-content; min-width:100%; font-size:11.5px; }
+  #tab-content-rastreio .rast-table th{ position:sticky; top:0; background:var(--surface); z-index:1; text-align:left; font-weight:600; color:var(--text-muted); padding:6px 8px; border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer; user-select:none; }
+  #tab-content-rastreio .rast-table th.s::after{ content:" ▲"; font-size:10px; }
+  #tab-content-rastreio .rast-table th.s.desc::after{ content:" ▼"; }
+  #tab-content-rastreio .rast-table td{ font-size:11.5px; padding:5px 8px; border-bottom:1px solid var(--border); vertical-align:top; white-space:nowrap; color:var(--text); }
+  #tab-content-rastreio .rast-table tbody tr{ cursor:pointer; }
+  #tab-content-rastreio .rast-table tbody tr:hover td{ background:var(--surface-2); }
+  #tab-content-rastreio .rast-table td.nm{ white-space:normal; min-width:150px; max-width:230px; }
+  #tab-content-rastreio .rast-table td.tx{ max-width:240px; overflow:hidden; text-overflow:ellipsis; }
+  #tab-content-rastreio .rast-table .num{ text-align:right; font-variant-numeric:tabular-nums; }
+  #tab-content-rastreio .rast-sit, #tab-content-rastreio .rast-flag{ display:inline-flex; align-items:center; gap:5px; font-size:10.5px; padding:0 7px; border-radius:99px; border:1px solid var(--border); color:var(--text-muted); white-space:nowrap; margin:1px 3px 1px 0; }
+  #tab-content-rastreio .rast-sit i, #tab-content-rastreio .rast-flag i{ width:7px; height:7px; border-radius:50%; display:inline-block; background:var(--text-faint); }
+  #tab-content-rastreio .good i{ background:var(--ok); }
+  #tab-content-rastreio .warn i{ background:var(--warning); }
+  #tab-content-rastreio .crit i{ background:var(--danger); }
+  #tab-content-rastreio .info i{ background:var(--accent); }
+  #tab-content-rastreio .rast-ov{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:1000; }
+  #tab-content-rastreio .rast-ov.is-on{ display:block; }
+  #tab-content-rastreio .rast-dr{ position:fixed; top:0; right:0; height:100%; width:min(640px,100vw); background:var(--surface); color:var(--text); border-left:1px solid var(--border); box-shadow:-8px 0 24px rgba(0,0,0,.18); transform:translateX(105%); transition:transform .18s ease; z-index:1001; overflow:auto; padding:18px 18px 40px; }
+  #tab-content-rastreio .rast-dr.is-on{ transform:none; }
+  #tab-content-rastreio .rast-dr h2{ font-size:15px; margin:0 30px 4px 0; }
+  #tab-content-rastreio .rast-dr h3{ font-size:11.5px; margin:16px 0 6px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.03em; }
+  #tab-content-rastreio .rast-x{ position:absolute; top:12px; right:12px; font-size:20px; line-height:1; border:0; background:none; color:var(--text-muted); cursor:pointer; padding:4px 8px; }
+  #tab-content-rastreio .rast-kv{ display:grid; grid-template-columns:150px 1fr; gap:4px 12px; font-size:12px; margin:0; }
+  #tab-content-rastreio .rast-kv dt{ color:var(--text-muted); }
+  #tab-content-rastreio .rast-kv dd{ margin:0; }
+  #tab-content-rastreio .rast-linha{ list-style:none; margin:0; padding:0 0 0 14px; border-left:2px solid var(--border); }
+  #tab-content-rastreio .rast-linha li{ position:relative; margin:0 0 10px; font-size:12px; }
+  #tab-content-rastreio .rast-linha li::before{ content:""; position:absolute; left:-20px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--surface); border:2px solid var(--text-faint); }
+  #tab-content-rastreio .rast-linha li.is-ult::before{ border-color:var(--accent); background:var(--accent); }
+  #tab-content-rastreio .rast-linha .q{ color:var(--text-faint); font-size:11px; }
+  #tab-content-rastreio .rast-muted{ color:var(--text-faint); }
 </style>
 
 <div class="app">
@@ -1311,6 +1382,7 @@
       <button class="tab-btn" id="tab-btn-faturamento" type="button" data-tab="faturamento">Evolução de Faturamento</button>
       <button class="tab-btn" id="tab-btn-comparar" type="button" data-tab="comparar">Comparar Períodos</button>
       <button class="tab-btn" id="tab-btn-inadimplencia" type="button" data-tab="inadimplencia">Detalhamento Inadimplência</button>
+      <button class="tab-btn" id="tab-btn-rastreio" type="button" data-tab="rastreio">Rastreio de Envios</button>
     </div>
 
     <!-- ===================== TAB: STATUS DOS PEDIDOS ===================== -->
@@ -1690,6 +1762,65 @@
     </div>
     <div class="inad-ov" id="inad-ov"></div>
     <aside class="inad-dr" id="inad-dr" aria-hidden="true"><button class="inad-x" id="inad-fecha" type="button" title="Fechar (Esc)">×</button><div id="inad-drc"></div></aside>
+    </div>
+
+    <!-- ===================== TAB: RASTREIO DE ENVIOS ===================== -->
+    <!-- Objetos dos Correios rastreados pela API (banco correios_gateway do time de Tech), ligados ao pedido do
+         Aqui Tem+ e do Mira. Dados NÃO embutidos (nomes de clientes): GET /api/rastreio, filtrado por empresa. -->
+    <div id="tab-content-rastreio" class="is-hidden">
+    <div class="panel">
+      <p class="tab-context-note">
+        <b>Rastreio de Envios</b> · objetos dos Correios acompanhados pela API dos Correios · rastreio sincronizado em <b id="rast-sync">—</b> &middot;
+        tempos em dias corridos &middot; clique numa situação do gráfico para filtrar a tabela e numa linha para ver o histórico do objeto.
+      </p>
+      <div class="rast-bar">
+        <label><span class="rast-rot">Mês de postagem</span><select id="rast-mes"></select></label>
+        <label><span class="rast-rot">Filial</span><select id="rast-fil"></select></label>
+        <label><span class="rast-rot">UF de destino</span><select id="rast-uf"></select></label>
+        <label><span class="rast-rot">Prazo</span><select id="rast-prazo"></select></label>
+      </div>
+      <div class="rast-kpis" id="rast-kpis"></div>
+      <div class="rast-graficos">
+        <div class="rast-card">
+          <h3>Envios por mês de postagem</h3>
+          <p class="cap">Situação de hoje dos objetos postados em cada mês · linha = % entregue no prazo</p>
+          <div class="rast-leg" id="rast-leg-mes"></div>
+          <div id="rast-g-mes"></div>
+        </div>
+        <div class="rast-card">
+          <h3>Situação atual</h3>
+          <p class="cap">Pelo último evento dos Correios · clique para filtrar a tabela</p>
+          <div class="rast-hbar" id="rast-g-sit"></div>
+        </div>
+        <div class="rast-card">
+          <h3>Tempo até a entrega por UF</h3>
+          <p class="cap">Mediana em dias corridos, da postagem à entrega · UF da unidade de entrega</p>
+          <div class="rast-hbar" id="rast-g-uf"></div>
+        </div>
+      </div>
+      <div class="rast-vistas" id="rast-vistas">
+        <button type="button" data-vista="atencao" class="is-on">Precisam de atenção</button>
+        <button type="button" data-vista="todos">Todos os envios</button>
+      </div>
+      <div class="rast-tbar">
+        <input type="search" id="rast-q" placeholder="Buscar código, pedido, cliente, loja, cidade…">
+        <select id="rast-sit"></select>
+        <select id="rast-flag"></select>
+        <button class="clear-btn" id="rast-limpa" type="button">Limpar filtros</button>
+        <button class="clear-btn copy-btn" id="rast-xls" type="button">📋 Exportar para Excel</button>
+      </div>
+      <p class="rast-tot" id="rast-tot"></p>
+      <div class="rast-tw"><table class="rast-table"><thead id="rast-th"></thead><tbody id="rast-tb"><tr><td class="rast-msg">Carregando…</td></tr></tbody></table></div>
+      <div class="footnote">
+        Fonte: banco do time de Tech com os dados da API dos Correios (só objetos dos Correios; LATAM, J&amp;T e retiradas não entram) &middot;
+        situação = último evento dos Correios (entregue, em trânsito, saiu para entrega, aguardando retirada, problema na entrega, devolvido ao remetente, etiqueta emitida sem postagem, etiqueta expirada) &middot;
+        prazo = data da entrega contra a previsão de entrega informada pelos Correios &middot; dias corridos contados por data (postagem → entrega; em aberto: postagem → hoje) &middot;
+        filial e cliente vêm do pedido do Mira com o mesmo código de rastreio; sem pedido no Mira, a filial do distribuidor do pedido do Aqui Tem+ &middot;
+        cobertura = pedidos do Mira com código dos Correios que estão sendo rastreados.
+      </div>
+    </div>
+    <div class="rast-ov" id="rast-ov"></div>
+    <aside class="rast-dr" id="rast-dr" aria-hidden="true"><button class="rast-x" id="rast-fecha" type="button" title="Fechar (Esc)">×</button><div id="rast-drc"></div></aside>
     </div>
 
     <p class="footer-note" style="font-size:10.5px;color:var(--text-faint);text-align:center;padding:4px 0 0;">BI Operacional — Aqui Tem Mais · dados processados em <b>__PROCESSADO_EM__</b></p>
@@ -3052,6 +3183,84 @@ function cidadeUfHtml(cidade, uf) {
 })();
 
 // ================================================================
+// EXPORTACAO .xlsx COMPARTILHADA (abas Detalhamento Inadimplencia e Rastreio de Envios) - montada no navegador,
+// sem biblioteca externa. Uso: BiXlsx.montaXlsx([{ nome, xml: BiXlsx.planilhaXml(cols, linhas) }]) -> Blob.
+// ================================================================
+const BiXlsx = (() => {
+  // ---- exportação: .xlsx de verdade, montado no navegador SEM biblioteca externa (a página tem CPF/CNPJ,
+  // não carrega script de terceiro). Zip "store" (sem compressão) com os XML mínimos do formato Office Open
+  // XML. Cada aba que exporta monta as próprias planilhas (só com as linhas filtradas) e chama montaXlsx.
+  const xesc = s => { let r = ""; for (const ch of String(s)) { const k = ch.codePointAt(0); if (k < 32 && k !== 9 && k !== 10 && k !== 13) continue; r += ch === "&" ? "&amp;" : ch === "<" ? "&lt;" : ch === ">" ? "&gt;" : ch === '"' ? "&quot;" : ch; } return r; };
+  const letra = i => { let s = ""; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+  const serialData = iso => { const p = String(iso || "").slice(0, 10).split("-").map(Number); if (p.length < 3 || !p[0] || !p[1] || !p[2]) return null; return (Date.UTC(p[0], p[1] - 1, p[2]) - Date.UTC(1899, 11, 30)) / 86400000; };
+  // cols: [título, tipo, função(linha) -> valor]   tipos: t texto, n moeda, n0 inteiro, d data
+  function planilhaXml(cols, linhas) {
+    const larg = cols.map(c => Math.min(60, Math.max(c[1] === "d" ? 11 : c[1] === "n" ? 14 : 8, c[0].length + 2)));
+    const celula = (c, v, ref, i) => {
+      if (v == null || v === "") return "";
+      if (c[1] === "n" || c[1] === "n0") { const x = Number(v); return isFinite(x) ? '<c r="' + ref + '" s="' + (c[1] === "n" ? 2 : 3) + '"><v>' + x + "</v></c>" : ""; }
+      if (c[1] === "d") { const x = serialData(v); return x == null ? "" : '<c r="' + ref + '" s="4"><v>' + x + "</v></c>"; }
+      const s = String(v); larg[i] = Math.min(60, Math.max(larg[i], s.length + 2));
+      return '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + xesc(s) + "</t></is></c>";
+    };
+    const cab = '<row r="1">' + cols.map((c, i) => '<c r="' + letra(i) + '1" s="1" t="inlineStr"><is><t>' + xesc(c[0]) + "</t></is></c>").join("") + "</row>";
+    const corpo = linhas.map((l, j) => '<row r="' + (j + 2) + '">' + cols.map((c, i) => celula(c, c[2](l), letra(i) + (j + 2), i)).join("") + "</row>").join("");
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+      + '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
+      + "<cols>" + larg.map((w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join("") + "</cols>"
+      + "<sheetData>" + cab + corpo + "</sheetData>" + '<autoFilter ref="A1:' + letra(cols.length - 1) + (linhas.length + 1) + '"/></worksheet>';
+  }
+  const CRC_TAB = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; } return t; })();
+  const crc32 = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC_TAB[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function zipStore(arquivos) {
+    const enc = new TextEncoder(), agora = new Date();
+    const hora = (agora.getHours() << 11) | (agora.getMinutes() << 5) | (agora.getSeconds() >> 1);
+    const data = ((agora.getFullYear() - 1980) << 9) | ((agora.getMonth() + 1) << 5) | agora.getDate();
+    const partes = [], central = []; let pos = 0;
+    for (const f of arquivos) {
+      const nome = enc.encode(f.nome), dados = enc.encode(f.texto), crc = crc32(dados);
+      const h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true); h.setUint16(10, hora, true); h.setUint16(12, data, true);
+      h.setUint32(14, crc, true); h.setUint32(18, dados.length, true); h.setUint32(22, dados.length, true); h.setUint16(26, nome.length, true); h.setUint16(28, 0, true);
+      const c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true); c.setUint16(12, hora, true); c.setUint16(14, data, true);
+      c.setUint32(16, crc, true); c.setUint32(20, dados.length, true); c.setUint32(24, dados.length, true); c.setUint16(28, nome.length, true); c.setUint32(42, pos, true);
+      partes.push(h, nome, dados); central.push(c, nome);
+      pos += 30 + nome.length + dados.length;
+    }
+    const fim = new DataView(new ArrayBuffer(22));
+    fim.setUint32(0, 0x06054b50, true); fim.setUint16(8, arquivos.length, true); fim.setUint16(10, arquivos.length, true);
+    fim.setUint32(12, central.reduce((s, x) => s + x.byteLength, 0), true); fim.setUint32(16, pos, true);
+    return new Blob([...partes, ...central, fim], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+  function montaXlsx(abas) {
+    const XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+    const NS_REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+    const tipos = XML + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'
+      + '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+      + abas.map((a, i) => '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join("") + "</Types>";
+    const rels = XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + NS_REL + '/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+    const wb = XML + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="' + NS_REL + '"><sheets>'
+      + abas.map((a, i) => '<sheet name="' + xesc(a.nome) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join("") + "</sheets></workbook>";
+    const wbRels = XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+      + abas.map((a, i) => '<Relationship Id="rId' + (i + 1) + '" Type="' + NS_REL + '/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join("")
+      + '<Relationship Id="rId' + (abas.length + 1) + '" Type="' + NS_REL + '/styles" Target="styles.xml"/></Relationships>';
+    // estilos: 0 normal, 1 cabeçalho em negrito, 2 moeda (#,##0.00), 3 inteiro, 4 data dd/mm/aaaa
+    const estilos = XML + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/></numFmts>'
+      + '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'
+      + '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>'
+      + '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
+      + '<cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+      + '<xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+      + '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+    return zipStore([{ nome: "[Content_Types].xml", texto: tipos }, { nome: "_rels/.rels", texto: rels }, { nome: "xl/workbook.xml", texto: wb }, { nome: "xl/_rels/workbook.xml.rels", texto: wbRels }, { nome: "xl/styles.xml", texto: estilos }]
+      .concat(abas.map((a, i) => ({ nome: "xl/worksheets/sheet" + (i + 1) + ".xml", texto: a.xml }))));
+  }
+  return { planilhaXml, montaXlsx };
+})();
+
+// ================================================================
+// ================================================================
 // ABA "DETALHAMENTO INADIMPLÊNCIA" - port do detalhe_inadimplencia.html (análise Aqui Tem+ x Mira).
 // Dados buscados em GET /api/inadimplencia (backend: já filtrado por empresa; local_server: sem
 // filtro) só na 1a abertura da aba. Sem barra invertida neste bloco (some em alguns caminhos de
@@ -3174,75 +3383,6 @@ function cidadeUfHtml(cidade, uf) {
   el("inad-tipo").onchange = e => { st.tipo = e.target.value; render(); }; el("inad-forma").onchange = e => { st.forma = e.target.value; render(); };
   el("inad-flag").onchange = e => { st.flag = e.target.value; render(); }; el("inad-atr").onchange = e => { st.atr = e.target.value; render(); };
   el("inad-limpa").onclick = () => { st.cats.clear(); st.q = st.fil = st.forn = st.tipo = st.forma = st.flag = st.atr = ""; ["inad-q", "inad-fil", "inad-for", "inad-tipo", "inad-forma", "inad-flag", "inad-atr"].forEach(id => el(id).value = ""); render(); };
-  // ---- exportação: .xlsx de verdade, montado no navegador SEM biblioteca externa (a página tem CPF/CNPJ,
-  // não carrega script de terceiro). Zip "store" (sem compressão) com os XML mínimos do formato Office Open
-  // XML. 3 planilhas, só com as linhas filtradas: títulos, boletos (1 por linha) e pagamentos (1 por linha).
-  const xesc = s => { let r = ""; for (const ch of String(s)) { const k = ch.codePointAt(0); if (k < 32 && k !== 9 && k !== 10 && k !== 13) continue; r += ch === "&" ? "&amp;" : ch === "<" ? "&lt;" : ch === ">" ? "&gt;" : ch === '"' ? "&quot;" : ch; } return r; };
-  const letra = i => { let s = ""; i++; while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
-  const serialData = iso => { const p = String(iso || "").slice(0, 10).split("-").map(Number); if (p.length < 3 || !p[0] || !p[1] || !p[2]) return null; return (Date.UTC(p[0], p[1] - 1, p[2]) - Date.UTC(1899, 11, 30)) / 86400000; };
-  // cols: [título, tipo, função(linha) -> valor]   tipos: t texto, n moeda, n0 inteiro, d data
-  function planilhaXml(cols, linhas) {
-    const larg = cols.map(c => Math.min(60, Math.max(c[1] === "d" ? 11 : c[1] === "n" ? 14 : 8, c[0].length + 2)));
-    const celula = (c, v, ref, i) => {
-      if (v == null || v === "") return "";
-      if (c[1] === "n" || c[1] === "n0") { const x = Number(v); return isFinite(x) ? '<c r="' + ref + '" s="' + (c[1] === "n" ? 2 : 3) + '"><v>' + x + "</v></c>" : ""; }
-      if (c[1] === "d") { const x = serialData(v); return x == null ? "" : '<c r="' + ref + '" s="4"><v>' + x + "</v></c>"; }
-      const s = String(v); larg[i] = Math.min(60, Math.max(larg[i], s.length + 2));
-      return '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + xesc(s) + "</t></is></c>";
-    };
-    const cab = '<row r="1">' + cols.map((c, i) => '<c r="' + letra(i) + '1" s="1" t="inlineStr"><is><t>' + xesc(c[0]) + "</t></is></c>").join("") + "</row>";
-    const corpo = linhas.map((l, j) => '<row r="' + (j + 2) + '">' + cols.map((c, i) => celula(c, c[2](l), letra(i) + (j + 2), i)).join("") + "</row>").join("");
-    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
-      + '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>'
-      + "<cols>" + larg.map((w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join("") + "</cols>"
-      + "<sheetData>" + cab + corpo + "</sheetData>" + '<autoFilter ref="A1:' + letra(cols.length - 1) + (linhas.length + 1) + '"/></worksheet>';
-  }
-  const CRC_TAB = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); t[n] = c >>> 0; } return t; })();
-  const crc32 = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = CRC_TAB[(c ^ b[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
-  function zipStore(arquivos) {
-    const enc = new TextEncoder(), agora = new Date();
-    const hora = (agora.getHours() << 11) | (agora.getMinutes() << 5) | (agora.getSeconds() >> 1);
-    const data = ((agora.getFullYear() - 1980) << 9) | ((agora.getMonth() + 1) << 5) | agora.getDate();
-    const partes = [], central = []; let pos = 0;
-    for (const f of arquivos) {
-      const nome = enc.encode(f.nome), dados = enc.encode(f.texto), crc = crc32(dados);
-      const h = new DataView(new ArrayBuffer(30));
-      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true); h.setUint16(10, hora, true); h.setUint16(12, data, true);
-      h.setUint32(14, crc, true); h.setUint32(18, dados.length, true); h.setUint32(22, dados.length, true); h.setUint16(26, nome.length, true); h.setUint16(28, 0, true);
-      const c = new DataView(new ArrayBuffer(46));
-      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true); c.setUint16(12, hora, true); c.setUint16(14, data, true);
-      c.setUint32(16, crc, true); c.setUint32(20, dados.length, true); c.setUint32(24, dados.length, true); c.setUint16(28, nome.length, true); c.setUint32(42, pos, true);
-      partes.push(h, nome, dados); central.push(c, nome);
-      pos += 30 + nome.length + dados.length;
-    }
-    const fim = new DataView(new ArrayBuffer(22));
-    fim.setUint32(0, 0x06054b50, true); fim.setUint16(8, arquivos.length, true); fim.setUint16(10, arquivos.length, true);
-    fim.setUint32(12, central.reduce((s, x) => s + x.byteLength, 0), true); fim.setUint32(16, pos, true);
-    return new Blob([...partes, ...central, fim], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-  }
-  function montaXlsx(abas) {
-    const XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
-    const NS_REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-    const tipos = XML + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'
-      + '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
-      + abas.map((a, i) => '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join("") + "</Types>";
-    const rels = XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="' + NS_REL + '/officeDocument" Target="xl/workbook.xml"/></Relationships>';
-    const wb = XML + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="' + NS_REL + '"><sheets>'
-      + abas.map((a, i) => '<sheet name="' + xesc(a.nome) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>').join("") + "</sheets></workbook>";
-    const wbRels = XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
-      + abas.map((a, i) => '<Relationship Id="rId' + (i + 1) + '" Type="' + NS_REL + '/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>').join("")
-      + '<Relationship Id="rId' + (abas.length + 1) + '" Type="' + NS_REL + '/styles" Target="styles.xml"/></Relationships>';
-    // estilos: 0 normal, 1 cabeçalho em negrito, 2 moeda (#,##0.00), 3 inteiro, 4 data dd/mm/aaaa
-    const estilos = XML + '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/></numFmts>'
-      + '<fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts>'
-      + '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>'
-      + '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'
-      + '<cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
-      + '<xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
-      + '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
-    return zipStore([{ nome: "[Content_Types].xml", texto: tipos }, { nome: "_rels/.rels", texto: rels }, { nome: "xl/workbook.xml", texto: wb }, { nome: "xl/_rels/workbook.xml.rels", texto: wbRels }, { nome: "xl/styles.xml", texto: estilos }]
-      .concat(abas.map((a, i) => ({ nome: "xl/worksheets/sheet" + (i + 1) + ".xml", texto: a.xml }))));
-  }
   function gerarXlsx() {
     const ehMira = st.tab === "mira";
     const tipoX = t => (t === "n" || t === "n0" || t === "d") ? t : "t";
@@ -3254,7 +3394,7 @@ function cidadeUfHtml(cidade, uf) {
     const pgs = st.rows.flatMap(r => r.pgtos.map(p => ({ r, p })));
     const colsB = chave.concat(quem, [["Nº do boleto", "t", x => x.b.n], ["Banco", "t", x => x.b.bco], ["Vencimento", "d", x => x.b.venc], ["Valor", "n", x => x.b.val], ["Situação", "t", x => x.b.st], ["Pago em", "d", x => x.b.pg], ["Título do boleto", "t", x => x.b.tit]]);
     const colsP = chave.concat(quem, [["Forma", "t", x => x.p.forma], ["Data", "d", x => x.p.data], ["Valor", "n", x => x.p.valor], ["Título", "t", x => x.p.tit]]);
-    return montaXlsx([{ nome: ehMira ? "Vencido no Mira" : "Vencido no Aqui Tem+", xml: planilhaXml(colsT, st.rows) }, { nome: "Boletos", xml: planilhaXml(colsB, bols) }, { nome: "Pagamentos", xml: planilhaXml(colsP, pgs) }]);
+    return BiXlsx.montaXlsx([{ nome: ehMira ? "Vencido no Mira" : "Vencido no Aqui Tem+", xml: BiXlsx.planilhaXml(colsT, st.rows) }, { nome: "Boletos", xml: BiXlsx.planilhaXml(colsB, bols) }, { nome: "Pagamentos", xml: BiXlsx.planilhaXml(colsP, pgs) }]);
   }
   el("inad-xls").onclick = () => {
     if (!D) return;
@@ -3467,8 +3607,204 @@ function cidadeUfHtml(cidade, uf) {
   window.renderFaturamento = render;
 })();
 
+// ================================================================
+// ABA "RASTREIO DE ENVIOS" - objetos dos Correios (banco correios_gateway, API dos Correios) ligados aos pedidos
+// do Aqui Tem+ e do Mira. Dados buscados em GET /api/rastreio (backend: filtrado por empresa e pela permissão da
+// aba; local_server: sem filtro) só na 1a abertura. Filtros do topo (mês, filial, UF, prazo) valem para
+// indicadores, gráficos e tabela; os da tabela (busca, situação, atenção, visão) só para a tabela.
+// Sem barra invertida neste bloco.
+// ================================================================
+(function initRastreioTab() {
+  const el = id => document.getElementById(id);
+  let D = null, carregando = false;
+  const esc = s => String(s == null ? "" : s).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;");
+  const DT = v => v ? String(v).slice(0, 10).split("-").reverse().join("/") : "";
+  const DTH = v => v ? DT(v) + " " + String(v).slice(11, 16) : "";
+  const NUM = v => (v || 0).toLocaleString("pt-BR");
+  const PCT = (a, b) => b ? Math.round(100 * a / b) + "%" : "—";
+  const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const rotMes = m => MESES[+m.slice(5, 7) - 1] + "/" + m.slice(2, 4);
+  const SIT_FAM = { "Entregue": "good", "Em trânsito": "info", "Saiu para entrega": "info", "Aguardando retirada": "warn", "Problema na entrega": "crit", "Devolvido ao remetente": "crit", "Etiqueta emitida, não postado": "warn", "Etiqueta expirada": "crit", "Sem eventos": "" };
+  const PRAZO_FAM = { "No prazo": "good", "Com atraso": "warn", "Em aberto, no prazo": "info", "Em aberto, atrasado": "crit" };
+  const FLAG_FAM = { "Atrasado em aberto": "crit", "Sem movimentação há mais de 7 dias": "crit", "Problema na entrega": "crit", "Devolvido ao remetente": "crit", "Etiqueta expirada": "crit", "Não postado há mais de 2 dias": "warn", "Aguardando retirada": "warn" };
+  const COR = { good: "var(--ok)", warn: "var(--warning)", crit: "var(--danger)", info: "var(--accent)", "": "var(--text-faint)" };
+  const pill = (cls, txt, fam) => '<span class="' + cls + " " + (fam || "") + '"><i></i>' + esc(txt) + "</span>";
+  const EM_ANDAMENTO = ["Em trânsito", "Saiu para entrega", "Aguardando retirada"];
+  const PRAZOS = ["No prazo", "Com atraso", "Em aberto, no prazo", "Em aberto, atrasado", "Sem previsão"];
+  // gravidade do motivo de atenção (ordem padrão da visão "Precisam de atenção": mais grave primeiro)
+  const GRAVIDADE = { "Sem movimentação há mais de 7 dias": 0, "Atrasado em aberto": 1, "Problema na entrega": 2, "Devolvido ao remetente": 3, "Aguardando retirada": 4, "Não postado há mais de 2 dias": 5, "Etiqueta expirada": 6 };
+  const st = { mes: "", fil: "", uf: "", prazo: "", vista: "atencao", sit: "", flag: "", q: "", sort: { atencao: ["atencao", 1], todos: ["postadoEm", -1] }, rows: [] };
+  // colunas: [chave, título, tipo]  tipos: t texto, nm nome, d data, n0 inteiro, sit situação, prazo, fl atenção, ult último evento
+  const COLS = [["situacao", "Situação", "sit"], ["prazo", "Prazo", "prazo"], ["atencao", "Atenção", "fl"], ["filial", "Filial", "t"], ["cliente", "Cliente Mira", "nm"], ["loja", "Loja AQT", "nm"],
+    ["pedAQT", "Pedido AQT", "t"], ["pedMira", "Pedido Mira", "t"], ["codigo", "Código de rastreio", "t"], ["etiquetaEm", "Etiqueta", "d"], ["postadoEm", "Postado", "d"], ["entregueEm", "Entregue", "d"],
+    ["previsao", "Previsão", "d"], ["dias", "Dias", "n0"], ["destino", "Destino", "t"], ["ultimo", "Último evento", "ult"]];
+
+  function opts(sel, vals, rot, rotulo) { sel.innerHTML = '<option value="">' + rot + "</option>" + vals.map(v => '<option value="' + esc(v) + '">' + esc(rotulo ? rotulo(v) : v) + "</option>").join(""); }
+  const recorte = () => D.envios.filter(r => (!st.mes || r.mesRef === st.mes) && (!st.fil || r.filial === st.fil) && (!st.uf || r.ufDestino === st.uf) && (!st.prazo || r.prazo === st.prazo));
+  const mediana = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? s[Math.floor((s.length - 1) / 2)] : null; };
+  const p90 = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? s[Math.floor(0.9 * (s.length - 1))] : null; };
+
+  function kpis(R) {
+    const ent = R.filter(r => r.situacao === "Entregue");
+    const comPrev = ent.filter(r => r.prazo === "No prazo" || r.prazo === "Com atraso");
+    const noPrazo = ent.filter(r => r.prazo === "No prazo").length;
+    const dias = ent.map(r => r.dias).filter(v => v != null);
+    const med = mediana(dias), p = p90(dias);
+    const and = R.filter(r => EM_ANDAMENTO.includes(r.situacao)); const andAtras = and.filter(r => r.prazo === "Em aberto, atrasado").length;
+    const aten = R.filter(r => r.atencao.length).length;
+    const cob = D.cobertura.filter(c => (!st.mes || c.mes === st.mes) && (!st.fil || c.filial === st.fil));
+    const cc = cob.reduce((s, c) => s + c.comCodigo, 0), cr = cob.reduce((s, c) => s + c.rastreados, 0);
+    const cards = [
+      ["Objetos rastreados", NUM(R.length), NUM(ent.length) + " entregues (" + PCT(ent.length, R.length) + ")"],
+      ["Entregues no prazo", PCT(noPrazo, comPrev.length), NUM(noPrazo) + " no prazo · " + NUM(comPrev.length - noPrazo) + " com atraso"],
+      ["Tempo até a entrega", med == null ? "—" : med + (med === 1 ? " dia" : " dias"), med == null ? "sem entregas no recorte" : "mediana · 90% em até " + p + " dias"],
+      ["Em andamento", NUM(and.length), andAtras ? NUM(andAtras) + (andAtras === 1 ? " já passou da previsão" : " já passaram da previsão") : "nenhum passou da previsão", andAtras > 0],
+      ["Precisam de atenção", NUM(aten), "atrasos, objetos parados, problemas, devoluções e etiquetas", aten > 0],
+      ["Cobertura do rastreio", PCT(cr, cc), NUM(cc - cr) + " pedidos do Mira com código fora do rastreio" + (st.uf || st.prazo ? " · não usa UF/prazo" : "")],
+    ];
+    el("rast-kpis").innerHTML = cards.map(c => '<div class="rast-kpi' + (c[3] ? " is-alerta" : "") + '"><div class="t">' + esc(c[0]) + '</div><div class="v">' + esc(c[1]) + '</div><div class="s">' + esc(c[2]) + "</div></div>").join("");
+  }
+
+  // ---- gráfico: envios por mês (barras empilhadas pela situação de hoje + linha de % no prazo)
+  const CATS_MES = [["No prazo", "var(--ok)"], ["Com atraso", "var(--warning)"], ["Sem previsão", "var(--text-faint)"], ["Em andamento", "var(--accent)"], ["Problemas e pendências", "var(--danger)"]];
+  const catMes = r => r.situacao === "Entregue" ? (r.prazo === "Com atraso" ? "Com atraso" : r.prazo === "No prazo" ? "No prazo" : "Sem previsão") : (EM_ANDAMENTO.includes(r.situacao) ? "Em andamento" : "Problemas e pendências");
+  function graficoMes(R) {
+    const m = new Map(); for (const r of R) { if (!r.mesRef) continue; const o = m.get(r.mesRef) || m.set(r.mesRef, {}).get(r.mesRef); const c = catMes(r); o[c] = (o[c] || 0) + 1; }
+    const meses = [...m.keys()].sort();
+    el("rast-leg-mes").innerHTML = CATS_MES.map(c => '<span><i style="background:' + c[1] + '"></i>' + esc(c[0]) + "</span>").join("") + '<span><i style="background:var(--text)"></i>% no prazo</span>';
+    if (!meses.length) { el("rast-g-mes").innerHTML = '<p class="rast-muted">Sem envios no recorte.</p>'; return; }
+    const W = 600, H = 210, pt = 22, pb = 22, px = 8, ph = H - pt - pb;
+    const tot = meses.map(k => CATS_MES.reduce((s, c) => s + (m.get(k)[c[0]] || 0), 0)), max = Math.max(1, ...tot);
+    const slot = (W - 2 * px) / meses.length, bw = Math.max(6, Math.min(44, slot * 0.6));
+    let svg = "";
+    const pts = [];
+    meses.forEach((k, i) => {
+      const x = px + i * slot + (slot - bw) / 2; let y = pt + ph;
+      for (const c of CATS_MES) { const v = m.get(k)[c[0]] || 0; if (!v) continue; const h = v / max * ph; y -= h; svg += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" style="fill:' + c[1] + '"><title>' + esc(rotMes(k) + " · " + c[0] + ": " + v) + "</title></rect>"; }
+      svg += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (pt + ph - tot[i] / max * ph - 4).toFixed(1) + '" text-anchor="middle" style="font-size:9.5px;fill:var(--text-muted)">' + tot[i] + "</text>";
+      svg += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" style="font-size:10px;fill:var(--text-muted)">' + rotMes(k) + "</text>";
+      const np = m.get(k)["No prazo"] || 0, ca = m.get(k)["Com atraso"] || 0;
+      if (np + ca) pts.push({ x: x + bw / 2, y: pt + ph - (np / (np + ca)) * ph, p: Math.round(100 * np / (np + ca)) });
+    });
+    if (pts.length > 1) svg += '<polyline points="' + pts.map(p => p.x.toFixed(1) + "," + p.y.toFixed(1)).join(" ") + '" style="fill:none;stroke:var(--text);stroke-width:1.5;stroke-dasharray:4 3"></polyline>';
+    for (const p of pts) svg += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="2.8" style="fill:var(--text)"></circle><text x="' + (p.x + 5).toFixed(1) + '" y="' + (p.y - 4).toFixed(1) + '" style="font-size:9.5px;font-weight:600;fill:var(--text)">' + p.p + "%</text>";
+    el("rast-g-mes").innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" style="width:100%;height:auto;display:block">' + svg + "</svg>";
+  }
+  function hbar(id, itens, clicavel) {
+    const max = Math.max(1, ...itens.map(i => i.v));
+    el(id).innerHTML = itens.length ? itens.map(i => '<span class="l' + (clicavel ? " clic" : "") + '" data-k="' + esc(i.k) + '" title="' + esc(i.k) + '">' + esc(i.rot || i.k) + '</span><span class="b"><span style="width:' + (100 * i.v / max).toFixed(1) + "%;background:" + i.cor + '"></span></span><span class="n">' + esc(i.txt) + "</span>").join("")
+      : '<span class="rast-muted" style="grid-column:1/-1">Sem dados no recorte.</span>';
+    if (clicavel) el(id).querySelectorAll(".clic").forEach(s => s.onclick = () => { st.sit = s.dataset.k; el("rast-sit").value = st.sit; trocaVista("todos"); });
+  }
+  function graficos(R) {
+    graficoMes(R);
+    const ordem = (D.meta.situacoes || []);
+    hbar("rast-g-sit", ordem.map(s => ({ k: s, v: R.filter(r => r.situacao === s).length, cor: COR[SIT_FAM[s] || ""] })).filter(i => i.v).map(i => ({ ...i, txt: NUM(i.v) + " (" + PCT(i.v, R.length) + ")" })), true);
+    const porUf = new Map(); for (const r of R) if (r.situacao === "Entregue" && r.dias != null && r.ufDestino) (porUf.get(r.ufDestino) || porUf.set(r.ufDestino, []).get(r.ufDestino)).push(r.dias);
+    hbar("rast-g-uf", [...porUf.entries()].sort((a, b) => b[1].length - a[1].length).slice(0, 12).map(([uf, a]) => { const md = mediana(a); return { k: uf, v: md, cor: "var(--accent)", txt: md + " d · " + NUM(a.length) }; }), false);
+  }
+
+  // ---- tabela
+  function linhasTabela(R) {
+    const q = st.q.trim().toLowerCase();
+    return R.filter(r => (st.vista !== "atencao" || r.atencao.length) && (!st.sit || r.situacao === st.sit) && (!st.flag || r.atencao.includes(st.flag))
+      && (!q || [r.codigo, r.pedAQT, r.pedMira, r.cliente, r.loja, r.destino, r.filial, r.fornecedor].some(v => String(v || "").toLowerCase().includes(q))));
+  }
+  function fmt(c, r) {
+    const v = r[c[0]];
+    switch (c[2]) {
+      case "sit": return pill("rast-sit", v, SIT_FAM[v]);
+      case "prazo": return v && v !== "—" ? pill("rast-sit", v, PRAZO_FAM[v]) : '<span class="rast-muted">—</span>';
+      case "fl": return (v || []).map(f => pill("rast-flag", f, FLAG_FAM[f])).join("");
+      case "d": return DT(v);
+      case "n0": return v == null ? "" : v;
+      case "ult": return v ? esc(v.desc) + ' <span class="rast-muted">· ' + DT(v.em) + "</span>" : "";
+      default: return esc(v);
+    }
+  }
+  const tdCls = c => c[2] === "n0" ? "num" : c[2] === "nm" ? "nm" : c[2] === "ult" ? "tx" : "";
+  function tabela(R) {
+    const [sk, sd] = st.sort[st.vista];
+    el("rast-th").innerHTML = "<tr>" + COLS.map(c => '<th data-k="' + c[0] + '" class="' + (c[2] === "n0" ? "num " : "") + (sk === c[0] ? "s" + (sd < 0 ? " desc" : "") : "") + '">' + c[1] + "</th>").join("") + "</tr>";
+    el("rast-th").querySelectorAll("th").forEach(h => h.onclick = () => { const k = h.dataset.k; const s = st.sort[st.vista]; st.sort[st.vista] = [k, s[0] === k ? -s[1] : (k === "dias" ? -1 : 1)]; render(); });
+    const val = (r, k) => k === "atencao" ? Math.min(99, ...r.atencao.map(f => GRAVIDADE[f] == null ? 50 : GRAVIDADE[f])) : k === "ultimo" ? (r.ultimo ? r.ultimo.em : "") : k === "dias" ? (r.dias == null ? -1 : r.dias) : (r[k] || "");
+    const rows = linhasTabela(R).sort((a, b) => { const x = val(a, sk), y = val(b, sk); return (typeof x === "number" ? x - y : String(x).localeCompare(String(y), "pt-BR", { numeric: true })) * sd; });
+    st.rows = rows;
+    el("rast-tb").innerHTML = rows.length ? rows.map((r, i) => '<tr data-i="' + i + '">' + COLS.map(c => '<td class="' + tdCls(c) + '"' + (c[2] === "ult" && r.ultimo ? ' title="' + esc(r.ultimo.desc) + '"' : "") + ">" + fmt(c, r) + "</td>").join("") + "</tr>").join("")
+      : '<tr><td class="rast-msg" colspan="' + COLS.length + '">' + (st.vista === "atencao" ? "Nenhum envio precisando de atenção nesse recorte." : "Nenhum envio com esses filtros.") + "</td></tr>";
+    el("rast-tot").innerHTML = "<b>" + NUM(rows.length) + "</b> de " + NUM(R.length) + " objetos no recorte";
+    const nAt = R.filter(r => r.atencao.length).length;
+    document.querySelectorAll("#rast-vistas button").forEach(b => { b.textContent = (b.dataset.vista === "atencao" ? "Precisam de atenção" : "Todos os envios") + " (" + NUM(b.dataset.vista === "atencao" ? nAt : R.length) + ")"; });
+  }
+  function render() { if (!D) return; const R = recorte(); kpis(R); graficos(R); tabela(R); }
+  function trocaVista(v) { st.vista = v; document.querySelectorAll("#rast-vistas button").forEach(b => b.classList.toggle("is-on", b.dataset.vista === v)); render(); }
+
+  // ---- painel lateral: dados do objeto + linha do tempo dos Correios (mais recente primeiro)
+  function abre(r) {
+    const kv = pares => '<dl class="rast-kv">' + pares.filter(p => p[1] !== "" && p[1] != null).map(p => "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>").join("") + "</dl>";
+    const linha = r.eventos.length ? '<ol class="rast-linha">' + r.eventos.map((e, i) => '<li class="' + (i === 0 ? "is-ult" : "") + '">' + esc(e.desc) + '<div class="q">' + DTH(e.em) + (e.local ? " · " + esc(e.local) : "") + (e.unidade ? " · " + esc(e.unidade) : "") + " · " + esc(e.cod) + "</div></li>").join("") + "</ol>"
+      : '<p class="rast-muted">Nenhum evento dos Correios para este objeto ainda.</p>';
+    el("rast-drc").innerHTML = "<h2>" + esc(r.codigo) + "</h2><div>" + pill("rast-sit", r.situacao, SIT_FAM[r.situacao]) + (r.prazo && r.prazo !== "—" ? pill("rast-sit", r.prazo, PRAZO_FAM[r.prazo]) : "") + (r.atencao || []).map(f => pill("rast-flag", f, FLAG_FAM[f])).join("") + "</div>"
+      + "<h3>Pedido</h3>" + kv([["Filial", esc(r.filial)], ["Empresa atribuída por", esc(r.empVia)], ["Cliente Mira", esc(r.cliente)], ["Pedido Mira", esc(r.pedMira)], ["Loja AQT", esc(r.loja)], ["Pedido AQT", esc(r.pedAQT)], ["Fornecedor AQT", esc(r.fornecedor)]])
+      + "<h3>Envio</h3>" + kv([["Etiqueta emitida", DTH(r.etiquetaEm)], ["Postado", DTH(r.postadoEm)], ["Entregue", DTH(r.entregueEm)], ["Previsão de entrega", DT(r.previsao)], [r.entregueEm ? "Dias até a entrega" : "Dias desde a postagem", r.dias == null ? "" : r.dias + " (corridos)"], ["Destino", esc(r.destino)]])
+      + "<h3>Histórico dos Correios (" + r.eventos.length + ")</h3>" + linha;
+    el("rast-dr").classList.add("is-on"); el("rast-ov").classList.add("is-on"); el("rast-dr").setAttribute("aria-hidden", "false");
+  }
+  function fecha() { el("rast-dr").classList.remove("is-on"); el("rast-ov").classList.remove("is-on"); el("rast-dr").setAttribute("aria-hidden", "true"); }
+  el("rast-tb").addEventListener("click", e => { if (!D || (window.getSelection && String(window.getSelection()).length)) return; const tr = e.target.closest("tr[data-i]"); if (tr) abre(st.rows[+tr.dataset.i]); });
+  el("rast-fecha").onclick = fecha; el("rast-ov").onclick = fecha;
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && el("rast-dr").classList.contains("is-on")) fecha(); });
+
+  // ---- filtros
+  function montaFiltros() {
+    const uni = f => [...new Set(D.envios.map(f).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true }));
+    opts(el("rast-mes"), uni(r => r.mesRef).reverse(), "Todo o período", rotMes);
+    opts(el("rast-fil"), uni(r => r.filial), "Toda filial");
+    opts(el("rast-uf"), uni(r => r.ufDestino), "Toda UF");
+    opts(el("rast-prazo"), PRAZOS.filter(p => D.envios.some(r => r.prazo === p)), "Todo prazo");
+    opts(el("rast-sit"), (D.meta.situacoes || []).filter(s => D.envios.some(r => r.situacao === s)), "Toda situação");
+    opts(el("rast-flag"), [...new Set(D.envios.flatMap(r => r.atencao))].sort(), "Todo motivo de atenção");
+  }
+  [["rast-mes", "mes"], ["rast-fil", "fil"], ["rast-uf", "uf"], ["rast-prazo", "prazo"], ["rast-sit", "sit"], ["rast-flag", "flag"]].forEach(([id, k]) => el(id).onchange = e => { st[k] = e.target.value; render(); });
+  el("rast-q").oninput = e => { st.q = e.target.value; render(); };
+  document.querySelectorAll("#rast-vistas button").forEach(b => b.onclick = () => { if (D) trocaVista(b.dataset.vista); });
+  el("rast-limpa").onclick = () => { st.mes = st.fil = st.uf = st.prazo = st.sit = st.flag = st.q = ""; ["rast-mes", "rast-fil", "rast-uf", "rast-prazo", "rast-sit", "rast-flag", "rast-q"].forEach(id => el(id).value = ""); render(); };
+
+  // ---- exportação .xlsx (BiXlsx compartilhado): envios da tabela + 1 linha por evento dos Correios
+  el("rast-xls").onclick = () => {
+    if (!D) return;
+    const colsE = [["Situação", "t", r => r.situacao], ["Prazo", "t", r => r.prazo], ["Atenção", "t", r => r.atencao.join("; ")], ["Filial", "t", r => r.filial], ["Cliente Mira", "t", r => r.cliente], ["Loja AQT", "t", r => r.loja],
+      ["Fornecedor AQT", "t", r => r.fornecedor], ["Pedido AQT", "t", r => r.pedAQT], ["Pedido Mira", "t", r => r.pedMira], ["Código de rastreio", "t", r => r.codigo], ["Etiqueta", "d", r => r.etiquetaEm], ["Postado", "d", r => r.postadoEm],
+      ["Entregue", "d", r => r.entregueEm], ["Previsão", "d", r => r.previsao], ["Dias (corridos)", "n0", r => r.dias], ["Destino", "t", r => r.destino], ["UF destino", "t", r => r.ufDestino],
+      ["Último evento", "t", r => r.ultimo ? r.ultimo.desc : ""], ["Data do último evento", "d", r => r.ultimo ? r.ultimo.em : ""], ["Local do último evento", "t", r => r.ultimo ? r.ultimo.local : ""]];
+    const evs = st.rows.flatMap(r => r.eventos.slice().reverse().map(e => ({ r, e })));
+    const colsV = [["Código de rastreio", "t", x => x.r.codigo], ["Pedido AQT", "t", x => x.r.pedAQT], ["Pedido Mira", "t", x => x.r.pedMira], ["Filial", "t", x => x.r.filial], ["Data", "d", x => x.e.em], ["Hora", "t", x => String(x.e.em || "").slice(11, 16)],
+      ["Evento", "t", x => x.e.desc], ["Código do evento", "t", x => x.e.cod], ["Local", "t", x => x.e.local], ["Unidade", "t", x => x.e.unidade]];
+    const blob = BiXlsx.montaXlsx([{ nome: "Envios", xml: BiXlsx.planilhaXml(colsE, st.rows) }, { nome: "Eventos dos Correios", xml: BiXlsx.planilhaXml(colsV, evs) }]);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "rastreio_envios_" + D.meta.hoje + ".xlsx"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+
+  // ---- carga sob demanda
+  function msg(t) { el("rast-th").innerHTML = ""; el("rast-tb").innerHTML = '<tr><td class="rast-msg">' + esc(t) + "</td></tr>"; el("rast-tot").textContent = ""; el("rast-kpis").innerHTML = ""; }
+  function carregar() {
+    if (carregando) return; carregando = true; msg("Carregando…");
+    fetch("/api/rastreio", { credentials: "same-origin", cache: "no-store" })
+      .then(r => { const ct = r.headers.get("content-type") || ""; if (ct.indexOf("json") < 0) throw new Error("sessao"); return r.json(); })
+      .then(j => {
+        carregando = false;
+        if (!j.ok) { msg(j.motivo === "aba_nao_liberada" ? "Esta aba não está liberada para o seu usuário." : "Os dados de rastreio ainda não foram sincronizados. Tente de novo depois do próximo ciclo de atualização."); return; }
+        D = { envios: j.envios || [], cobertura: j.cobertura || [], meta: j.meta || {} };
+        el("rast-sync").textContent = D.meta.sincronizadoEm ? DTH(D.meta.sincronizadoEm) : "—";
+        montaFiltros(); render();
+      })
+      .catch(() => { carregando = false; msg("Não consegui carregar os dados. Se a sessão expirou, recarregue a página e entre de novo."); });
+  }
+  window.renderRastreio = () => { if (D) render(); else carregar(); };
+})();
+
 (function initTabs() {
-  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar", "inadimplencia"];
+  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar", "inadimplencia", "rastreio"];
   const btns = {}, contents = {};
   for (const t of tabs) {
     btns[t] = document.getElementById("tab-btn-" + t);
@@ -3487,6 +3823,7 @@ function cidadeUfHtml(cidade, uf) {
     if (tab === "faturamento" && window.renderFaturamento) window.renderFaturamento();
     if (tab === "comparar" && window.renderComparar) window.renderComparar();
     if (tab === "inadimplencia" && window.renderInadimplencia) window.renderInadimplencia();
+    if (tab === "rastreio" && window.renderRastreio) window.renderRastreio();
 
     // log de acessos por aba (fase 2) - so na versao hospedada (tem sessao/usuario logado),
     // fire-and-forget: nunca deve travar/atrasar a troca de aba, mesmo se a chamada falhar.
