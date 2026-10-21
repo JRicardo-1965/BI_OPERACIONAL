@@ -1338,6 +1338,25 @@
   #tab-content-rastreio .rast-linha li.is-ult::before{ border-color:var(--accent); background:var(--accent); }
   #tab-content-rastreio .rast-linha .q{ color:var(--text-faint); font-size:11px; }
   #tab-content-rastreio .rast-muted{ color:var(--text-faint); }
+  /* card "Análises" (curva ABC por cidade + ranking de tempo) e situação consolidada */
+  #tab-content-rastreio .rast-ana{ margin:0 0 14px; }
+  #tab-content-rastreio .rast-ana .rast-vistas{ margin-top:0; }
+  #tab-content-rastreio .rast-tw-mini{ max-height:300px; min-height:0; }
+  #tab-content-rastreio .rast-abc-resumo{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin:0 0 10px; }
+  #tab-content-rastreio .rast-abc-chip{ border:1px solid var(--border); border-left-width:4px; border-radius:8px; padding:6px 10px; font-size:11px; color:var(--text-muted); }
+  #tab-content-rastreio .rast-abc-chip b{ color:var(--text); font-size:13px; }
+  #tab-content-rastreio .rast-abc-chip.A{ border-left-color:var(--accent); } #tab-content-rastreio .rast-abc-chip.B{ border-left-color:var(--warning); } #tab-content-rastreio .rast-abc-chip.C{ border-left-color:var(--text-faint); }
+  #tab-content-rastreio .rast-classe{ display:inline-block; min-width:18px; text-align:center; font-size:10.5px; font-weight:700; border-radius:4px; padding:0 4px; color:#fff; }
+  #tab-content-rastreio .rast-classe.A{ background:var(--accent); } #tab-content-rastreio .rast-classe.B{ background:var(--warning); color:#222; } #tab-content-rastreio .rast-classe.C{ background:var(--text-faint); }
+  #tab-content-rastreio .rast-rank-bar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin:0 0 8px; }
+  #tab-content-rastreio .rast-sub{ border-bottom:0; margin:0; }
+  #tab-content-rastreio .rast-sub button{ font-size:11.5px; padding:4px 10px; border:1px solid var(--border); border-radius:99px; margin-right:4px; }
+  #tab-content-rastreio .rast-sub button.is-on{ border-color:var(--accent); background:var(--accent-soft); }
+  #tab-content-rastreio .rast-modal{ display:inline-block; font-size:10.5px; font-weight:600; padding:0 7px; border-radius:99px; border:1px solid var(--border); }
+  #tab-content-rastreio .rast-modal.pac{ border-color:var(--accent); color:var(--accent); } #tab-content-rastreio .rast-modal.sedex{ border-color:var(--warning); color:var(--warning); }
+  #tab-content-rastreio .rast-explica{ margin:4px 0 0; padding:0 0 0 16px; font-size:12px; }
+  #tab-content-rastreio .rast-explica li{ margin:0 0 4px; }
+  #tab-content-rastreio .rast-table tr.rast-clic{ cursor:pointer; }
 </style>
 
 <div class="app">
@@ -1756,7 +1775,8 @@
       <div class="footnote" id="inad-nota">
         Tipo de boleto = prazo escolhido no pedido do Aqui Tem+ (À vista, 7, 10, 14, 21 ou 28 dias); o Aqui Tem+ só grava esse prazo desde 06/07/2026, os pedidos anteriores aparecem como "Não informado" &middot;
         <b>Pendente de comprovante</b> = nenhum dos dois sistemas registra pagamento (título aberto no Mira e sem pagamento no Aqui Tem+) e nenhum comprovante foi enviado: se o cliente pagou por fora (Pix direto, por exemplo), é preciso o comprovante para dar baixa &middot;
-        formas de pagamento do Aqui Tem+ deduzidas dos dados (boleto, Pix, Pix do boleto, saldo da loja, crédito) &middot; o total soma só o saldo do próprio sistema &middot;
+        forma de pagamento = a escolhida no pedido do Aqui Tem+ (Boleto, PIX, Saldo, À vista, com o nome cadastrado pelo distribuidor), mesmo sem pagamento; "pago via" quando o pagamento registrado foi por outra forma &middot;
+        em pedido sem boleto nem título, a situação no AQT traz o detalhe (cobrança Pix gerada sem pagamento, valor debitado do saldo da loja, pedido cancelado) &middot; o total soma só o saldo do próprio sistema &middot;
         Mira = organização 21 (as 12 empresas do grupo) &middot; linhas sem empresa (distribuidores antigos e faturas sem pedido) só aparecem para quem tem acesso a todas as empresas.
       </div>
     </div>
@@ -1796,6 +1816,29 @@
           <h3>Tempo até a entrega por UF</h3>
           <p class="cap">Mediana em dias corridos, da postagem à entrega · UF da unidade de entrega</p>
           <div class="rast-hbar" id="rast-g-uf"></div>
+        </div>
+      </div>
+      <div class="rast-card rast-ana">
+        <div class="rast-vistas" id="rast-ana-tabs">
+          <button type="button" data-ana="abc" class="is-on">Curva ABC de entregas por cidade</button>
+          <button type="button" data-ana="rank">Ranking de tempo de entrega</button>
+        </div>
+        <div id="rast-ana-abc">
+          <p class="cap">Cidades ordenadas pelo número de objetos entregues no recorte. <b>A</b> = cidades que somam os primeiros 80% das entregas · <b>B</b> = os 15% seguintes · <b>C</b> = os 5% finais. Cidade = cidade da unidade dos Correios que fez a entrega. Clique numa cidade para ver os envios dela na tabela abaixo.</p>
+          <div class="rast-abc-resumo" id="rast-abc-resumo"></div>
+          <div id="rast-abc-graf"></div>
+          <div class="rast-tw rast-tw-mini"><table class="rast-table"><thead id="rast-abc-th"></thead><tbody id="rast-abc-tb"></tbody></table></div>
+        </div>
+        <div id="rast-ana-rank" class="is-hidden">
+          <div class="rast-rank-bar">
+            <div class="rast-vistas rast-sub" id="rast-rank-modo">
+              <button type="button" data-modo="entregue" class="is-on">Entregues · postagem → entrega</button>
+              <button type="button" data-modo="aberto">Em aberto · dias desde a postagem</button>
+            </div>
+            <span class="rast-muted" id="rast-rank-info"></span>
+          </div>
+          <div class="rast-tw rast-tw-mini"><table class="rast-table"><thead id="rast-rank-th"></thead><tbody id="rast-rank-tb"></tbody></table></div>
+          <p class="cap" style="margin:6px 0 0">Modalidade = categoria do tipo de postagem informada pela API dos Correios (Sedex ou PAC); "não informado" quando os Correios não devolvem o tipo.</p>
         </div>
       </div>
       <div class="rast-vistas" id="rast-vistas">
@@ -3281,7 +3324,7 @@ const BiXlsx = (() => {
   // colunas: [chave, título, tipo] - todas sempre visíveis (o "mais colunas" saiu a pedido em 19/10)  tipos: t texto, tx texto cortado, nm nome, n valor, n0 inteiro, d data, cat, fl flags, bol boletos
   const COLS = {
     mira: [["cat","Categoria","cat"],["flags","Flags","fl"],["filial","Filial do cliente","t"],["cliMira","Cód. cliente","t"],["nomeCli","Cliente Mira","nm"],["docCli","CPF/CNPJ","t"],["pedMira","Pedido Mira","t"],["titMira","Título Mira","t"],["vencM","Venc. Mira","d"],["atraso","Dias","n0"],["saldoM","Saldo Mira","n"],
-           ["pedAQT","Pedido AQT","t"],["titAQT","Título(s) AQT","tx"],["tipo","Tipo de boleto","t"],["bolResumo","Boletos","bol"],["sitAQT","Situação no AQT","t"],["formaPg","Forma de pagamento AQT","t"],["saldoA","Em aberto no AQT","n"],["pagoAQT","Pago no AQT em","d",1],["fornecedor","Fornecedor AQT","t"],["nomeLoja","Loja AQT","nm"],["lojaAQT","Cód. loja AQT","t",1],["ligacao","Ligação","t",1]],
+           ["pedAQT","Pedido AQT","t"],["titAQT","Título(s) AQT","tx"],["tipo","Tipo de boleto","t"],["bolResumo","Boletos","bol"],["sitAQTtxt","Situação no AQT","t"],["formaPg","Forma de pagamento AQT","t"],["saldoA","Em aberto no AQT","n"],["pagoAQT","Pago no AQT em","d",1],["fornecedor","Fornecedor AQT","t"],["nomeLoja","Loja AQT","nm"],["lojaAQT","Cód. loja AQT","t",1],["ligacao","Ligação","t",1]],
     aqt:  [["cat","Categoria","cat"],["flags","Flags","fl"],["nomeLoja","Loja AQT","nm"],["lojaAQT","Cód. loja AQT","t",1],["fornecedor","Fornecedor AQT","t"],["pedAQT","Pedido AQT","t"],["titAQT","Título AQT","t"],["tipo","Tipo de boleto","t"],["bolResumo","Boletos","bol"],["formaPg","Forma de pagamento AQT","t"],["vencA","Venc. AQT","d"],["atraso","Dias","n0"],["saldoA","Saldo AQT","n"],
            ["filial","Filial Mira","t"],["nomeCli","Cliente Mira","nm"],["cliMira","Cód. cliente Mira","t",1],["docCli","CPF/CNPJ cliente Mira","t",1],["pedMira","Pedido Mira","t"],["titMira","Título(s) Mira","tx"],["sitMira","Situação no Mira","t"],["saldoM","Saldo Mira","n"],["empVia","Empresa por","t",1],["ligacao","Ligação","t",1]],
   };
@@ -3297,7 +3340,7 @@ const BiXlsx = (() => {
     const qd = SO_NUMEROS.test(q) ? q.replace(/[^0-9]/g, "") : "";   // só números: acha documento/boleto com ou sem pontuação
     const casa = v => { const s = (Array.isArray(v) ? JSON.stringify(v) : String(v)).toLowerCase(); return s.includes(q) || (qd.length >= 4 && s.replace(/[^0-9]/g, "").includes(qd)); };
     return linhas().filter(r => (!st.cats.size || st.cats.has(r.cat)) && (!st.fil || r.filial === st.fil) && (!st.forn || r.fornecedor === st.forn) && (!st.tipo || r.tipo === st.tipo)
-      && (!st.forma || (st.forma === "Sem pagamento" ? !r.pgtos.length : r.pgtos.some(p => p.forma === st.forma)))
+      && (!st.forma || (r.formaPedido || "Sem pedido no AQT") === st.forma)
       && (!st.flag || (st.flag === SEM_FLAG ? !r.flags.length : r.flags.includes(st.flag))) && (!st.atr || faixa(r.atraso) === st.atr) && (!q || Object.values(r).some(casa)));
   }
   // cards: ordem global das categorias (meta), contagem e valor só das linhas que o usuário vê
@@ -3351,8 +3394,8 @@ const BiXlsx = (() => {
       : '<p class="inad-muted">Nenhum pagamento registrado no Aqui Tem+.</p>';
     const mira = kv([["Filial", esc(r.filial)], ["Cliente", esc(r.nomeCli) + (r.cliMira ? " <span class='inad-muted'>(cód. " + esc(r.cliMira) + ")</span>" : "")], ["CPF/CNPJ", esc(r.docCli)], ["Pedido", esc(r.pedMira)], ["Título(s)", esc(r.titMira)],
       ["Vencimento", DT(r.vencM)], ["Situação", esc(r.sitMira)], ["Saldo", r.saldoM != null ? "R$ " + BRL(r.saldoM) : ""], ["Empresa atribuída por", esc(r.empVia)]]);
-    const aqt = kv([["Loja", esc(r.nomeLoja) + (r.lojaAQT ? " <span class='inad-muted'>(cód. " + esc(r.lojaAQT) + ")</span>" : "")], ["Fornecedor", esc(r.fornecedor)], ["Pedido", esc(r.pedAQT)], ["Tipo de boleto", esc(r.tipo)],
-      ["Título(s)", esc(r.titAQT)], ["Vencimento", DT(r.vencA)], ["Situação", esc(r.sitAQT)], [st.tab === "mira" ? "Em aberto" : "Saldo", r.saldoA != null ? "R$ " + BRL(r.saldoA) : ""], ["Pago em", DT(r.pagoAQT)], ["Ligação com o Mira", esc(r.ligacao)]]);
+    const aqt = kv([["Loja", esc(r.nomeLoja) + (r.lojaAQT ? " <span class='inad-muted'>(cód. " + esc(r.lojaAQT) + ")</span>" : "")], ["Fornecedor", esc(r.fornecedor)], ["Pedido", esc(r.pedAQT)], ["Forma de pagamento escolhida", esc(r.formaPedido)], ["Tipo de boleto", esc(r.tipo)],
+      ["Título(s)", esc(r.titAQT)], ["Vencimento", DT(r.vencA)], ["Situação", esc(r.sitAQTtxt || r.sitAQT)], ["Pagamento registrado", esc(r.pgtos.length ? r.pgtos.map(p => p.forma).filter((v, i, a) => a.indexOf(v) === i).join(" + ") : "nenhum")], [st.tab === "mira" ? "Em aberto" : "Saldo", r.saldoA != null ? "R$ " + BRL(r.saldoA) : ""], ["Pago em", DT(r.pagoAQT)], ["Ligação com o Mira", esc(r.ligacao)]]);
     el("inad-drc").innerHTML = "<h2>" + esc(r.cat) + "</h2>" + '<div style="margin:6px 0 4px">' + (r.flags.length ? r.flags.map(flagHtml).join("") : '<span class="inad-muted" style="font-size:13px">sem flag</span>') + "</div>"
       + "<h3>Boletos no Aqui Tem+ (" + r.bols.length + ")</h3>" + bols + "<h3>Pagamentos no Aqui Tem+ (" + r.pgtos.length + ")</h3>" + pgs
       + (st.tab === "mira" ? "<h3>Mira</h3>" + mira + "<h3>Aqui Tem+</h3>" + aqt : "<h3>Aqui Tem+</h3>" + aqt + "<h3>Mira</h3>" + mira);
@@ -3373,7 +3416,7 @@ const BiXlsx = (() => {
     opts(el("inad-fil"), uni(r => [r.filial]), "Toda filial"); opts(el("inad-for"), uni(r => [r.fornecedor]), "Todo fornecedor");
     const ORD_TIPO = ["À vista", "7 dias", "10 dias", "14 dias", "21 dias", "28 dias", "Não informado", "Sem pedido AQT", "Sem pedido"];
     opts(el("inad-tipo"), uni(r => [r.tipo]).sort((a, b) => (ORD_TIPO.indexOf(a) + 99) % 99 - (ORD_TIPO.indexOf(b) + 99) % 99), "Todo tipo de boleto");
-    opts(el("inad-forma"), [...uni(r => r.pgtos.map(p => p.forma)), "Sem pagamento"], "Toda forma de pagamento");
+    opts(el("inad-forma"), uni(r => [r.formaPedido || "Sem pedido no AQT"]), "Toda forma de pagamento");
     opts(el("inad-flag"), [...uni(r => r.flags), SEM_FLAG], "Toda flag");
     render();
   }
@@ -3625,19 +3668,37 @@ const BiXlsx = (() => {
   const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
   const rotMes = m => MESES[+m.slice(5, 7) - 1] + "/" + m.slice(2, 4);
   const SIT_FAM = { "Entregue": "good", "Em trânsito": "info", "Saiu para entrega": "info", "Aguardando retirada": "warn", "Problema na entrega": "crit", "Devolvido ao remetente": "crit", "Etiqueta emitida, não postado": "warn", "Etiqueta expirada": "crit", "Sem eventos": "" };
-  const PRAZO_FAM = { "No prazo": "good", "Com atraso": "warn", "Em aberto, no prazo": "info", "Em aberto, atrasado": "crit" };
-  const FLAG_FAM = { "Atrasado em aberto": "crit", "Sem movimentação há mais de 7 dias": "crit", "Problema na entrega": "crit", "Devolvido ao remetente": "crit", "Etiqueta expirada": "crit", "Não postado há mais de 2 dias": "warn", "Aguardando retirada": "warn" };
   const COR = { good: "var(--ok)", warn: "var(--warning)", crit: "var(--danger)", info: "var(--accent)", "": "var(--text-faint)" };
   const pill = (cls, txt, fam) => '<span class="' + cls + " " + (fam || "") + '"><i></i>' + esc(txt) + "</span>";
   const EM_ANDAMENTO = ["Em trânsito", "Saiu para entrega", "Aguardando retirada"];
   const PRAZOS = ["No prazo", "Com atraso", "Em aberto, no prazo", "Em aberto, atrasado", "Sem previsão"];
-  // gravidade do motivo de atenção (ordem padrão da visão "Precisam de atenção": mais grave primeiro)
-  const GRAVIDADE = { "Sem movimentação há mais de 7 dias": 0, "Atrasado em aberto": 1, "Problema na entrega": 2, "Devolvido ao remetente": 3, "Aguardando retirada": 4, "Não postado há mais de 2 dias": 5, "Etiqueta expirada": 6 };
-  const st = { mes: "", fil: "", uf: "", prazo: "", vista: "atencao", sit: "", flag: "", q: "", sort: { atencao: ["atencao", 1], todos: ["postadoEm", -1] }, rows: [] };
-  // colunas: [chave, título, tipo]  tipos: t texto, nm nome, d data, n0 inteiro, sit situação, prazo, fl atenção, ult último evento
-  const COLS = [["situacao", "Situação", "sit"], ["prazo", "Prazo", "prazo"], ["atencao", "Atenção", "fl"], ["filial", "Filial", "t"], ["cliente", "Cliente Mira", "nm"], ["loja", "Loja AQT", "nm"],
-    ["pedAQT", "Pedido AQT", "t"], ["pedMira", "Pedido Mira", "t"], ["codigo", "Código de rastreio", "t"], ["etiquetaEm", "Etiqueta", "d"], ["postadoEm", "Postado", "d"], ["entregueEm", "Entregue", "d"],
+  const st = { mes: "", fil: "", uf: "", prazo: "", vista: "atencao", sit: "", flag: "", q: "", sort: { atencao: ["status", 1], todos: ["postadoEm", -1] }, rows: [], ana: "abc", rankModo: "entregue", rankRows: [] };
+  // colunas: [chave, título, tipo]  tipos: t texto, nm nome, d data, n0 inteiro, st situação consolidada, mod modalidade, ult último evento
+  const COLS = [["status", "Situação", "st"], ["filial", "Filial", "t"], ["cliente", "Cliente Mira", "nm"], ["loja", "Loja AQT", "nm"],
+    ["pedAQT", "Pedido AQT", "t"], ["pedMira", "Pedido Mira", "t"], ["codigo", "Código de rastreio", "t"], ["modalidade", "Modalidade", "mod"], ["etiquetaEm", "Etiqueta", "d"], ["postadoEm", "Postado", "d"], ["entregueEm", "Entregue", "d"],
     ["previsao", "Previsão", "d"], ["dias", "Dias", "n0"], ["destino", "Destino", "t"], ["ultimo", "Último evento", "ult"]];
+  const difDias = (a, b) => Math.round((Date.parse(String(b).slice(0, 10)) - Date.parse(String(a).slice(0, 10))) / 86400000);
+  const plural = (n, um, varios) => n + " " + (n === 1 ? um : varios);
+  // situação consolidada numa única etiqueta (situação + prazo + motivo mais grave). rank: menor = mais grave (ordem padrão da coluna)
+  function statusResumo(r) {
+    const s = r.situacao;
+    if (s === "Entregue") return r.prazo === "Com atraso" ? { txt: "Entregue com atraso", fam: "warn", rank: 80 } : { txt: r.prazo === "No prazo" ? "Entregue no prazo" : "Entregue", fam: "good", rank: 90 };
+    if (s === "Devolvido ao remetente") return { txt: s, fam: "crit", rank: 20 };
+    if (s === "Etiqueta expirada") return { txt: s, fam: "crit", rank: 30 };
+    if (s === "Etiqueta emitida, não postado") { const n = r.etiquetaEm ? difDias(r.etiquetaEm, D.meta.hoje) : 0; return n > 2 ? { txt: "Não postado há " + plural(n, "dia", "dias"), fam: "warn", rank: 40 } : { txt: "Aguardando postagem", fam: "info", rank: 60 }; }
+    if (s === "Sem eventos") return { txt: "Sem eventos dos Correios", fam: "", rank: 70 };
+    if (r.semMov != null && r.semMov > 7) return { txt: s + " · parado há " + plural(r.semMov, "dia", "dias"), fam: "crit", rank: 0 };
+    if (r.prazo === "Em aberto, atrasado") return { txt: s + " · atrasado", fam: "crit", rank: 10 };
+    if (s === "Problema na entrega") return { txt: s, fam: "crit", rank: 15 };
+    if (s === "Aguardando retirada") return { txt: s, fam: "warn", rank: 50 };
+    return { txt: s + (r.prazo === "Em aberto, no prazo" ? " · no prazo" : ""), fam: "info", rank: 65 };
+  }
+  const statusHtml = r => { const x = statusResumo(r); return pill("rast-sit", x.txt, x.fam); };
+  // modalidade = categoria do tipo de postagem informada pela API dos Correios (Sedex / PAC); sigla no tooltip
+  const modalHtml = r => r.modalidade ? '<span class="rast-modal ' + (r.modalidade === "Sedex" ? "sedex" : "pac") + '" title="' + esc((r.tipoPostagem || r.modalidade) + " · sigla " + r.sigla) + '">' + esc(r.modalidade) + "</span>"
+    : '<span class="rast-muted" title="Os Correios não informaram o tipo de postagem deste objeto">não informado</span>';
+  const modalTxt = r => r.modalidade || "não informado";
+  const clienteDe = r => r.cliente || r.loja || "";
 
   function opts(sel, vals, rot, rotulo) { sel.innerHTML = '<option value="">' + rot + "</option>" + vals.map(v => '<option value="' + esc(v) + '">' + esc(rotulo ? rotulo(v) : v) + "</option>").join(""); }
   const recorte = () => D.envios.filter(r => (!st.mes || r.mesRef === st.mes) && (!st.fil || r.filial === st.fil) && (!st.uf || r.ufDestino === st.uf) && (!st.prazo || r.prazo === st.prazo));
@@ -3713,9 +3774,8 @@ const BiXlsx = (() => {
   function fmt(c, r) {
     const v = r[c[0]];
     switch (c[2]) {
-      case "sit": return pill("rast-sit", v, SIT_FAM[v]);
-      case "prazo": return v && v !== "—" ? pill("rast-sit", v, PRAZO_FAM[v]) : '<span class="rast-muted">—</span>';
-      case "fl": return (v || []).map(f => pill("rast-flag", f, FLAG_FAM[f])).join("");
+      case "st": return statusHtml(r);
+      case "mod": return modalHtml(r);
       case "d": return DT(v);
       case "n0": return v == null ? "" : v;
       case "ult": return v ? esc(v.desc) + ' <span class="rast-muted">· ' + DT(v.em) + "</span>" : "";
@@ -3727,16 +3787,68 @@ const BiXlsx = (() => {
     const [sk, sd] = st.sort[st.vista];
     el("rast-th").innerHTML = "<tr>" + COLS.map(c => '<th data-k="' + c[0] + '" class="' + (c[2] === "n0" ? "num " : "") + (sk === c[0] ? "s" + (sd < 0 ? " desc" : "") : "") + '">' + c[1] + "</th>").join("") + "</tr>";
     el("rast-th").querySelectorAll("th").forEach(h => h.onclick = () => { const k = h.dataset.k; const s = st.sort[st.vista]; st.sort[st.vista] = [k, s[0] === k ? -s[1] : (k === "dias" ? -1 : 1)]; render(); });
-    const val = (r, k) => k === "atencao" ? Math.min(99, ...r.atencao.map(f => GRAVIDADE[f] == null ? 50 : GRAVIDADE[f])) : k === "ultimo" ? (r.ultimo ? r.ultimo.em : "") : k === "dias" ? (r.dias == null ? -1 : r.dias) : (r[k] || "");
+    const val = (r, k) => k === "status" ? statusResumo(r).rank : k === "modalidade" ? modalTxt(r) : k === "ultimo" ? (r.ultimo ? r.ultimo.em : "") : k === "dias" ? (r.dias == null ? -1 : r.dias) : (r[k] || "");
     const rows = linhasTabela(R).sort((a, b) => { const x = val(a, sk), y = val(b, sk); return (typeof x === "number" ? x - y : String(x).localeCompare(String(y), "pt-BR", { numeric: true })) * sd; });
     st.rows = rows;
-    el("rast-tb").innerHTML = rows.length ? rows.map((r, i) => '<tr data-i="' + i + '">' + COLS.map(c => '<td class="' + tdCls(c) + '"' + (c[2] === "ult" && r.ultimo ? ' title="' + esc(r.ultimo.desc) + '"' : "") + ">" + fmt(c, r) + "</td>").join("") + "</tr>").join("")
+    el("rast-tb").innerHTML = rows.length ? rows.map((r, i) => '<tr data-i="' + i + '" title="Clique para ver o detalhamento do envio">' + COLS.map(c => '<td class="' + tdCls(c) + '"' + (c[2] === "ult" && r.ultimo ? ' title="' + esc(r.ultimo.desc) + '"' : "") + ">" + fmt(c, r) + "</td>").join("") + "</tr>").join("")
       : '<tr><td class="rast-msg" colspan="' + COLS.length + '">' + (st.vista === "atencao" ? "Nenhum envio precisando de atenção nesse recorte." : "Nenhum envio com esses filtros.") + "</td></tr>";
     el("rast-tot").innerHTML = "<b>" + NUM(rows.length) + "</b> de " + NUM(R.length) + " objetos no recorte";
     const nAt = R.filter(r => r.atencao.length).length;
     document.querySelectorAll("#rast-vistas button").forEach(b => { b.textContent = (b.dataset.vista === "atencao" ? "Precisam de atenção" : "Todos os envios") + " (" + NUM(b.dataset.vista === "atencao" ? nAt : R.length) + ")"; });
   }
-  function render() { if (!D) return; const R = recorte(); kpis(R); graficos(R); tabela(R); }
+  // ---- curva ABC de entregas por cidade (cidade da unidade que entregou; só objetos entregues do recorte)
+  // classe pela fatia ACUMULADA antes da cidade: < 80% = A, < 95% = B, resto = C (a 1a cidade é sempre A)
+  function curvaAbc(R) {
+    const m = new Map();
+    for (const r of R) { if (r.situacao !== "Entregue" || !r.destino) continue; const o = m.get(r.destino) || m.set(r.destino, { cidade: r.destino, n: 0, dias: [], np: 0, ca: 0 }).get(r.destino); o.n++; if (r.dias != null) o.dias.push(r.dias); if (r.prazo === "No prazo") o.np++; if (r.prazo === "Com atraso") o.ca++; }
+    const lista = [...m.values()].sort((a, b) => b.n - a.n || a.cidade.localeCompare(b.cidade, "pt-BR"));
+    const tot = lista.reduce((s, c) => s + c.n, 0); let acum = 0;
+    for (const c of lista) { c.classe = acum / tot < 0.8 ? "A" : acum / tot < 0.95 ? "B" : "C"; acum += c.n; c.pct = c.n / tot; c.acum = acum / tot; c.med = mediana(c.dias); }
+    return { lista, tot };
+  }
+  const pct1 = v => (100 * v).toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
+  function analiseAbc(R) {
+    const { lista, tot } = curvaAbc(R); st.abc = lista;
+    if (!lista.length) { el("rast-abc-resumo").innerHTML = ""; el("rast-abc-graf").innerHTML = '<p class="rast-muted">Sem entregas no recorte.</p>'; el("rast-abc-th").innerHTML = ""; el("rast-abc-tb").innerHTML = ""; return; }
+    el("rast-abc-resumo").innerHTML = ["A", "B", "C"].map(k => {
+      const cs = lista.filter(c => c.classe === k), n = cs.reduce((s, c) => s + c.n, 0), np = cs.reduce((s, c) => s + c.np, 0), ca = cs.reduce((s, c) => s + c.ca, 0);
+      const med = mediana(cs.flatMap(c => c.dias));
+      return '<div class="rast-abc-chip ' + k + '"><span class="rast-classe ' + k + '">' + k + "</span> <b>" + plural(cs.length, "cidade", "cidades") + "</b><br>" + NUM(n) + " entregas (" + PCT(n, tot) + ") · mediana " + (med == null ? "—" : plural(med, "dia", "dias")) + " · " + PCT(np, np + ca) + " no prazo</div>";
+    }).join("");
+    // curva ABC completa: TODAS as cidades na ordem de entregas (barras finas, cor da classe; escala à esquerda) +
+    // linha do % acumulado (escala 0–100% à direita) + limites de 80% e 95% e faixas A/B/C. Nome da cidade no
+    // tooltip de cada barra e na tabela abaixo (com centenas de cidades, rótulo no eixo não caberia).
+    const W = 900, H = 220, pt = 26, pb = 24, pl = 34, pr = 34, ph = H - pt - pb, pw = W - pl - pr, max = Math.max(1, lista[0].n);
+    const slot = pw / lista.length, bw = Math.max(0.6, slot * 0.8), cor = { A: "var(--accent)", B: "var(--warning)", C: "var(--text-faint)" };
+    const xDe = i => pl + i * slot, yAc = v => pt + ph - v * ph;
+    let svg = "";
+    for (const k of ["A", "B", "C"]) {   // faixa de cada classe (fundo leve) + rótulo
+      const idx = lista.map((c, i) => c.classe === k ? i : -1).filter(i => i >= 0); if (!idx.length) continue;
+      const x0 = xDe(idx[0]), x1 = xDe(idx[idx.length - 1] + 1);
+      svg += '<rect x="' + x0.toFixed(1) + '" y="' + pt + '" width="' + (x1 - x0).toFixed(1) + '" height="' + ph + '" style="fill:' + cor[k] + ';opacity:.07"></rect>';
+      svg += '<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="' + (pt - 8) + '" text-anchor="middle" style="font-size:10px;font-weight:700;fill:' + cor[k] + '">' + k + " · " + plural(idx.length, "cidade", "cidades") + "</text>";
+    }
+    for (const [v, t] of [[0.8, "80%"], [0.95, "95%"]]) svg += '<line x1="' + pl + '" y1="' + yAc(v).toFixed(1) + '" x2="' + (W - pr) + '" y2="' + yAc(v).toFixed(1) + '" style="stroke:var(--text-faint);stroke-dasharray:3 3"></line><text x="' + (W - pr + 4) + '" y="' + (yAc(v) + 3).toFixed(1) + '" style="font-size:9px;fill:var(--text-muted)">' + t + "</text>";
+    lista.forEach((c, i) => { const h = c.n / max * ph; svg += '<rect x="' + xDe(i).toFixed(2) + '" y="' + (pt + ph - h).toFixed(1) + '" width="' + bw.toFixed(2) + '" height="' + h.toFixed(1) + '" style="fill:' + cor[c.classe] + '"><title>' + esc((i + 1) + "ª " + c.cidade + " · classe " + c.classe + " · " + plural(c.n, "entrega", "entregas") + " · acumulado " + pct1(c.acum)) + "</title></rect>"; });
+    svg += '<polyline points="' + lista.map((c, i) => (xDe(i) + bw / 2).toFixed(1) + "," + yAc(c.acum).toFixed(1)).join(" ") + '" style="fill:none;stroke:var(--text);stroke-width:1.6"></polyline>';
+    svg += '<text x="' + (pl - 4) + '" y="' + (pt + 4) + '" text-anchor="end" style="font-size:9px;fill:var(--text-muted)">' + max + '</text><text x="' + (pl - 4) + '" y="' + (pt + ph) + '" text-anchor="end" style="font-size:9px;fill:var(--text-muted)">0</text>';
+    svg += '<text x="' + pl + '" y="' + (H - 6) + '" style="font-size:9.5px;fill:var(--text-muted)">← cidades com mais entregas</text><text x="' + (W - pr) + '" y="' + (H - 6) + '" text-anchor="end" style="font-size:9.5px;fill:var(--text-muted)">' + NUM(lista.length) + " cidades · barras = entregas por cidade (escala à esquerda) · linha = % acumulado (à direita)</text>";
+    el("rast-abc-graf").innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" style="width:100%;height:auto;display:block;margin:0 0 8px">' + svg + "</svg>";
+    el("rast-abc-th").innerHTML = "<tr><th>Classe</th><th class='num'>#</th><th>Cidade / UF</th><th class='num'>Entregas</th><th class='num'>% das entregas</th><th class='num'>% acumulado</th><th class='num'>Mediana (dias)</th><th class='num'>% no prazo</th></tr>";
+    el("rast-abc-tb").innerHTML = lista.map((c, i) => '<tr class="rast-clic" data-c="' + i + '" title="Ver os envios desta cidade na tabela"><td><span class="rast-classe ' + c.classe + '">' + c.classe + '</span></td><td class="num">' + (i + 1) + "</td><td>" + esc(c.cidade) + '</td><td class="num">' + NUM(c.n) + '</td><td class="num">' + pct1(c.pct) + '</td><td class="num">' + pct1(c.acum) + '</td><td class="num">' + (c.med == null ? "—" : c.med) + '</td><td class="num">' + PCT(c.np, c.np + c.ca) + "</td></tr>").join("");
+  }
+  // ---- ranking de tempo (maior para o menor): entregues = postagem -> entrega; em aberto = postagem -> hoje
+  function analiseRank(R) {
+    const ent = st.rankModo === "entregue";
+    const lista = R.filter(r => r.dias != null && (ent ? r.situacao === "Entregue" : r.situacao !== "Entregue")).sort((a, b) => b.dias - a.dias || String(a.postadoEm).localeCompare(String(b.postadoEm)));
+    const top = lista.slice(0, 50); st.rankRows = top;
+    el("rast-rank-info").textContent = lista.length ? (lista.length > 50 ? "os 50 maiores de " + NUM(lista.length) + " objetos" : NUM(lista.length) + " objetos") : "";
+    el("rast-rank-th").innerHTML = "<tr><th class='num'>#</th><th>Código de rastreio</th><th>Cliente</th><th class='num'>" + (ent ? "Dias até a entrega" : "Dias desde a postagem") + "</th><th>Modalidade</th><th>Situação</th><th>Destino</th><th>" + (ent ? "Entregue" : "Previsão") + "</th></tr>";
+    el("rast-rank-tb").innerHTML = top.length ? top.map((r, i) => '<tr class="rast-clic" data-r="' + i + '" title="Clique para ver o detalhamento do envio"><td class="num">' + (i + 1) + "</td><td>" + esc(r.codigo) + '</td><td class="nm">' + esc(clienteDe(r)) + '</td><td class="num"><b>' + r.dias + "</b></td><td>" + modalHtml(r) + "</td><td>" + statusHtml(r) + "</td><td>" + esc(r.destino) + "</td><td>" + DT(ent ? r.entregueEm : r.previsao) + "</td></tr>").join("")
+      : '<tr><td class="rast-msg" colspan="8">Nenhum objeto nesse recorte.</td></tr>';
+  }
+  function analises(R) { if (st.ana === "abc") analiseAbc(R); else analiseRank(R); }
+  function render() { if (!D) return; const R = recorte(); kpis(R); graficos(R); analises(R); tabela(R); }
   function trocaVista(v) { st.vista = v; document.querySelectorAll("#rast-vistas button").forEach(b => b.classList.toggle("is-on", b.dataset.vista === v)); render(); }
 
   // ---- painel lateral: dados do objeto + linha do tempo dos Correios (mais recente primeiro)
@@ -3744,7 +3856,21 @@ const BiXlsx = (() => {
     const kv = pares => '<dl class="rast-kv">' + pares.filter(p => p[1] !== "" && p[1] != null).map(p => "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>").join("") + "</dl>";
     const linha = r.eventos.length ? '<ol class="rast-linha">' + r.eventos.map((e, i) => '<li class="' + (i === 0 ? "is-ult" : "") + '">' + esc(e.desc) + '<div class="q">' + DTH(e.em) + (e.local ? " · " + esc(e.local) : "") + (e.unidade ? " · " + esc(e.unidade) : "") + " · " + esc(e.cod) + "</div></li>").join("") + "</ol>"
       : '<p class="rast-muted">Nenhum evento dos Correios para este objeto ainda.</p>';
-    el("rast-drc").innerHTML = "<h2>" + esc(r.codigo) + "</h2><div>" + pill("rast-sit", r.situacao, SIT_FAM[r.situacao]) + (r.prazo && r.prazo !== "—" ? pill("rast-sit", r.prazo, PRAZO_FAM[r.prazo]) : "") + (r.atencao || []).map(f => pill("rast-flag", f, FLAG_FAM[f])).join("") + "</div>"
+    // "O que está acontecendo": a situação explicada em frases (prazo, parada, motivos de atenção, tempos)
+    const hoje = D.meta.hoje, ex = [];
+    ex.push("<b>" + esc(r.situacao) + "</b>" + (r.ultimo ? " — último evento em " + DTH(r.ultimo.em) + ": " + esc(r.ultimo.desc) + (r.ultimo.local ? " (" + esc(r.ultimo.local) + ")" : "") : "") + ".");
+    if (r.previsao) {
+      if (r.entregueEm) { const d = difDias(r.previsao, r.entregueEm); ex.push(d > 0 ? "Entregue <b>" + plural(d, "dia", "dias") + " depois</b> da previsão (" + DT(r.previsao) + ")." : d < 0 ? "Entregue " + plural(-d, "dia", "dias") + " antes da previsão (" + DT(r.previsao) + ")." : "Entregue no dia da previsão (" + DT(r.previsao) + ")."); }
+      else if (!["Devolvido ao remetente", "Etiqueta expirada"].includes(r.situacao)) { const d = difDias(hoje, r.previsao); ex.push(d < 0 ? "A previsão era " + DT(r.previsao) + ": <b>" + plural(-d, "dia", "dias") + " de atraso</b> até hoje." : d === 0 ? "A previsão de entrega é hoje (" + DT(r.previsao) + ")." : "Previsão de entrega em " + DT(r.previsao) + " (faltam " + plural(d, "dia", "dias") + ")."); }
+    } else if (!r.entregueEm) ex.push("Os Correios ainda não informaram previsão de entrega.");
+    if (r.semMov != null && r.semMov > 7) ex.push("<b>Sem nenhum evento novo há " + plural(r.semMov, "dia", "dias") + "</b>: possível extravio ou rastreio parado — vale abrir reclamação nos Correios.");
+    const EXPLICA = { "Problema na entrega": "Os Correios registraram tentativa sem sucesso ou problema de endereço/destinatário.", "Devolvido ao remetente": "O objeto voltou (ou está voltando) para o remetente.", "Aguardando retirada": "O objeto está numa unidade dos Correios esperando o destinatário retirar.", "Etiqueta expirada": "A etiqueta foi emitida e expirou sem o objeto ser postado.", "Não postado há mais de 2 dias": "A etiqueta foi emitida há mais de 2 dias e o objeto ainda não foi postado." };
+    for (const f of r.atencao || []) if (EXPLICA[f]) ex.push(EXPLICA[f]);
+    if (r.etiquetaEm && r.postadoEm) ex.push("Da etiqueta à postagem: " + plural(difDias(r.etiquetaEm, r.postadoEm), "dia", "dias") + ".");
+    if (r.dias != null) ex.push((r.entregueEm ? "Da postagem à entrega: " : "Desde a postagem: ") + plural(r.dias, "dia corrido", "dias corridos") + ".");
+    ex.push("Modalidade: " + (r.modalidade ? "<b>" + esc(r.modalidade) + "</b>" + (r.tipoPostagem ? " (" + esc(r.tipoPostagem) + ")" : "") + " · sigla " + esc(r.sigla) + "." : "não informada pelos Correios."));
+    el("rast-drc").innerHTML = "<h2>" + esc(r.codigo) + "</h2><div>" + statusHtml(r) + " " + modalHtml(r) + "</div>"
+      + "<h3>O que está acontecendo</h3><ul class='rast-explica'>" + ex.map(t => "<li>" + t + "</li>").join("") + "</ul>"
       + "<h3>Pedido</h3>" + kv([["Filial", esc(r.filial)], ["Empresa atribuída por", esc(r.empVia)], ["Cliente Mira", esc(r.cliente)], ["Pedido Mira", esc(r.pedMira)], ["Loja AQT", esc(r.loja)], ["Pedido AQT", esc(r.pedAQT)], ["Fornecedor AQT", esc(r.fornecedor)]])
       + "<h3>Envio</h3>" + kv([["Etiqueta emitida", DTH(r.etiquetaEm)], ["Postado", DTH(r.postadoEm)], ["Entregue", DTH(r.entregueEm)], ["Previsão de entrega", DT(r.previsao)], [r.entregueEm ? "Dias até a entrega" : "Dias desde a postagem", r.dias == null ? "" : r.dias + " (corridos)"], ["Destino", esc(r.destino)]])
       + "<h3>Histórico dos Correios (" + r.eventos.length + ")</h3>" + linha;
@@ -3752,6 +3878,11 @@ const BiXlsx = (() => {
   }
   function fecha() { el("rast-dr").classList.remove("is-on"); el("rast-ov").classList.remove("is-on"); el("rast-dr").setAttribute("aria-hidden", "true"); }
   el("rast-tb").addEventListener("click", e => { if (!D || (window.getSelection && String(window.getSelection()).length)) return; const tr = e.target.closest("tr[data-i]"); if (tr) abre(st.rows[+tr.dataset.i]); });
+  el("rast-rank-tb").addEventListener("click", e => { if (!D) return; const tr = e.target.closest("tr[data-r]"); if (tr) abre(st.rankRows[+tr.dataset.r]); });
+  // cidade da curva ABC -> filtra a tabela de envios pela cidade (busca) e rola até ela
+  el("rast-abc-tb").addEventListener("click", e => { if (!D) return; const tr = e.target.closest("tr[data-c]"); if (!tr) return; const c = st.abc[+tr.dataset.c]; st.q = c.cidade; el("rast-q").value = c.cidade; trocaVista("todos"); el("rast-vistas").scrollIntoView({ behavior: "smooth", block: "start" }); });
+  document.querySelectorAll("#rast-ana-tabs button").forEach(b => b.onclick = () => { st.ana = b.dataset.ana; document.querySelectorAll("#rast-ana-tabs button").forEach(x => x.classList.toggle("is-on", x === b)); el("rast-ana-abc").classList.toggle("is-hidden", st.ana !== "abc"); el("rast-ana-rank").classList.toggle("is-hidden", st.ana !== "rank"); if (D) analises(recorte()); });
+  document.querySelectorAll("#rast-rank-modo button").forEach(b => b.onclick = () => { st.rankModo = b.dataset.modo; document.querySelectorAll("#rast-rank-modo button").forEach(x => x.classList.toggle("is-on", x === b)); if (D) analises(recorte()); });
   el("rast-fecha").onclick = fecha; el("rast-ov").onclick = fecha;
   document.addEventListener("keydown", e => { if (e.key === "Escape" && el("rast-dr").classList.contains("is-on")) fecha(); });
 
@@ -3773,14 +3904,16 @@ const BiXlsx = (() => {
   // ---- exportação .xlsx (BiXlsx compartilhado): envios da tabela + 1 linha por evento dos Correios
   el("rast-xls").onclick = () => {
     if (!D) return;
-    const colsE = [["Situação", "t", r => r.situacao], ["Prazo", "t", r => r.prazo], ["Atenção", "t", r => r.atencao.join("; ")], ["Filial", "t", r => r.filial], ["Cliente Mira", "t", r => r.cliente], ["Loja AQT", "t", r => r.loja],
-      ["Fornecedor AQT", "t", r => r.fornecedor], ["Pedido AQT", "t", r => r.pedAQT], ["Pedido Mira", "t", r => r.pedMira], ["Código de rastreio", "t", r => r.codigo], ["Etiqueta", "d", r => r.etiquetaEm], ["Postado", "d", r => r.postadoEm],
+    const colsE = [["Situação", "t", r => statusResumo(r).txt], ["Situação nos Correios", "t", r => r.situacao], ["Prazo", "t", r => r.prazo], ["Motivos de atenção", "t", r => r.atencao.join("; ")], ["Filial", "t", r => r.filial], ["Cliente Mira", "t", r => r.cliente], ["Loja AQT", "t", r => r.loja],
+      ["Fornecedor AQT", "t", r => r.fornecedor], ["Pedido AQT", "t", r => r.pedAQT], ["Pedido Mira", "t", r => r.pedMira], ["Código de rastreio", "t", r => r.codigo], ["Modalidade", "t", r => modalTxt(r)], ["Sigla do tipo de postagem", "t", r => r.sigla], ["Etiqueta", "d", r => r.etiquetaEm], ["Postado", "d", r => r.postadoEm],
       ["Entregue", "d", r => r.entregueEm], ["Previsão", "d", r => r.previsao], ["Dias (corridos)", "n0", r => r.dias], ["Destino", "t", r => r.destino], ["UF destino", "t", r => r.ufDestino],
       ["Último evento", "t", r => r.ultimo ? r.ultimo.desc : ""], ["Data do último evento", "d", r => r.ultimo ? r.ultimo.em : ""], ["Local do último evento", "t", r => r.ultimo ? r.ultimo.local : ""]];
     const evs = st.rows.flatMap(r => r.eventos.slice().reverse().map(e => ({ r, e })));
     const colsV = [["Código de rastreio", "t", x => x.r.codigo], ["Pedido AQT", "t", x => x.r.pedAQT], ["Pedido Mira", "t", x => x.r.pedMira], ["Filial", "t", x => x.r.filial], ["Data", "d", x => x.e.em], ["Hora", "t", x => String(x.e.em || "").slice(11, 16)],
       ["Evento", "t", x => x.e.desc], ["Código do evento", "t", x => x.e.cod], ["Local", "t", x => x.e.local], ["Unidade", "t", x => x.e.unidade]];
-    const blob = BiXlsx.montaXlsx([{ nome: "Envios", xml: BiXlsx.planilhaXml(colsE, st.rows) }, { nome: "Eventos dos Correios", xml: BiXlsx.planilhaXml(colsV, evs) }]);
+    const abc = curvaAbc(recorte()).lista;
+    const colsA = [["Classe", "t", c => c.classe], ["Cidade / UF", "t", c => c.cidade], ["Entregas", "n0", c => c.n], ["% das entregas", "t", c => pct1(c.pct)], ["% acumulado", "t", c => pct1(c.acum)], ["Mediana (dias)", "n0", c => c.med], ["No prazo", "n0", c => c.np], ["Com atraso", "n0", c => c.ca]];
+    const blob = BiXlsx.montaXlsx([{ nome: "Envios", xml: BiXlsx.planilhaXml(colsE, st.rows) }, { nome: "Eventos dos Correios", xml: BiXlsx.planilhaXml(colsV, evs) }, { nome: "Curva ABC por cidade", xml: BiXlsx.planilhaXml(colsA, abc) }]);
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = "rastreio_envios_" + D.meta.hoje + ".xlsx"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };
