@@ -1357,6 +1357,10 @@
   #tab-content-rastreio .rast-explica{ margin:4px 0 0; padding:0 0 0 16px; font-size:12px; }
   #tab-content-rastreio .rast-explica li{ margin:0 0 4px; }
   #tab-content-rastreio .rast-table tr.rast-clic{ cursor:pointer; }
+  /* aviso dos objetos sem histórico nos Correios + marcador de envio agrupado (mais de um pedido no mesmo código) */
+  #tab-content-rastreio .rast-aviso{ font-size:11px; color:var(--text-muted); background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:6px 10px; margin:-4px 0 12px; line-height:1.45; }
+  #tab-content-rastreio .rast-aviso:empty{ display:none; }
+  #tab-content-rastreio .rast-mais{ font-size:10px; color:var(--text-muted); border:1px solid var(--border); border-radius:99px; padding:0 5px; margin-left:4px; }
 </style>
 
 <div class="app">
@@ -1800,6 +1804,7 @@
         <label><span class="rast-rot">Prazo</span><select id="rast-prazo"></select></label>
       </div>
       <div class="rast-kpis" id="rast-kpis"></div>
+      <p class="rast-aviso" id="rast-aviso"></p>
       <div class="rast-graficos">
         <div class="rast-card">
           <h3>Envios por mês de postagem</h3>
@@ -1858,8 +1863,10 @@
         Fonte: banco do time de Tech com os dados da API dos Correios (só objetos dos Correios; LATAM, J&amp;T e retiradas não entram) &middot;
         situação = último evento dos Correios (entregue, em trânsito, saiu para entrega, aguardando retirada, problema na entrega, devolvido ao remetente, etiqueta emitida sem postagem, etiqueta expirada) &middot;
         prazo = data da entrega contra a previsão de entrega informada pelos Correios &middot; dias corridos contados por data (postagem → entrega; em aberto: postagem → hoje) &middot;
-        filial e cliente vêm do pedido do Mira com o mesmo código de rastreio; sem pedido no Mira, a filial do distribuidor do pedido do Aqui Tem+ &middot;
-        cobertura = pedidos do Mira com código dos Correios que estão sendo rastreados.
+        objetos dos pedidos do Aqui Tem+ e, desde 21/10, também dos pedidos feitos só no Mira &middot;
+        filial e cliente vêm do pedido do Mira que o banco dos Correios referencia (ligação pelo identificador único do pedido, porque o número do pedido se repete entre empresas); sem essa referência, do pedido do Mira com o mesmo código; sem pedido no Mira, a filial do distribuidor do pedido do Aqui Tem+ &middot;
+        "+N" no pedido = outros pedidos do Mira enviados no mesmo código (envio agrupado) &middot;
+        cobertura = pedidos do Mira com código dos Correios que têm histórico no banco dos Correios.
       </div>
     </div>
     <div class="rast-ov" id="rast-ov"></div>
@@ -3673,9 +3680,9 @@ const BiXlsx = (() => {
   const EM_ANDAMENTO = ["Em trânsito", "Saiu para entrega", "Aguardando retirada"];
   const PRAZOS = ["No prazo", "Com atraso", "Em aberto, no prazo", "Em aberto, atrasado", "Sem previsão"];
   const st = { mes: "", fil: "", uf: "", prazo: "", vista: "atencao", sit: "", flag: "", q: "", sort: { atencao: ["status", 1], todos: ["postadoEm", -1] }, rows: [], ana: "abc", rankModo: "entregue", rankRows: [] };
-  // colunas: [chave, título, tipo]  tipos: t texto, nm nome, d data, n0 inteiro, st situação consolidada, mod modalidade, ult último evento
+  // colunas: [chave, título, tipo]  tipos: t texto, nm nome, d data, n0 inteiro, st situação consolidada, mod modalidade, ult último evento, ped pedido Mira (+N agrupados)
   const COLS = [["status", "Situação", "st"], ["filial", "Filial", "t"], ["cliente", "Cliente Mira", "nm"], ["loja", "Loja AQT", "nm"],
-    ["pedAQT", "Pedido AQT", "t"], ["pedMira", "Pedido Mira", "t"], ["codigo", "Código de rastreio", "t"], ["modalidade", "Modalidade", "mod"], ["etiquetaEm", "Etiqueta", "d"], ["postadoEm", "Postado", "d"], ["entregueEm", "Entregue", "d"],
+    ["pedAQT", "Pedido AQT", "t"], ["pedMira", "Pedido Mira", "ped"], ["codigo", "Código de rastreio", "t"], ["modalidade", "Modalidade", "mod"], ["etiquetaEm", "Etiqueta", "d"], ["postadoEm", "Postado", "d"], ["entregueEm", "Entregue", "d"],
     ["previsao", "Previsão", "d"], ["dias", "Dias", "n0"], ["destino", "Destino", "t"], ["ultimo", "Último evento", "ult"]];
   const difDias = (a, b) => Math.round((Date.parse(String(b).slice(0, 10)) - Date.parse(String(a).slice(0, 10))) / 86400000);
   const plural = (n, um, varios) => n + " " + (n === 1 ? um : varios);
@@ -3699,6 +3706,11 @@ const BiXlsx = (() => {
     : '<span class="rast-muted" title="Os Correios não informaram o tipo de postagem deste objeto">não informado</span>';
   const modalTxt = r => r.modalidade || "não informado";
   const clienteDe = r => r.cliente || r.loja || "";
+  // envio agrupado: outros pedidos do Mira no mesmo código (números só da mesma empresa; os de outra empresa só contam)
+  const nOutros = r => (r.pedMiraOutros || []).length + (r.outrosOutraEmp || 0);
+  const outrosTxt = r => [(r.pedMiraOutros || []).join(", "), r.outrosOutraEmp ? plural(r.outrosOutraEmp, "pedido de outra empresa", "pedidos de outra empresa") : ""].filter(Boolean).join(" + ");
+  const pedHtml = r => esc(r.pedMira) + (nOutros(r) ? '<span class="rast-mais" title="' + esc("Mesmo código de rastreio em mais " + plural(nOutros(r), "pedido", "pedidos") + ": " + outrosTxt(r)) + '">+' + nOutros(r) + "</span>" : "");
+  const ORIGEM = { "Aqui Tem+": "pedido do Aqui Tem+", "Mira": "pedido feito no Mira" };
 
   function opts(sel, vals, rot, rotulo) { sel.innerHTML = '<option value="">' + rot + "</option>" + vals.map(v => '<option value="' + esc(v) + '">' + esc(rotulo ? rotulo(v) : v) + "</option>").join(""); }
   const recorte = () => D.envios.filter(r => (!st.mes || r.mesRef === st.mes) && (!st.fil || r.filial === st.fil) && (!st.uf || r.ufDestino === st.uf) && (!st.prazo || r.prazo === st.prazo));
@@ -3714,16 +3726,29 @@ const BiXlsx = (() => {
     const and = R.filter(r => EM_ANDAMENTO.includes(r.situacao)); const andAtras = and.filter(r => r.prazo === "Em aberto, atrasado").length;
     const aten = R.filter(r => r.atencao.length).length;
     const cob = D.cobertura.filter(c => (!st.mes || c.mes === st.mes) && (!st.fil || c.filial === st.fil));
-    const cc = cob.reduce((s, c) => s + c.comCodigo, 0), cr = cob.reduce((s, c) => s + c.rastreados, 0);
+    const cc = cob.reduce((s, c) => s + c.comCodigo, 0), cr = cob.reduce((s, c) => s + c.rastreados, 0), ch = cob.reduce((s, c) => s + (c.semHist || 0), 0);
     const cards = [
       ["Objetos rastreados", NUM(R.length), NUM(ent.length) + " entregues (" + PCT(ent.length, R.length) + ")"],
       ["Entregues no prazo", PCT(noPrazo, comPrev.length), NUM(noPrazo) + " no prazo · " + NUM(comPrev.length - noPrazo) + " com atraso"],
       ["Tempo até a entrega", med == null ? "—" : med + (med === 1 ? " dia" : " dias"), med == null ? "sem entregas no recorte" : "mediana · 90% em até " + p + " dias"],
       ["Em andamento", NUM(and.length), andAtras ? NUM(andAtras) + (andAtras === 1 ? " já passou da previsão" : " já passaram da previsão") : "nenhum passou da previsão", andAtras > 0],
       ["Precisam de atenção", NUM(aten), "atrasos, objetos parados, problemas, devoluções e etiquetas", aten > 0],
-      ["Cobertura do rastreio", PCT(cr, cc), NUM(cc - cr) + " pedidos do Mira com código fora do rastreio" + (st.uf || st.prazo ? " · não usa UF/prazo" : "")],
+      ["Cobertura do rastreio", PCT(cr, cc), NUM(cc - cr - ch) + " pedidos do Mira com código fora do banco" + (ch ? " · " + NUM(ch) + " sem histórico" : "") + (st.uf || st.prazo ? " · não usa UF/prazo" : "")],
     ];
+    aviso();
     el("rast-kpis").innerHTML = cards.map(c => '<div class="rast-kpi' + (c[3] ? " is-alerta" : "") + '"><div class="t">' + esc(c[0]) + '</div><div class="v">' + esc(c[1]) + '</div><div class="s">' + esc(c[2]) + "</div></div>").join("");
+  }
+
+  // objetos no banco dos Correios sem NENHUM evento e com pedido de mais de N dias (meta.diasSemHist): ficam fora dos
+  // números, gráficos e tabela; o aviso conta os do recorte de mês/filial e a exportação lista numa planilha à parte
+  const semHistRecorte = () => (D.semHist || []).filter(r => (!st.mes || r.mesRef === st.mes) && (!st.fil || r.filial === st.fil));
+  function aviso() {
+    const H = semHistRecorte();
+    if (!H.length) { el("rast-aviso").innerHTML = ""; return; }
+    const ini = D.meta.inicio || "", antigos = ini ? H.filter(r => r.dataPedido && r.dataPedido < ini).length : 0;
+    el("rast-aviso").innerHTML = "<b>" + plural(H.length, "objeto", "objetos") + "</b> " + (H.length === 1 ? "está" : "estão") + " no banco dos Correios, mas os Correios não devolveram nenhum evento de rastreio (pedido feito há mais de " + (D.meta.diasSemHist || 30) + " dias)"
+      + (antigos ? "; " + (antigos === H.length ? (H.length === 1 ? "é de pedido anterior" : "todos são de pedidos anteriores") : NUM(antigos) + " são de pedidos anteriores") + " a " + DT(ini) + ", data do histórico mais antigo disponível" : "")
+      + ". " + (H.length === 1 ? "Fica" : "Ficam") + " fora dos números e da tabela; a exportação traz a lista numa planilha à parte.";
   }
 
   // ---- gráfico: envios por mês (barras empilhadas pela situação de hoje + linha de % no prazo)
@@ -3769,13 +3794,14 @@ const BiXlsx = (() => {
   function linhasTabela(R) {
     const q = st.q.trim().toLowerCase();
     return R.filter(r => (st.vista !== "atencao" || r.atencao.length) && (!st.sit || r.situacao === st.sit) && (!st.flag || r.atencao.includes(st.flag))
-      && (!q || [r.codigo, r.pedAQT, r.pedMira, r.cliente, r.loja, r.destino, r.filial, r.fornecedor].some(v => String(v || "").toLowerCase().includes(q))));
+      && (!q || [r.codigo, r.pedAQT, r.pedMira, (r.pedMiraOutros || []).join(" "), r.cliente, r.loja, r.destino, r.filial, r.fornecedor].some(v => String(v || "").toLowerCase().includes(q))));
   }
   function fmt(c, r) {
     const v = r[c[0]];
     switch (c[2]) {
       case "st": return statusHtml(r);
       case "mod": return modalHtml(r);
+      case "ped": return pedHtml(r);
       case "d": return DT(v);
       case "n0": return v == null ? "" : v;
       case "ult": return v ? esc(v.desc) + ' <span class="rast-muted">· ' + DT(v.em) + "</span>" : "";
@@ -3871,7 +3897,10 @@ const BiXlsx = (() => {
     ex.push("Modalidade: " + (r.modalidade ? "<b>" + esc(r.modalidade) + "</b>" + (r.tipoPostagem ? " (" + esc(r.tipoPostagem) + ")" : "") + " · sigla " + esc(r.sigla) + "." : "não informada pelos Correios."));
     el("rast-drc").innerHTML = "<h2>" + esc(r.codigo) + "</h2><div>" + statusHtml(r) + " " + modalHtml(r) + "</div>"
       + "<h3>O que está acontecendo</h3><ul class='rast-explica'>" + ex.map(t => "<li>" + t + "</li>").join("") + "</ul>"
-      + "<h3>Pedido</h3>" + kv([["Filial", esc(r.filial)], ["Empresa atribuída por", esc(r.empVia)], ["Cliente Mira", esc(r.cliente)], ["Pedido Mira", esc(r.pedMira)], ["Loja AQT", esc(r.loja)], ["Pedido AQT", esc(r.pedAQT)], ["Fornecedor AQT", esc(r.fornecedor)]])
+      + "<h3>Pedido</h3>" + kv([["Origem do envio", esc(ORIGEM[r.origem] || r.origem || "")], ["Filial", esc(r.filial)], ["Empresa atribuída por", esc(r.empVia)], ["Cliente Mira", esc(r.cliente)],
+        ["Pedido Mira", r.pedMira ? esc(r.pedMira) + (r.dataPedido ? " <span class='rast-muted'>de " + DT(r.dataPedido) + "</span>" : "") : ""],
+        ["Outros pedidos no mesmo envio", nOutros(r) ? esc(outrosTxt(r)) + (r.outrosClientes ? "<br><span class='rast-muted'>O mesmo código aparece em pedido de " + plural(r.outrosClientes, "outro cliente", "outros clientes") + "; filial e cliente acima são do pedido que o banco dos Correios referencia.</span>" : "") : ""],
+        ["Loja AQT", esc(r.loja)], ["Pedido AQT", esc(r.pedAQT)], ["Fornecedor AQT", esc(r.fornecedor)]])
       + "<h3>Envio</h3>" + kv([["Etiqueta emitida", DTH(r.etiquetaEm)], ["Postado", DTH(r.postadoEm)], ["Entregue", DTH(r.entregueEm)], ["Previsão de entrega", DT(r.previsao)], [r.entregueEm ? "Dias até a entrega" : "Dias desde a postagem", r.dias == null ? "" : r.dias + " (corridos)"], ["Destino", esc(r.destino)]])
       + "<h3>Histórico dos Correios (" + r.eventos.length + ")</h3>" + linha;
     el("rast-dr").classList.add("is-on"); el("rast-ov").classList.add("is-on"); el("rast-dr").setAttribute("aria-hidden", "false");
@@ -3905,7 +3934,7 @@ const BiXlsx = (() => {
   el("rast-xls").onclick = () => {
     if (!D) return;
     const colsE = [["Situação", "t", r => statusResumo(r).txt], ["Situação nos Correios", "t", r => r.situacao], ["Prazo", "t", r => r.prazo], ["Motivos de atenção", "t", r => r.atencao.join("; ")], ["Filial", "t", r => r.filial], ["Cliente Mira", "t", r => r.cliente], ["Loja AQT", "t", r => r.loja],
-      ["Fornecedor AQT", "t", r => r.fornecedor], ["Pedido AQT", "t", r => r.pedAQT], ["Pedido Mira", "t", r => r.pedMira], ["Código de rastreio", "t", r => r.codigo], ["Modalidade", "t", r => modalTxt(r)], ["Sigla do tipo de postagem", "t", r => r.sigla], ["Etiqueta", "d", r => r.etiquetaEm], ["Postado", "d", r => r.postadoEm],
+      ["Fornecedor AQT", "t", r => r.fornecedor], ["Pedido AQT", "t", r => r.pedAQT], ["Pedido Mira", "t", r => r.pedMira], ["Outros pedidos Mira no mesmo envio", "t", r => outrosTxt(r)], ["Origem do envio", "t", r => ORIGEM[r.origem] || r.origem || ""], ["Código de rastreio", "t", r => r.codigo], ["Modalidade", "t", r => modalTxt(r)], ["Sigla do tipo de postagem", "t", r => r.sigla], ["Etiqueta", "d", r => r.etiquetaEm], ["Postado", "d", r => r.postadoEm],
       ["Entregue", "d", r => r.entregueEm], ["Previsão", "d", r => r.previsao], ["Dias (corridos)", "n0", r => r.dias], ["Destino", "t", r => r.destino], ["UF destino", "t", r => r.ufDestino],
       ["Último evento", "t", r => r.ultimo ? r.ultimo.desc : ""], ["Data do último evento", "d", r => r.ultimo ? r.ultimo.em : ""], ["Local do último evento", "t", r => r.ultimo ? r.ultimo.local : ""]];
     const evs = st.rows.flatMap(r => r.eventos.slice().reverse().map(e => ({ r, e })));
@@ -3913,7 +3942,12 @@ const BiXlsx = (() => {
       ["Evento", "t", x => x.e.desc], ["Código do evento", "t", x => x.e.cod], ["Local", "t", x => x.e.local], ["Unidade", "t", x => x.e.unidade]];
     const abc = curvaAbc(recorte()).lista;
     const colsA = [["Classe", "t", c => c.classe], ["Cidade / UF", "t", c => c.cidade], ["Entregas", "n0", c => c.n], ["% das entregas", "t", c => pct1(c.pct)], ["% acumulado", "t", c => pct1(c.acum)], ["Mediana (dias)", "n0", c => c.med], ["No prazo", "n0", c => c.np], ["Com atraso", "n0", c => c.ca]];
-    const blob = BiXlsx.montaXlsx([{ nome: "Envios", xml: BiXlsx.planilhaXml(colsE, st.rows) }, { nome: "Eventos dos Correios", xml: BiXlsx.planilhaXml(colsV, evs) }, { nome: "Curva ABC por cidade", xml: BiXlsx.planilhaXml(colsA, abc) }]);
+    const colsH = [["Filial", "t", r => r.filial], ["Cliente Mira", "t", r => r.cliente], ["Pedido Mira", "t", r => r.pedMira], ["Outros pedidos Mira no mesmo envio", "t", r => outrosTxt(r)], ["Data do pedido", "d", r => r.dataPedido],
+      ["Loja AQT", "t", r => r.loja], ["Pedido AQT", "t", r => r.pedAQT], ["Origem do envio", "t", r => ORIGEM[r.origem] || r.origem || ""], ["Código de rastreio", "t", r => r.codigo], ["Sigla do código", "t", r => r.sigla]];
+    const H = semHistRecorte();
+    const abas = [{ nome: "Envios", xml: BiXlsx.planilhaXml(colsE, st.rows) }, { nome: "Eventos dos Correios", xml: BiXlsx.planilhaXml(colsV, evs) }, { nome: "Curva ABC por cidade", xml: BiXlsx.planilhaXml(colsA, abc) }];
+    if (H.length) abas.push({ nome: "Sem histórico nos Correios", xml: BiXlsx.planilhaXml(colsH, H) });
+    const blob = BiXlsx.montaXlsx(abas);
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = "rastreio_envios_" + D.meta.hoje + ".xlsx"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   };
@@ -3927,7 +3961,8 @@ const BiXlsx = (() => {
       .then(j => {
         carregando = false;
         if (!j.ok) { msg(j.motivo === "aba_nao_liberada" ? "Esta aba não está liberada para o seu usuário." : "Os dados de rastreio ainda não foram sincronizados. Tente de novo depois do próximo ciclo de atualização."); return; }
-        D = { envios: j.envios || [], cobertura: j.cobertura || [], meta: j.meta || {} };
+        const todos = j.envios || [];
+        D = { envios: todos.filter(r => !r.semHist), semHist: todos.filter(r => r.semHist), cobertura: j.cobertura || [], meta: j.meta || {} };
         el("rast-sync").textContent = D.meta.sincronizadoEm ? DTH(D.meta.sincronizadoEm) : "—";
         montaFiltros(); render();
       })
