@@ -1384,7 +1384,15 @@
   @media (max-width:900px){ #tab-content-rastreio .rast-lt-kpis{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
   #tab-content-rastreio .rast-lt-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 12px; }
   @media (max-width:1100px){ #tab-content-rastreio .rast-lt-grid{ grid-template-columns:1fr; } }
-  #tab-content-rastreio .rast-lt-box{ border:1px solid var(--border); border-radius:8px; padding:8px 10px; min-width:0; }
+  #tab-content-rastreio .rast-lt-box{ border:1px solid var(--border); border-radius:8px; padding:8px 10px; min-width:0; margin:0 0 12px; }
+  /* evolução mensal/semanal: barras clicáveis + dica ao passar o mouse + tabela compacta */
+  #tab-content-rastreio .rast-ev-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin:0 0 4px; }
+  #tab-content-rastreio .rast-ev-bar h4{ margin:0; }
+  #tab-content-rastreio .rast-ev-graf{ position:relative; }
+  #tab-content-rastreio .rast-ev-graf rect.hit{ cursor:pointer; }
+  #tab-content-rastreio .rast-ev-graf rect.hit:hover{ fill:var(--surface-2) !important; fill-opacity:.35; }
+  #tab-content-rastreio .rast-ev-tip{ position:absolute; display:none; pointer-events:none; z-index:5; background:var(--surface); color:var(--text); border:1px solid var(--border); box-shadow:var(--shadow); border-radius:8px; padding:6px 9px; font-size:11px; line-height:1.5; white-space:nowrap; }
+  #tab-content-rastreio .rast-ev-tw{ max-height:230px; min-height:0; margin-top:8px; }
   #tab-content-rastreio .rast-lt-box h4, #tab-content-rastreio .rast-lt-h{ font-size:11.5px; color:var(--text-muted); margin:0 0 8px; font-weight:600; }
   #tab-content-rastreio .rast-lt-h{ margin:2px 0 6px; }
   #tab-content-rastreio .rast-tw-auto{ max-height:none; overflow:visible; border:0; }
@@ -1885,10 +1893,17 @@
         <div id="rast-ana-lt" class="is-hidden">
           <p class="cap">Do pedido no Mira até a entrega pelos Correios, só com objetos entregues do recorte. Tempos em dias corridos; quantidades = itens do pedido (sem frete), somando os pedidos de um envio agrupado.</p>
           <div class="rast-lt-kpis" id="rast-lt-kpis"></div>
-          <div class="rast-lt-grid">
-            <div class="rast-lt-box"><h4>Etapas do atendimento</h4><div id="rast-lt-linha"></div><div class="rast-tw rast-tw-mini rast-tw-auto"><table class="rast-table"><thead id="rast-lt-eth"></thead><tbody id="rast-lt-etb"></tbody></table></div></div>
-            <div class="rast-lt-box"><h4>Estoque flutuante · chips de pedidos feitos e ainda não entregues, por dia</h4><div id="rast-lt-pipe"></div></div>
+          <div class="rast-lt-box">
+            <div class="rast-ev-bar">
+              <h4>Evolução</h4>
+              <div class="rast-vistas rast-sub" id="rast-ev-per"><button type="button" data-per="mes" class="is-on">Mensal</button><button type="button" data-per="sem">Semanal</button></div>
+              <div class="rast-vistas rast-sub" id="rast-ev-met"><button type="button" data-met="tempo" class="is-on">Tempo de atendimento</button><button type="button" data-met="estoque">Estoque flutuante</button><button type="button" data-met="chips">Chips por dia</button></div>
+            </div>
+            <p class="cap" id="rast-ev-cap"></p>
+            <div class="rast-ev-graf" id="rast-ev-graf"></div>
+            <div class="rast-tw rast-tw-mini rast-ev-tw"><table class="rast-table"><thead id="rast-ev-th"></thead><tbody id="rast-ev-tb"></tbody></table></div>
           </div>
+          <div class="rast-lt-box"><h4>Etapas do atendimento</h4><div id="rast-lt-linha"></div><div class="rast-tw rast-tw-mini rast-tw-auto"><table class="rast-table"><thead id="rast-lt-eth"></thead><tbody id="rast-lt-etb"></tbody></table></div></div>
           <h4 class="rast-lt-h">Por UF de destino · do pior para o melhor</h4>
           <div class="rast-tw rast-tw-mini"><table class="rast-table"><thead id="rast-lt-th"></thead><tbody id="rast-lt-tb"></tbody></table></div>
           <p class="cap" style="margin:6px 0 0"><b>Como ler:</b> média ponderada = cada envio pesa pelo número de chips, então é o tempo que um chip leva do pedido até o cliente. Estoque flutuante = chips já pedidos que ainda estão a caminho (capital parado no trajeto); confere com chips por dia × tempo médio. <b>Estoque para cobrir a espera</b> = chips por dia × prazo em que chegam 90% dos envios: quanto os clientes daquela UF precisam ter, somados, para não ficar sem chip enquanto o pedido chega. Para planejar, use os 90% e não a média, que esconde os envios demorados.</p>
@@ -3729,7 +3744,7 @@ const BiXlsx = (() => {
   const pill = (cls, txt, fam) => '<span class="' + cls + " " + (fam || "") + '"><i></i>' + esc(txt) + "</span>";
   const EM_ANDAMENTO = ["Em trânsito", "Saiu para entrega", "Aguardando retirada"];
   const PRAZOS = ["No prazo", "Com atraso", "Em aberto, no prazo", "Em aberto, atrasado", "Sem previsão"];
-  const st = { mes: "", fil: "", uf: "", prazo: "", vista: "atencao", sit: "", flag: "", grupo: "", cat: "", cidade: "", q: "", sort: { atencao: ["status", 1], todos: ["postadoEm", -1] }, rows: [], ana: "abc", rankModo: "entregue", rankRows: [] };
+  const st = { mes: "", fil: "", uf: "", prazo: "", vista: "atencao", sit: "", flag: "", grupo: "", cat: "", cidade: "", sem: "", evPer: "mes", evMet: "tempo", q: "", sort: { atencao: ["status", 1], todos: ["postadoEm", -1] }, rows: [], ana: "abc", rankModo: "entregue", rankRows: [] };
   // colunas: [chave, título, tipo]  tipos: t texto, nm nome, d data, n0 inteiro, st situação consolidada, mod modalidade, ult último evento, ped pedido Mira (+N agrupados)
   const COLS = [["status", "Situação", "st"], ["filial", "Filial", "t"], ["cliente", "Cliente Mira", "nm"], ["loja", "Loja AQT", "nm"],
     ["pedAQT", "Pedido AQT", "t"], ["pedMira", "Pedido Mira", "ped"], ["codigo", "Código de rastreio", "t"], ["modalidade", "Modalidade", "mod"], ["etiquetaEm", "Etiqueta", "d"], ["postadoEm", "Postado", "d"], ["entregueEm", "Entregue", "d"],
@@ -3772,6 +3787,7 @@ const BiXlsx = (() => {
     mes: ["Mês", r => r.mesRef === st.mes, v => rotMes(v)], fil: ["Filial", r => r.filial === st.fil], uf: ["UF", r => r.ufDestino === st.uf], prazo: ["Prazo", r => r.prazo === st.prazo],
     sit: ["Situação", r => r.situacao === st.sit], cat: ["Situação do mês", r => catMes(r) === st.cat], grupo: ["Cartão", r => GRUPOS[st.grupo][1](r), v => GRUPOS[v][0]],
     cidade: ["Cidade", r => r.destino === st.cidade], flag: ["Motivo", r => r.atencao.includes(st.flag)],
+    sem: ["Semana", r => r.semRef === st.sem, v => rotSem(v)],
   };
   const recorte = (pula) => D.envios.filter(r => Object.keys(FILTROS).every(k => !st[k] || (pula && pula.includes(k)) || FILTROS[k][1](r)));
   const SELECT_DE = { mes: "rast-mes", fil: "rast-fil", uf: "rast-uf", prazo: "rast-prazo", sit: "rast-sit", flag: "rast-flag" };
@@ -3991,15 +4007,74 @@ const BiXlsx = (() => {
     for (const m of meses) { const ini = Math.max(Date.parse(m + "-01"), prim ? Date.parse(prim) : 0), fim = Math.min(Date.parse(new Date(Date.UTC(+m.slice(0, 4), +m.slice(5, 7), 0)).toISOString().slice(0, 10)), Date.parse(hoje)); for (let t = ini; t <= fim; t += 86400000) dias.push(new Date(t).toISOString().slice(0, 10)); }
     return dias;
   }
+  // chips a caminho em cada dia: do dia do pedido até a véspera da entrega (em aberto e atualizado: até hoje;
+  // devolvido/expirado/desatualizado: até o último evento conhecido)
+  const ABERTOS_LT = ["Em trânsito", "Saiu para entrega", "Aguardando retirada", "Problema na entrega", "Etiqueta emitida, não postado"];
+  function pipeDe(R, dias) {
+    const faixas = R.filter(r => r.qte > 0 && r.dataPedido).map(r => ({ a: r.dataPedido, b: r.entregueEm ? String(r.entregueEm).slice(0, 10) : ABERTOS_LT.includes(r.situacao) && !r.desatualizado ? "9999" : r.ultimo ? String(r.ultimo.em).slice(0, 10) : r.dataPedido, q: r.qte }));
+    return dias.map(d => faixas.reduce((t, x) => t + (x.a <= d && d < x.b ? x.q : 0), 0));
+  }
+  // ---- evolução mensal/semanal: mês = mês de postagem (mesRef); semana = segunda a domingo da postagem (semRef)
+  const segunda = d => { const t = Date.parse(String(d).slice(0, 10)); if (isNaN(t)) return ""; const w = new Date(t).getUTCDay(); return new Date(t - ((w + 6) % 7) * 86400000).toISOString().slice(0, 10); };
+  const rotSem = k => DT(k).slice(0, 5) + " a " + DT(new Date(Date.parse(k) + 6 * 86400000).toISOString().slice(0, 10)).slice(0, 5);
+  function evolucao(R, per) {
+    const chave = per === "mes" ? (r => r.mesRef) : (r => r.semRef), chaveDia = per === "mes" ? (d => d.slice(0, 7)) : segunda;
+    const dias = periodoDe(R), pipe = pipeDe(R, dias), G = new Map();
+    const g = k => G.get(k) || G.set(k, { k, dias: 0, pipeSoma: 0, ent: [], tot: 0, ab: 0 }).get(k);
+    dias.forEach((d, i) => { const o = g(chaveDia(d)); o.dias++; o.pipeSoma += pipe[i]; });
+    for (const r of R) {
+      if (!chave(r)) continue; const o = g(chave(r)); o.tot++; if (ABERTOS_LT.includes(r.situacao)) o.ab++;
+      if (r.situacao === "Entregue" && tAtend(r) != null && tAtend(r) >= 0) o.ent.push(r);
+    }
+    return [...G.values()].sort((a, b) => a.k.localeCompare(b.k)).map(o => {
+      const t = o.ent.map(tAtend), q = o.ent.reduce((s2, r) => s2 + (r.qte || 0), 0), pd = q / Math.max(1, o.dias), p9 = p90(t);
+      const tamanho = per === "mes" ? new Date(Date.UTC(+o.k.slice(0, 4), +o.k.slice(5, 7), 0)).getUTCDate() : 7;
+      const cor = o.ent.map(r => r.postadoEm ? difDias(r.postadoEm, r.entregueEm) : null).filter(x => x != null && x >= 0);
+      return { k: o.k, rot: per === "mes" ? rotMes(o.k) : "semana de " + rotSem(o.k), curto: per === "mes" ? rotMes(o.k) : DT(o.k).slice(0, 5), n: o.ent.length, chips: q, porDia: pd, pond: ponderada(o.ent, tAtend), med: mediana(t), p: p9, correios: media(cor), flut: o.dias ? o.pipeSoma / o.dias : null, cobre: p9 == null ? null : pd * p9, parcial: o.dias < tamanho, diasP: o.dias, aCaminho: o.ab, pendente: o.tot > 0 && o.ab / o.tot > 0.1 };
+    });
+  }
+  const EV_MET = {
+    tempo: ["Barra = tempo médio do pedido à entrega (ponderado por chips) · traço = prazo em que chegam 90% dos envios", p => p.pond, p => N1(p.pond)],
+    estoque: ["Barra = estoque flutuante: chips de pedidos feitos e ainda não entregues, em média por dia", p => p.flut, p => NUM(Math.round(p.flut || 0))],
+    chips: ["Barra = chips entregues por dia, pelo mês ou semana de postagem", p => p.porDia, p => NUM(Math.round(p.porDia))],
+  };
+  function analiseEvol() {
+    const per = st.evPer, met = EV_MET[st.evMet], ehTempo = st.evMet === "tempo";
+    const P = evolucao(recorte(per === "mes" ? ["mes", "sem"] : ["sem"]), per); st.ev = P;
+    const sel = per === "mes" ? st.mes : st.sem;
+    el("rast-ev-cap").textContent = met[0] + " · tom claro = período incompleto, com menos de 5 entregas ou ainda com envios a caminho · passe o mouse para ver os números; clique para filtrar" + (per === "sem" && st.mes ? " · semanas de " + rotMes(st.mes) : "");
+    if (!P.length) { el("rast-ev-graf").innerHTML = '<p class="rast-muted">Sem dados no recorte.</p>'; el("rast-ev-th").innerHTML = ""; el("rast-ev-tb").innerHTML = ""; return; }
+    const W = 900, H = 200, pt = 18, pb = 22, pl = 40, pr = 8, ph = H - pt - pb, pw = W - pl - pr;
+    const vals = P.map(met[1]), topo = P.map((p, i) => Math.max(vals[i] || 0, ehTempo && p.p != null ? p.p : 0));
+    const max = Math.max(1, ...topo), y = v => pt + ph - v / max * ph;
+    const slot = pw / P.length, bw = Math.max(4, Math.min(46, slot * 0.62)), cadaRot = Math.max(1, Math.ceil(P.length / 18));
+    let svg = "";
+    for (const fr of [0, 0.5, 1]) { const v = max * fr; svg += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y(v).toFixed(1) + '" y2="' + y(v).toFixed(1) + '" style="stroke:var(--border)"></line><text x="' + (pl - 5) + '" y="' + (y(v) + 3).toFixed(1) + '" text-anchor="end" style="font-size:9px;fill:var(--text-muted)">' + (ehTempo ? N1(v) + " d" : NUM(Math.round(v))) + "</text>"; }
+    P.forEach((p, i) => {
+      const v = vals[i], x = pl + i * slot + (slot - bw) / 2, op = sel && sel !== p.k ? 0.22 : (p.parcial || p.n < 5 || p.pendente ? 0.45 : 1);
+      if (v != null) svg += '<rect x="' + x.toFixed(1) + '" y="' + y(v).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + Math.max(0.5, pt + ph - y(v)).toFixed(1) + '" rx="2" style="fill:var(--accent);opacity:' + op + '"></rect>';
+      if (ehTempo && p.p != null) svg += (v != null ? '<line x1="' + (x + bw / 2).toFixed(1) + '" x2="' + (x + bw / 2).toFixed(1) + '" y1="' + y(p.p).toFixed(1) + '" y2="' + y(v).toFixed(1) + '" style="stroke:var(--text);stroke-width:1;stroke-dasharray:2 2;opacity:' + Math.min(op, 0.7) + '"></line>' : "")
+        + '<line x1="' + (x + bw * 0.15).toFixed(1) + '" x2="' + (x + bw * 0.85).toFixed(1) + '" y1="' + y(p.p).toFixed(1) + '" y2="' + y(p.p).toFixed(1) + '" style="stroke:var(--text);stroke-width:2;opacity:' + op + '"></line>';
+      // rótulos (só com barra larga): valor dentro do topo da barra (ou logo acima, se a barra for baixa); 90% ao lado do traço
+      if (v != null && bw >= 22) { const dentro = pt + ph - y(v) > 18; svg += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (dentro ? y(v) + 12 : y(v) - 4).toFixed(1) + '" text-anchor="middle" style="font-size:9.5px;font-weight:600;fill:' + (dentro ? "#fff" : "var(--text-muted)") + ';opacity:' + Math.max(op, 0.6) + '">' + met[2](p) + "</text>"; }
+      if (ehTempo && p.p != null && bw >= 22) svg += '<text x="' + (x + bw * 0.85 + 3).toFixed(1) + '" y="' + (y(p.p) + 3).toFixed(1) + '" style="font-size:9px;fill:var(--text-muted);opacity:' + Math.max(op, 0.6) + '">' + p.p + "</text>";
+      if (i % cadaRot === 0 || sel === p.k) svg += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" style="font-size:9.5px;' + (sel === p.k ? "fill:var(--text);font-weight:700" : "fill:var(--text-muted)") + '">' + esc(p.curto) + "</text>";
+      svg += '<rect class="hit" data-i="' + i + '" x="' + (pl + i * slot).toFixed(1) + '" y="' + pt + '" width="' + slot.toFixed(1) + '" height="' + (ph + pb) + '" style="fill:transparent"></rect>';
+    });
+    el("rast-ev-graf").innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" style="width:100%;height:auto;display:block">' + svg + '</svg><div class="rast-ev-tip" id="rast-ev-tip"></div>';
+    el("rast-ev-th").innerHTML = "<tr><th>" + (per === "mes" ? "Mês" : "Semana") + "</th><th class='num'>Entregas</th><th class='num'>Chips por dia</th><th class='num'>Tempo médio (ponderado)</th><th class='num' title='Diferença do tempo médio para o período anterior'>vs. anterior</th><th class='num'>90% em até</th><th class='num'>Correios (postagem → entrega)</th><th class='num'>Estoque flutuante</th><th class='num' title='Chips por dia × prazo em que chegam 90% dos envios'>Estoque para cobrir a espera</th></tr>";
+    el("rast-ev-tb").innerHTML = P.map((p, i) => [p, i]).reverse().map(([p, i]) => {
+      const ant = i > 0 ? P[i - 1] : null, dlt = ant && ant.pond != null && p.pond != null ? p.pond - ant.pond : null;
+      const varHtml = dlt == null ? "" : Math.abs(dlt) < 0.05 ? '<span class="rast-muted">=</span>' : '<span style="color:' + (dlt > 0 ? "var(--danger)" : "var(--ok)") + '">' + (dlt > 0 ? "▲ " : "▼ ") + N1(Math.abs(dlt)) + " d</span>";
+      return '<tr class="rast-clic' + (sel === p.k ? " is-sel" : "") + (p.parcial || p.n < 5 || p.pendente ? " rast-muted" : "") + '" data-i="' + i + '" title="' + (p.parcial ? "Período incompleto (" + plural(p.diasP, "dia", "dias") + ") · " : "") + (p.n < 5 ? "Menos de 5 entregas · " : "") + (p.pendente ? plural(p.aCaminho, "envio ainda a caminho", "envios ainda a caminho") + ": o tempo médio ainda pode subir · " : "") + 'Clique para filtrar a página"><td>' + esc(p.rot) + '</td><td class="num">' + NUM(p.n) + '</td><td class="num">' + N1(p.porDia) + '</td><td class="num"><b>' + (p.pond == null ? "—" : N1(p.pond) + " d") + '</b></td><td class="num">' + varHtml + '</td><td class="num">' + (p.p == null ? "—" : p.p + " d") + '</td><td class="num">' + (p.correios == null ? "—" : N1(p.correios) + " d") + '</td><td class="num">' + NUM(Math.round(p.flut || 0)) + '</td><td class="num">' + (p.cobre == null ? "—" : NUM(Math.round(p.cobre))) + "</td></tr>";
+    }).join("");
+  }
   function calcLt(R) {
     const ent = R.filter(r => r.situacao === "Entregue" && tAtend(r) != null && tAtend(r) >= 0);
     const etapas = ETAPAS.map(([rot, f, cor]) => { const v = ent.map(f).filter(x => x != null && x >= 0); return { rot, cor, n: v.length, med: mediana(v), p: p90(v), media: media(v), pond: ponderada(ent, r => { const x = f(r); return x != null && x >= 0 ? x : null; }) }; });
     const tot = ent.map(tAtend); const dias = periodoDe(R); const nd = Math.max(1, dias.length);
     const chips = ent.reduce((t, r) => t + (r.qte || 0), 0), porDia = chips / nd, pond = ponderada(ent, tAtend);
-    // chips a caminho em cada dia: do dia do pedido até a véspera da entrega (em aberto e atualizado: até hoje)
-    const ABERTO = ["Em trânsito", "Saiu para entrega", "Aguardando retirada", "Problema na entrega", "Etiqueta emitida, não postado"];
-    const faixas = R.filter(r => r.qte > 0 && r.dataPedido).map(r => ({ a: r.dataPedido, b: r.entregueEm ? String(r.entregueEm).slice(0, 10) : ABERTO.includes(r.situacao) && !r.desatualizado ? "9999" : r.ultimo ? String(r.ultimo.em).slice(0, 10) : r.dataPedido, q: r.qte }));
-    const pipe = dias.map(d => faixas.reduce((t, x) => t + (x.a <= d && d < x.b ? x.q : 0), 0));
+    const ABERTO = ABERTOS_LT, pipe = pipeDe(R, dias);
     const abertos = R.filter(r => ABERTO.includes(r.situacao));
     const porUf = new Map(); for (const r of ent) if (r.ufDestino) (porUf.get(r.ufDestino) || porUf.set(r.ufDestino, []).get(r.ufDestino)).push(r);
     const ufs = [...porUf.entries()].map(([uf, rows]) => { const t = rows.map(tAtend), q = rows.reduce((s2, r) => s2 + (r.qte || 0), 0), pd = q / nd, pp = ponderada(rows, tAtend), p9 = p90(t);
@@ -4009,7 +4084,7 @@ const BiXlsx = (() => {
   }
   function analiseLt(R) {
     const L = calcLt(R); st.lt = L;
-    if (!L.ent.length) { el("rast-lt-kpis").innerHTML = '<p class="rast-muted">Sem entregas no recorte.</p>'; ["rast-lt-linha", "rast-lt-pipe", "rast-lt-eth", "rast-lt-etb", "rast-lt-th", "rast-lt-tb"].forEach(i => el(i).innerHTML = ""); return; }
+    if (!L.ent.length) { el("rast-lt-kpis").innerHTML = '<p class="rast-muted">Sem entregas no recorte.</p>'; ["rast-lt-linha", "rast-lt-eth", "rast-lt-etb", "rast-lt-th", "rast-lt-tb"].forEach(i => el(i).innerHTML = ""); analiseEvol(); return; }
     const little = L.tot.pond == null ? null : L.porDia * L.tot.pond;
     const cards = [
       ["Tempo médio de atendimento", L.tot.pond == null ? "—" : N1(L.tot.pond) + " dias", "pedido → entrega, ponderado por chips · média simples " + N1(L.tot.media) + " · mediana " + L.tot.med + " · 90% em até " + L.tot.p + " dias"],
@@ -4018,6 +4093,7 @@ const BiXlsx = (() => {
       ["A caminho agora", NUM(L.chipsAbertos) + " chips", plural(L.abertos.length - L.desatAbertos, "envio em aberto atualizado", "envios em aberto atualizados") + (L.desatAbertos ? " · fora isso, " + NUM(L.chipsDesat) + " chips em " + plural(L.desatAbertos, "envio", "envios") + " sem atualização dos Correios" : "")],
     ];
     el("rast-lt-kpis").innerHTML = cards.map(c => '<div class="rast-kpi"><div class="t">' + esc(c[0]) + '</div><div class="v">' + esc(c[1]) + '</div><div class="s">' + esc(c[2]) + "</div></div>").join("");
+    analiseEvol();
     // linha do tempo média (ponderada por chips) de cada etapa
     const tl = L.etapas.reduce((t, e) => t + (e.pond || 0), 0) || 1;
     el("rast-lt-linha").innerHTML = '<div class="rast-lt-linha">' + L.etapas.map(e => '<span style="width:' + (100 * (e.pond || 0) / tl).toFixed(1) + "%;background:" + e.cor + '" title="' + esc(e.rot + ": " + N1(e.pond) + " dias em média (ponderada por chips)") + '">' + ((e.pond || 0) / tl > 0.12 ? N1(e.pond) + " d" : "") + "</span>").join("") + "</div>"
@@ -4025,16 +4101,6 @@ const BiXlsx = (() => {
     el("rast-lt-eth").innerHTML = "<tr><th>Etapa</th><th class='num'>Média ponderada</th><th class='num'>Média simples</th><th class='num'>Mediana</th><th class='num'>90% em até</th><th class='num'>Envios</th></tr>";
     el("rast-lt-etb").innerHTML = L.etapas.map(e => "<tr><td>" + esc(e.rot) + '</td><td class="num"><b>' + N1(e.pond) + '</b></td><td class="num">' + N1(e.media) + '</td><td class="num">' + (e.med == null ? "—" : e.med) + '</td><td class="num">' + (e.p == null ? "—" : e.p) + '</td><td class="num">' + NUM(e.n) + "</td></tr>").join("")
       + '<tr class="is-sel"><td>Total · pedido → entrega</td><td class="num">' + N1(L.tot.pond) + '</td><td class="num">' + N1(L.tot.media) + '</td><td class="num">' + L.tot.med + '</td><td class="num">' + L.tot.p + '</td><td class="num">' + NUM(L.tot.n) + "</td></tr>";
-    // estoque flutuante por dia (linha) + média tracejada
-    const W = 600, H = 150, pt = 14, pb = 20, pl = 38, pr = 8, ph = H - pt - pb, pw = W - pl - pr, max = Math.max(1, ...L.pipe);
-    const xs = i => pl + (L.pipe.length > 1 ? i * pw / (L.pipe.length - 1) : pw / 2), ys = v => pt + ph - v / max * ph;
-    let svg = '<polyline points="' + L.pipe.map((v, i) => xs(i).toFixed(1) + "," + ys(v).toFixed(1)).join(" ") + '" style="fill:none;stroke:var(--accent);stroke-width:1.6"></polyline>';
-    if (L.pipeMedia != null) svg += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + ys(L.pipeMedia).toFixed(1) + '" y2="' + ys(L.pipeMedia).toFixed(1) + '" style="stroke:var(--text-muted);stroke-dasharray:4 3"></line><text x="' + (W - pr) + '" y="' + (ys(L.pipeMedia) - 4).toFixed(1) + '" text-anchor="end" style="font-size:9.5px;fill:var(--text-muted)">média ' + NUM(Math.round(L.pipeMedia)) + "</text>";
-    svg += '<text x="' + (pl - 4) + '" y="' + (pt + 4) + '" text-anchor="end" style="font-size:9px;fill:var(--text-muted)">' + NUM(max) + '</text><text x="' + (pl - 4) + '" y="' + (pt + ph) + '" text-anchor="end" style="font-size:9px;fill:var(--text-muted)">0</text>';
-    const mesesIni = L.dias.map((d, i) => [d, i]).filter(([d]) => d.slice(8) === "01");
-    for (const [d, i] of mesesIni) svg += '<text x="' + xs(i).toFixed(1) + '" y="' + (H - 5) + '" text-anchor="middle" style="font-size:9.5px;fill:var(--text-muted)">' + rotMes(d.slice(0, 7)) + "</text>";
-    L.pipe.forEach((v, i) => { svg += '<rect x="' + (xs(i) - pw / L.pipe.length / 2).toFixed(1) + '" y="' + pt + '" width="' + Math.max(1, pw / L.pipe.length).toFixed(1) + '" height="' + ph + '" style="fill:transparent"><title>' + esc(DT(L.dias[i]) + ": " + NUM(v) + " chips a caminho") + "</title></rect>"; });
-    el("rast-lt-pipe").innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" style="width:100%;height:auto;display:block">' + svg + "</svg>";
     el("rast-lt-th").innerHTML = "<tr><th>UF</th><th class='num'>Entregas</th><th class='num'>Chips por dia</th><th class='num'>Tempo médio (ponderado)</th><th class='num'>Mediana</th><th class='num'>90% em até</th><th class='num'>Estoque flutuante</th><th class='num' title='Chips por dia × prazo em que chegam 90% dos envios'>Estoque para cobrir a espera</th></tr>";
     el("rast-lt-tb").innerHTML = L.ufs.map(u => '<tr class="rast-clic' + (st.uf === u.uf ? " is-sel" : "") + (u.n < 5 ? " rast-muted" : "") + '" data-uf="' + esc(u.uf) + '" title="' + (u.n < 5 ? "Amostra pequena (menos de 5 entregas) · " : "") + 'Clique para filtrar a página por esta UF"><td>' + esc(u.uf) + '</td><td class="num">' + NUM(u.n) + '</td><td class="num">' + N1(u.porDia) + '</td><td class="num">' + N1(u.pond) + ' d</td><td class="num">' + u.med + ' d</td><td class="num"><b>' + u.p + ' d</b></td><td class="num">' + NUM(Math.round(u.flut || 0)) + '</td><td class="num"><b>' + NUM(Math.round(u.cobre)) + "</b></td></tr>").join("");
   }
@@ -4083,6 +4149,24 @@ const BiXlsx = (() => {
   // cidade da curva ABC (linha da tabela ou barra do gráfico) -> filtro de cidade na página inteira
   const clicaCidade = e => { if (!D) return; const t = e.target.closest("[data-c]"); if (t) setFiltro("cidade", st.abc[+t.dataset.c].cidade); };
   el("rast-abc-tb").addEventListener("click", clicaCidade); el("rast-abc-graf").addEventListener("click", clicaCidade);
+  el("rast-ev-graf").addEventListener("mousemove", e => {
+    const tip = el("rast-ev-tip"); if (!tip) return; const t = e.target.closest("[data-i]"); if (!t || !st.ev) { tip.style.display = "none"; return; }
+    const p = st.ev[+t.dataset.i], box = el("rast-ev-graf").getBoundingClientRect();
+    tip.innerHTML = "<b>" + esc(p.rot) + "</b>" + (p.parcial ? ' <span class="rast-muted">· incompleto (' + plural(p.diasP, "dia", "dias") + ")</span>" : "")
+      + "<br>Tempo médio de atendimento: <b>" + (p.pond == null ? "—" : N1(p.pond) + " dias") + "</b>" + (p.p == null ? "" : " · 90% em até " + plural(p.p, "dia", "dias"))
+      + "<br>Nos Correios: " + (p.correios == null ? "—" : N1(p.correios) + " dias") + " · " + plural(p.n, "entrega", "entregas") + (p.aCaminho ? " · " + NUM(p.aCaminho) + " ainda a caminho" : "")
+      + (p.pendente ? '<br><span class="rast-muted">Ainda há envios a caminho: o tempo médio pode subir.</span>' : "")
+      + "<br>Chips por dia: " + N1(p.porDia) + " · estoque flutuante: " + NUM(Math.round(p.flut || 0)) + " chips"
+      + (p.cobre == null ? "" : "<br>Estoque para cobrir a espera: " + NUM(Math.round(p.cobre)) + " chips");
+    tip.style.display = "block";
+    const x = e.clientX - box.left, yv = e.clientY - box.top;
+    tip.style.left = Math.max(4, Math.min(box.width - tip.offsetWidth - 4, x + 14)) + "px"; tip.style.top = Math.max(4, yv - tip.offsetHeight - 12) + "px";
+  });
+  el("rast-ev-graf").addEventListener("mouseleave", () => { const tip = el("rast-ev-tip"); if (tip) tip.style.display = "none"; });
+  const clicaEv = e => { if (!D || !st.ev) return; const t = e.target.closest("[data-i]"); if (t) setFiltro(st.evPer === "mes" ? "mes" : "sem", st.ev[+t.dataset.i].k); };
+  el("rast-ev-graf").addEventListener("click", clicaEv); el("rast-ev-tb").addEventListener("click", clicaEv);
+  document.querySelectorAll("#rast-ev-per button").forEach(b => b.onclick = () => { st.evPer = b.dataset.per; document.querySelectorAll("#rast-ev-per button").forEach(x => x.classList.toggle("is-on", x === b)); if (D) analiseEvol(); });
+  document.querySelectorAll("#rast-ev-met button").forEach(b => b.onclick = () => { st.evMet = b.dataset.met; document.querySelectorAll("#rast-ev-met button").forEach(x => x.classList.toggle("is-on", x === b)); if (D) analiseEvol(); });
   el("rast-lt-tb").addEventListener("click", e => { if (!D) return; const t = e.target.closest("tr[data-uf]"); if (t) setFiltro("uf", t.dataset.uf); });
   // gráfico por mês: pedaço = mês + situação do mês; rótulo do mês = só o mês; legenda = só a situação
   el("rast-g-mes").addEventListener("click", e => {
@@ -4112,7 +4196,7 @@ const BiXlsx = (() => {
   [["rast-mes", "mes"], ["rast-fil", "fil"], ["rast-uf", "uf"], ["rast-prazo", "prazo"], ["rast-sit", "sit"], ["rast-flag", "flag"]].forEach(([id, k]) => el(id).onchange = e => { st[k] = e.target.value; render(); });
   el("rast-q").oninput = e => { st.q = e.target.value; render(); };
   document.querySelectorAll("#rast-vistas button").forEach(b => b.onclick = () => { if (D) trocaVista(b.dataset.vista); });
-  el("rast-limpa").onclick = () => { st.mes = st.fil = st.uf = st.prazo = st.sit = st.flag = st.grupo = st.cat = st.cidade = st.q = ""; ["rast-mes", "rast-fil", "rast-uf", "rast-prazo", "rast-sit", "rast-flag", "rast-q"].forEach(id => el(id).value = ""); render(); };
+  el("rast-limpa").onclick = () => { st.mes = st.fil = st.uf = st.prazo = st.sit = st.flag = st.grupo = st.cat = st.cidade = st.sem = st.q = ""; ["rast-mes", "rast-fil", "rast-uf", "rast-prazo", "rast-sit", "rast-flag", "rast-q"].forEach(id => el(id).value = ""); render(); };
 
   // ---- exportação .xlsx (BiXlsx compartilhado): envios da tabela + 1 linha por evento dos Correios
   el("rast-xls").onclick = () => {
@@ -4135,6 +4219,11 @@ const BiXlsx = (() => {
     const L = calcLt(recorte());
     const colsU = [["UF", "t", u => u.uf], ["Entregas", "n0", u => u.n], ["Chips entregues", "n0", u => u.q], ["Chips por dia", "t", u => N1(u.porDia)], ["Tempo médio ponderado (dias)", "t", u => N1(u.pond)], ["Mediana (dias)", "n0", u => u.med], ["90% em até (dias)", "n0", u => u.p], ["Estoque flutuante (chips)", "n0", u => Math.round(u.flut || 0)], ["Estoque para cobrir a espera (chips)", "n0", u => Math.round(u.cobre)]];
     if (L.ent.length) abas.push({ nome: "Tempo de atendimento por UF", xml: BiXlsx.planilhaXml(colsU, L.ufs) });
+    const colsP = (rot) => [[rot, "t", p => p.rot], ["Entregas", "n0", p => p.n], ["Chips entregues", "n0", p => p.chips], ["Chips por dia", "t", p => N1(p.porDia)], ["Tempo médio ponderado (dias)", "t", p => N1(p.pond)], ["Mediana (dias)", "n0", p => p.med], ["90% em até (dias)", "n0", p => p.p],
+      ["Correios: postagem → entrega (dias)", "t", p => N1(p.correios)], ["Estoque flutuante (chips)", "n0", p => Math.round(p.flut || 0)], ["Estoque para cobrir a espera (chips)", "n0", p => p.cobre == null ? null : Math.round(p.cobre)], ["Período incompleto", "t", p => p.parcial ? "Sim (" + p.diasP + " dias)" : ""], ["Envios ainda a caminho", "n0", p => p.aCaminho || null]];
+    const PM = evolucao(recorte(["mes", "sem"]), "mes"), PS = evolucao(recorte(["sem"]), "sem");
+    if (PM.length) abas.push({ nome: "Atendimento por mês", xml: BiXlsx.planilhaXml(colsP("Mês"), PM) });
+    if (PS.length) abas.push({ nome: "Atendimento por semana", xml: BiXlsx.planilhaXml(colsP("Semana"), PS) });
     if (H.length) abas.push({ nome: "Sem histórico nos Correios", xml: BiXlsx.planilhaXml(colsH, H) });
     const blob = BiXlsx.montaXlsx(abas);
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
@@ -4151,6 +4240,8 @@ const BiXlsx = (() => {
         carregando = false;
         if (!j.ok) { msg(j.motivo === "aba_nao_liberada" ? "Esta aba não está liberada para o seu usuário." : "Os dados de rastreio ainda não foram sincronizados. Tente de novo depois do próximo ciclo de atualização."); return; }
         const todos = j.envios || [];
+        // semana (segunda-feira) da mesma data que define o mês do envio: postagem; sem ela, etiqueta, 1o evento ou pedido
+        for (const r of todos) { const ev = r.eventos || [], base = r.postadoEm || r.etiquetaEm || (ev.length ? ev[ev.length - 1].em : "") || r.dataPedido; r.semRef = base ? segunda(base) : ""; }
         D = { envios: todos.filter(r => !r.semHist), semHist: todos.filter(r => r.semHist), cobertura: j.cobertura || [], meta: j.meta || {} };
         el("rast-sync").textContent = D.meta.ultimaConsulta ? DTH(D.meta.ultimaConsulta) : D.meta.sincronizadoEm ? DTH(D.meta.sincronizadoEm) : "—";
         montaFiltros(); render();
