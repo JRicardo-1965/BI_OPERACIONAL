@@ -1378,6 +1378,7 @@
   #tab-content-rastreio .rast-hbar .pequena span{ opacity:.45; }
   #tab-content-rastreio .rast-hbar .sep{ grid-column:1/-1; font-size:10px; color:var(--text-faint); border-top:1px dashed var(--border); padding-top:3px; margin-top:2px; }
   #tab-content-rastreio .rast-hbar-rol{ max-height:290px; overflow:auto; padding-right:4px; }
+  #tab-content-rastreio .rast-table tr.rast-muted td{ color:var(--text-faint); }
   #tab-content-rastreio .rast-table tr.is-sel td{ background:var(--surface-2); font-weight:600; }
   /* análise "Tempo de atendimento e estoque" */
   #tab-content-rastreio .rast-lt-kpis{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px; margin:0 0 12px; }
@@ -1399,10 +1400,6 @@
   #tab-content-rastreio .rast-lt-box .rast-table{ width:100%; min-width:0; }
   #tab-content-rastreio .rast-lt-box .rast-table th{ white-space:normal; cursor:default; }
   #tab-content-rastreio .rast-lt-box .rast-table tbody tr{ cursor:default; }
-  #tab-content-rastreio .rast-lt-linha{ display:flex; height:22px; border-radius:5px; overflow:hidden; margin:0 0 4px; }
-  #tab-content-rastreio .rast-lt-linha span{ display:flex; align-items:center; justify-content:center; font-size:10px; color:#fff; white-space:nowrap; overflow:hidden; min-width:2px; }
-  #tab-content-rastreio .rast-lt-leg{ display:flex; flex-wrap:wrap; gap:8px; font-size:10.5px; color:var(--text-muted); margin:0 0 8px; }
-  #tab-content-rastreio .rast-lt-leg i{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:-1px; }
   #tab-content-rastreio .rast-mais{ font-size:10px; color:var(--text-muted); border:1px solid var(--border); border-radius:99px; padding:0 5px; margin-left:4px; }
 </style>
 
@@ -1903,10 +1900,9 @@
             <div class="rast-ev-graf" id="rast-ev-graf"></div>
             <div class="rast-tw rast-tw-mini rast-ev-tw"><table class="rast-table"><thead id="rast-ev-th"></thead><tbody id="rast-ev-tb"></tbody></table></div>
           </div>
-          <div class="rast-lt-box"><h4>Etapas do atendimento</h4><div id="rast-lt-linha"></div><div class="rast-tw rast-tw-mini rast-tw-auto"><table class="rast-table"><thead id="rast-lt-eth"></thead><tbody id="rast-lt-etb"></tbody></table></div></div>
-          <h4 class="rast-lt-h">Por UF de destino · do pior para o melhor</h4>
-          <div class="rast-tw rast-tw-mini"><table class="rast-table"><thead id="rast-lt-th"></thead><tbody id="rast-lt-tb"></tbody></table></div>
-          <p class="cap" style="margin:6px 0 0"><b>Como ler:</b> média ponderada = cada envio pesa pelo número de chips, então é o tempo que um chip leva do pedido até o cliente. Estoque flutuante = chips já pedidos que ainda estão a caminho (capital parado no trajeto); confere com chips por dia × tempo médio. <b>Estoque para cobrir a espera</b> = chips por dia × prazo em que chegam 90% dos envios: quanto os clientes daquela UF precisam ter, somados, para não ficar sem chip enquanto o pedido chega. Para planejar, use os 90% e não a média, que esconde os envios demorados.</p>
+          <div class="rast-ev-bar"><h4 class="rast-lt-h" style="margin:0">Detalhamento · do pior para o melhor</h4><div class="rast-vistas rast-sub" id="rast-lt-por"><button type="button" data-por="filial" class="is-on">Por filial</button><button type="button" data-por="uf">Por UF de destino</button></div></div>
+          <div class="rast-tw rast-tw-mini" style="margin-top:6px"><table class="rast-table"><thead id="rast-lt-th"></thead><tbody id="rast-lt-tb"></tbody></table></div>
+          <p class="cap" style="margin:6px 0 0"><b>Como ler:</b> média ponderada = cada envio pesa pelo número de chips, então é o tempo que um chip leva do pedido até o cliente. Estoque flutuante = chips já pedidos que ainda estão a caminho (capital parado no trajeto); confere com chips por dia × tempo médio. <b>Estoque para cobrir a espera</b> = chips por dia × prazo em que chegam 90% dos envios: quanto os clientes daquela filial ou UF precisam ter, somados, para não ficar sem chip enquanto o pedido chega. <b>Interno</b> = do pedido à postagem (processamento, etiqueta e postagem, o que depende da filial); <b>Correios</b> = da postagem à entrega. Para planejar, use os 90% e não a média, que esconde os envios demorados.</p>
         </div>
       </div>
       <div class="rast-vistas" id="rast-vistas">
@@ -3744,7 +3740,7 @@ const BiXlsx = (() => {
   const pill = (cls, txt, fam) => '<span class="' + cls + " " + (fam || "") + '"><i></i>' + esc(txt) + "</span>";
   const EM_ANDAMENTO = ["Em trânsito", "Saiu para entrega", "Aguardando retirada"];
   const PRAZOS = ["No prazo", "Com atraso", "Em aberto, no prazo", "Em aberto, atrasado", "Sem previsão"];
-  const st = { mes: "", fil: "", uf: "", prazo: "", vista: "atencao", sit: "", flag: "", grupo: "", cat: "", cidade: "", sem: "", evPer: "mes", evMet: "tempo", q: "", sort: { atencao: ["status", 1], todos: ["postadoEm", -1] }, rows: [], ana: "abc", rankModo: "entregue", rankRows: [] };
+  const st = { mes: "", fil: "", uf: "", prazo: "", vista: "atencao", sit: "", flag: "", grupo: "", cat: "", cidade: "", sem: "", evPer: "mes", evMet: "tempo", ltPor: "filial", q: "", sort: { atencao: ["status", 1], todos: ["postadoEm", -1] }, rows: [], ana: "abc", rankModo: "entregue", rankRows: [] };
   // colunas: [chave, título, tipo]  tipos: t texto, nm nome, d data, n0 inteiro, st situação consolidada, mod modalidade, ult último evento, ped pedido Mira (+N agrupados)
   const COLS = [["status", "Situação", "st"], ["filial", "Filial", "t"], ["cliente", "Cliente Mira", "nm"], ["loja", "Loja AQT", "nm"],
     ["pedAQT", "Pedido AQT", "t"], ["pedMira", "Pedido Mira", "ped"], ["codigo", "Código de rastreio", "t"], ["modalidade", "Modalidade", "mod"], ["etiquetaEm", "Etiqueta", "d"], ["postadoEm", "Postado", "d"], ["entregueEm", "Entregue", "d"],
@@ -3994,10 +3990,6 @@ const BiXlsx = (() => {
   const N1 = v => v == null || isNaN(v) ? "—" : v.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const media = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
   const ponderada = (rows, f) => { const v = rows.filter(r => r.qte > 0 && f(r) != null); const q = v.reduce((t, r) => t + r.qte, 0); return q ? v.reduce((t, r) => t + f(r) * r.qte, 0) / q : null; };
-  const ETAPAS = [["Pedido → processado no Mira", r => r.dataPedido && r.processadoEm ? difDias(r.dataPedido, r.processadoEm) : null, "var(--text-faint)"],
-    ["Processado → etiqueta emitida", r => r.processadoEm && r.etiquetaEm ? difDias(r.processadoEm, r.etiquetaEm) : null, "var(--warning)"],
-    ["Etiqueta → postagem", r => r.etiquetaEm && r.postadoEm ? difDias(r.etiquetaEm, r.postadoEm) : null, "var(--seg-5)"],
-    ["Postagem → entrega (Correios)", r => r.postadoEm && r.entregueEm ? difDias(r.postadoEm, r.entregueEm) : null, "var(--accent)"]];
   const tAtend = r => r.dataPedido && r.entregueEm ? difDias(r.dataPedido, r.entregueEm) : null;
   // dias do período: os meses de postagem do recorte, começando na 1a postagem do recorte (o banco só tem histórico a
   // partir de 23/04/2026) e terminando hoje no mês atual
@@ -4071,20 +4063,23 @@ const BiXlsx = (() => {
   }
   function calcLt(R) {
     const ent = R.filter(r => r.situacao === "Entregue" && tAtend(r) != null && tAtend(r) >= 0);
-    const etapas = ETAPAS.map(([rot, f, cor]) => { const v = ent.map(f).filter(x => x != null && x >= 0); return { rot, cor, n: v.length, med: mediana(v), p: p90(v), media: media(v), pond: ponderada(ent, r => { const x = f(r); return x != null && x >= 0 ? x : null; }) }; });
     const tot = ent.map(tAtend); const dias = periodoDe(R); const nd = Math.max(1, dias.length);
     const chips = ent.reduce((t, r) => t + (r.qte || 0), 0), porDia = chips / nd, pond = ponderada(ent, tAtend);
     const ABERTO = ABERTOS_LT, pipe = pipeDe(R, dias);
     const abertos = R.filter(r => ABERTO.includes(r.situacao));
-    const porUf = new Map(); for (const r of ent) if (r.ufDestino) (porUf.get(r.ufDestino) || porUf.set(r.ufDestino, []).get(r.ufDestino)).push(r);
-    const ufs = [...porUf.entries()].map(([uf, rows]) => { const t = rows.map(tAtend), q = rows.reduce((s2, r) => s2 + (r.qte || 0), 0), pd = q / nd, pp = ponderada(rows, tAtend), p9 = p90(t);
-      return { uf, n: rows.length, q, porDia: pd, pond: pp, med: mediana(t), p: p9, flut: pp == null ? null : pd * pp, cobre: pd * p9 }; })
-      .sort((a, b) => (b.n >= 5) - (a.n >= 5) || b.p - a.p || (b.pond || 0) - (a.pond || 0) || b.n - a.n);
-    return { ent, etapas, tot: { n: tot.length, media: media(tot), med: mediana(tot), p: p90(tot), pond }, dias, chips, porDia, pipe, pipeMedia: media(pipe), abertos, chipsAbertos: abertos.filter(r => !r.desatualizado).reduce((t, r) => t + (r.qte || 0), 0), chipsDesat: abertos.filter(r => r.desatualizado).reduce((t, r) => t + (r.qte || 0), 0), desatAbertos: abertos.filter(r => r.desatualizado).length, ufs, semQte: ent.filter(r => !(r.qte > 0)).length };
+    // detalhamento por filial ou por UF de destino: do pior (90% mais alto) para o melhor; menos de 5 entregas vai para o fim
+    const interno = r => r.dataPedido && r.postadoEm ? difDias(r.dataPedido, r.postadoEm) : null, nosCorreios = r => r.postadoEm && r.entregueEm ? difDias(r.postadoEm, r.entregueEm) : null;
+    const pos = fn => r => { const x = fn(r); return x != null && x >= 0 ? x : null; };
+    const agrupa = chave => { const G = new Map(); for (const r of ent) { const k = chave(r); if (k) (G.get(k) || G.set(k, []).get(k)).push(r); }
+      return [...G.entries()].map(([k, rows]) => { const t = rows.map(tAtend), q = rows.reduce((s2, r) => s2 + (r.qte || 0), 0), pd = q / nd, pp = ponderada(rows, tAtend), p9 = p90(t);
+        return { k, n: rows.length, q, porDia: pd, pond: pp, med: mediana(t), p: p9, interno: ponderada(rows, pos(interno)), correios: ponderada(rows, pos(nosCorreios)), flut: pp == null ? null : pd * pp, cobre: pd * p9 }; })
+        .sort((a, b) => (b.n >= 5) - (a.n >= 5) || b.p - a.p || (b.pond || 0) - (a.pond || 0) || b.n - a.n); };
+    const ufs = agrupa(r => r.ufDestino), fils = agrupa(r => r.filial || "Sem filial");
+    return { ent, tot: { n: tot.length, media: media(tot), med: mediana(tot), p: p90(tot), pond }, dias, chips, porDia, pipe, pipeMedia: media(pipe), abertos, chipsAbertos: abertos.filter(r => !r.desatualizado).reduce((t, r) => t + (r.qte || 0), 0), chipsDesat: abertos.filter(r => r.desatualizado).reduce((t, r) => t + (r.qte || 0), 0), desatAbertos: abertos.filter(r => r.desatualizado).length, ufs, fils, semQte: ent.filter(r => !(r.qte > 0)).length };
   }
   function analiseLt(R) {
     const L = calcLt(R); st.lt = L;
-    if (!L.ent.length) { el("rast-lt-kpis").innerHTML = '<p class="rast-muted">Sem entregas no recorte.</p>'; ["rast-lt-linha", "rast-lt-eth", "rast-lt-etb", "rast-lt-th", "rast-lt-tb"].forEach(i => el(i).innerHTML = ""); analiseEvol(); return; }
+    if (!L.ent.length) { el("rast-lt-kpis").innerHTML = '<p class="rast-muted">Sem entregas no recorte.</p>'; ["rast-lt-th", "rast-lt-tb"].forEach(i => el(i).innerHTML = ""); analiseEvol(); return; }
     const little = L.tot.pond == null ? null : L.porDia * L.tot.pond;
     const cards = [
       ["Tempo médio de atendimento", L.tot.pond == null ? "—" : N1(L.tot.pond) + " dias", "pedido → entrega, ponderado por chips · média simples " + N1(L.tot.media) + " · mediana " + L.tot.med + " · 90% em até " + L.tot.p + " dias"],
@@ -4094,15 +4089,9 @@ const BiXlsx = (() => {
     ];
     el("rast-lt-kpis").innerHTML = cards.map(c => '<div class="rast-kpi"><div class="t">' + esc(c[0]) + '</div><div class="v">' + esc(c[1]) + '</div><div class="s">' + esc(c[2]) + "</div></div>").join("");
     analiseEvol();
-    // linha do tempo média (ponderada por chips) de cada etapa
-    const tl = L.etapas.reduce((t, e) => t + (e.pond || 0), 0) || 1;
-    el("rast-lt-linha").innerHTML = '<div class="rast-lt-linha">' + L.etapas.map(e => '<span style="width:' + (100 * (e.pond || 0) / tl).toFixed(1) + "%;background:" + e.cor + '" title="' + esc(e.rot + ": " + N1(e.pond) + " dias em média (ponderada por chips)") + '">' + ((e.pond || 0) / tl > 0.12 ? N1(e.pond) + " d" : "") + "</span>").join("") + "</div>"
-      + '<div class="rast-lt-leg">' + L.etapas.map(e => '<span><i style="background:' + e.cor + '"></i>' + esc(e.rot) + "</span>").join("") + "</div>";
-    el("rast-lt-eth").innerHTML = "<tr><th>Etapa</th><th class='num'>Média ponderada</th><th class='num'>Média simples</th><th class='num'>Mediana</th><th class='num'>90% em até</th><th class='num'>Envios</th></tr>";
-    el("rast-lt-etb").innerHTML = L.etapas.map(e => "<tr><td>" + esc(e.rot) + '</td><td class="num"><b>' + N1(e.pond) + '</b></td><td class="num">' + N1(e.media) + '</td><td class="num">' + (e.med == null ? "—" : e.med) + '</td><td class="num">' + (e.p == null ? "—" : e.p) + '</td><td class="num">' + NUM(e.n) + "</td></tr>").join("")
-      + '<tr class="is-sel"><td>Total · pedido → entrega</td><td class="num">' + N1(L.tot.pond) + '</td><td class="num">' + N1(L.tot.media) + '</td><td class="num">' + L.tot.med + '</td><td class="num">' + L.tot.p + '</td><td class="num">' + NUM(L.tot.n) + "</td></tr>";
-    el("rast-lt-th").innerHTML = "<tr><th>UF</th><th class='num'>Entregas</th><th class='num'>Chips por dia</th><th class='num'>Tempo médio (ponderado)</th><th class='num'>Mediana</th><th class='num'>90% em até</th><th class='num'>Estoque flutuante</th><th class='num' title='Chips por dia × prazo em que chegam 90% dos envios'>Estoque para cobrir a espera</th></tr>";
-    el("rast-lt-tb").innerHTML = L.ufs.map(u => '<tr class="rast-clic' + (st.uf === u.uf ? " is-sel" : "") + (u.n < 5 ? " rast-muted" : "") + '" data-uf="' + esc(u.uf) + '" title="' + (u.n < 5 ? "Amostra pequena (menos de 5 entregas) · " : "") + 'Clique para filtrar a página por esta UF"><td>' + esc(u.uf) + '</td><td class="num">' + NUM(u.n) + '</td><td class="num">' + N1(u.porDia) + '</td><td class="num">' + N1(u.pond) + ' d</td><td class="num">' + u.med + ' d</td><td class="num"><b>' + u.p + ' d</b></td><td class="num">' + NUM(Math.round(u.flut || 0)) + '</td><td class="num"><b>' + NUM(Math.round(u.cobre)) + "</b></td></tr>").join("");
+    const porFil = st.ltPor === "filial", linhas = porFil ? L.fils : L.ufs, sel = porFil ? st.fil : st.uf;
+    el("rast-lt-th").innerHTML = "<tr><th>" + (porFil ? "Filial" : "UF de destino") + "</th><th class='num'>Entregas</th><th class='num'>Chips por dia</th><th class='num'>Tempo médio (ponderado)</th><th class='num'>90% em até</th><th class='num' title='Do pedido à postagem: processamento, etiqueta e postagem'>Interno</th><th class='num' title='Da postagem à entrega'>Correios</th><th class='num'>Estoque flutuante</th><th class='num' title='Chips por dia × prazo em que chegam 90% dos envios'>Estoque para cobrir a espera</th></tr>";
+    el("rast-lt-tb").innerHTML = linhas.map(u => '<tr class="rast-clic' + (sel === u.k ? " is-sel" : "") + (u.n < 5 ? " rast-muted" : "") + '" data-k="' + esc(u.k) + '" title="' + (u.n < 5 ? "Amostra pequena (menos de 5 entregas) · " : "") + (u.k === "Sem filial" ? "Envios sem filial atribuída" : "Clique para filtrar a página por " + (porFil ? "esta filial" : "esta UF")) + '"><td>' + esc(u.k) + '</td><td class="num">' + NUM(u.n) + '</td><td class="num">' + N1(u.porDia) + '</td><td class="num"><b>' + N1(u.pond) + ' d</b></td><td class="num"><b>' + u.p + ' d</b></td><td class="num">' + (u.interno == null ? "—" : N1(u.interno) + " d") + '</td><td class="num">' + (u.correios == null ? "—" : N1(u.correios) + " d") + '</td><td class="num">' + NUM(Math.round(u.flut || 0)) + '</td><td class="num"><b>' + NUM(Math.round(u.cobre)) + "</b></td></tr>").join("");
   }
   function trocaAna(a) {
     st.ana = a; document.querySelectorAll("#rast-ana-tabs button").forEach(x => x.classList.toggle("is-on", x.dataset.ana === a));
@@ -4167,7 +4156,8 @@ const BiXlsx = (() => {
   el("rast-ev-graf").addEventListener("click", clicaEv); el("rast-ev-tb").addEventListener("click", clicaEv);
   document.querySelectorAll("#rast-ev-per button").forEach(b => b.onclick = () => { st.evPer = b.dataset.per; document.querySelectorAll("#rast-ev-per button").forEach(x => x.classList.toggle("is-on", x === b)); if (D) analiseEvol(); });
   document.querySelectorAll("#rast-ev-met button").forEach(b => b.onclick = () => { st.evMet = b.dataset.met; document.querySelectorAll("#rast-ev-met button").forEach(x => x.classList.toggle("is-on", x === b)); if (D) analiseEvol(); });
-  el("rast-lt-tb").addEventListener("click", e => { if (!D) return; const t = e.target.closest("tr[data-uf]"); if (t) setFiltro("uf", t.dataset.uf); });
+  el("rast-lt-tb").addEventListener("click", e => { if (!D) return; const t = e.target.closest("tr[data-k]"); if (!t || t.dataset.k === "Sem filial") return; setFiltro(st.ltPor === "filial" ? "fil" : "uf", t.dataset.k); });
+  document.querySelectorAll("#rast-lt-por button").forEach(b => b.onclick = () => { st.ltPor = b.dataset.por; document.querySelectorAll("#rast-lt-por button").forEach(x => x.classList.toggle("is-on", x === b)); if (D) analiseLt(recorte()); });
   // gráfico por mês: pedaço = mês + situação do mês; rótulo do mês = só o mês; legenda = só a situação
   el("rast-g-mes").addEventListener("click", e => {
     if (!D) return; const t = e.target.closest("[data-mes]"); if (!t) return;
@@ -4217,8 +4207,9 @@ const BiXlsx = (() => {
     const H = semHistRecorte();
     const abas = [{ nome: "Envios", xml: BiXlsx.planilhaXml(colsE, st.rows) }, { nome: "Eventos dos Correios", xml: BiXlsx.planilhaXml(colsV, evs) }, { nome: "Curva ABC por cidade", xml: BiXlsx.planilhaXml(colsA, abc) }];
     const L = calcLt(recorte());
-    const colsU = [["UF", "t", u => u.uf], ["Entregas", "n0", u => u.n], ["Chips entregues", "n0", u => u.q], ["Chips por dia", "t", u => N1(u.porDia)], ["Tempo médio ponderado (dias)", "t", u => N1(u.pond)], ["Mediana (dias)", "n0", u => u.med], ["90% em até (dias)", "n0", u => u.p], ["Estoque flutuante (chips)", "n0", u => Math.round(u.flut || 0)], ["Estoque para cobrir a espera (chips)", "n0", u => Math.round(u.cobre)]];
-    if (L.ent.length) abas.push({ nome: "Tempo de atendimento por UF", xml: BiXlsx.planilhaXml(colsU, L.ufs) });
+    const colsU = rot => [[rot, "t", u => u.k], ["Entregas", "n0", u => u.n], ["Chips entregues", "n0", u => u.q], ["Chips por dia", "t", u => N1(u.porDia)], ["Tempo médio ponderado (dias)", "t", u => N1(u.pond)], ["Mediana (dias)", "n0", u => u.med], ["90% em até (dias)", "n0", u => u.p],
+      ["Interno: pedido → postagem (dias)", "t", u => N1(u.interno)], ["Correios: postagem → entrega (dias)", "t", u => N1(u.correios)], ["Estoque flutuante (chips)", "n0", u => Math.round(u.flut || 0)], ["Estoque para cobrir a espera (chips)", "n0", u => Math.round(u.cobre)]];
+    if (L.ent.length) abas.push({ nome: "Tempo de atendimento por filial", xml: BiXlsx.planilhaXml(colsU("Filial"), L.fils) }, { nome: "Tempo de atendimento por UF", xml: BiXlsx.planilhaXml(colsU("UF de destino"), L.ufs) });
     const colsP = (rot) => [[rot, "t", p => p.rot], ["Entregas", "n0", p => p.n], ["Chips entregues", "n0", p => p.chips], ["Chips por dia", "t", p => N1(p.porDia)], ["Tempo médio ponderado (dias)", "t", p => N1(p.pond)], ["Mediana (dias)", "n0", p => p.med], ["90% em até (dias)", "n0", p => p.p],
       ["Correios: postagem → entrega (dias)", "t", p => N1(p.correios)], ["Estoque flutuante (chips)", "n0", p => Math.round(p.flut || 0)], ["Estoque para cobrir a espera (chips)", "n0", p => p.cobre == null ? null : Math.round(p.cobre)], ["Período incompleto", "t", p => p.parcial ? "Sim (" + p.diasP + " dias)" : ""], ["Envios ainda a caminho", "n0", p => p.aCaminho || null]];
     const PM = evolucao(recorte(["mes", "sem"]), "mes"), PS = evolucao(recorte(["sem"]), "sem");
