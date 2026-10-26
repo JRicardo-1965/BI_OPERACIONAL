@@ -1269,138 +1269,143 @@
   #tab-content-inadimplencia .inad-muted{ color:var(--text-faint); }
 
   /* ================================================================
-     ABA "RASTREIO DE ENVIOS" - objetos dos Correios (banco correios_gateway). Escopado a #tab-content-rastreio,
+     ABA "RASTREIO DE ENVIOS" - objetos dos Correios (banco correios_gateway). Escopado a .rast-scope,
      cores = variáveis do BI Operacional (tema claro/escuro), tamanhos iguais às outras abas.
      ================================================================ */
-  #tab-content-rastreio > .panel{ padding:14px 16px 10px; }
-  #tab-content-rastreio > .panel > .footnote{ padding:10px 0 2px; }
-  #tab-content-rastreio .rast-bar{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px; margin:4px 0 12px; max-width:760px; }
-  #tab-content-rastreio .rast-bar select, #tab-content-rastreio .rast-tbar select, #tab-content-rastreio .rast-tbar input{ font:inherit; font-size:12px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:5px 8px; width:100%; min-width:0; box-sizing:border-box; }
-  #tab-content-rastreio .rast-rot{ display:block; font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.04em; margin:0 0 2px; }
-  #tab-content-rastreio .rast-kpis{ display:grid; grid-template-columns:repeat(auto-fill, minmax(165px, 1fr)); gap:8px; margin:0 0 12px; }
-  #tab-content-rastreio .rast-kpi{ border:1px solid var(--border); background:var(--surface); border-radius:8px; padding:8px 10px; min-width:0; }
-  #tab-content-rastreio .rast-kpi .t{ font-size:11px; color:var(--text-muted); line-height:1.3; min-height:2.6em; }
-  #tab-content-rastreio .rast-kpi .v{ font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0 1px; white-space:nowrap; }
-  #tab-content-rastreio .rast-kpi .s{ font-size:10.5px; color:var(--text-faint); line-height:1.35; }
-  #tab-content-rastreio .rast-kpi.is-alerta .v{ color:var(--danger); }
-  #tab-content-rastreio .rast-graficos{ display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:10px; margin:0 0 14px; }
-  @media (max-width:1100px){ #tab-content-rastreio .rast-graficos{ grid-template-columns:1fr; } }
-  #tab-content-rastreio .rast-card{ border:1px solid var(--border); background:var(--surface); border-radius:10px; padding:10px 12px; min-width:0; }
-  #tab-content-rastreio .rast-card h3{ font-size:12.5px; margin:0 0 2px; color:var(--text); }
-  #tab-content-rastreio .rast-card .cap{ font-size:10.5px; color:var(--text-faint); margin:0 0 8px; }
-  #tab-content-rastreio .rast-leg{ display:flex; flex-wrap:wrap; gap:10px; font-size:10.5px; color:var(--text-muted); margin:0 0 6px; }
-  #tab-content-rastreio .rast-leg i{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:-1px; }
-  #tab-content-rastreio .rast-hbar{ display:grid; grid-template-columns:minmax(90px, 40%) 1fr auto; gap:4px 8px; align-items:center; font-size:11px; }
-  #tab-content-rastreio .rast-hbar .l{ color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  #tab-content-rastreio .rast-hbar .b{ height:12px; background:var(--surface-2); border-radius:3px; overflow:hidden; }
-  #tab-content-rastreio .rast-hbar .b span{ display:block; height:100%; border-radius:3px; }
-  #tab-content-rastreio .rast-hbar .n{ font-variant-numeric:tabular-nums; color:var(--text); text-align:right; white-space:nowrap; }
-  #tab-content-rastreio .rast-hbar .clic{ cursor:pointer; }
-  #tab-content-rastreio .rast-hbar .clic:hover{ color:var(--text); text-decoration:underline; }
-  #tab-content-rastreio .rast-vistas{ display:flex; gap:4px; margin:4px 0 8px; border-bottom:1px solid var(--border); }
-  #tab-content-rastreio .rast-vistas button{ border:0; background:none; color:var(--text-muted); font:inherit; font-weight:600; font-size:12.5px; padding:7px 12px; border-bottom:2px solid transparent; cursor:pointer; }
-  #tab-content-rastreio .rast-vistas button.is-on{ color:var(--text); border-bottom-color:var(--accent); }
-  #tab-content-rastreio .rast-tbar{ display:grid; grid-template-columns:1.6fr 1fr 1fr auto auto; gap:8px; align-items:center; margin:0 0 8px; }
-  @media (max-width:900px){ #tab-content-rastreio .rast-tbar{ grid-template-columns:1fr 1fr; } }
-  #tab-content-rastreio .rast-tot{ color:var(--text-muted); font-size:12px; margin:0 0 8px; }
-  #tab-content-rastreio .rast-tot b{ color:var(--text); }
-  #tab-content-rastreio .rast-msg{ padding:30px; text-align:center; color:var(--text-muted); }
-  #tab-content-rastreio .rast-tw{ overflow:auto; max-height:calc(100vh - 300px); min-height:260px; border:1px solid var(--border); border-radius:10px; background:var(--surface); }
-  #tab-content-rastreio .rast-table{ border-collapse:separate; border-spacing:0; width:max-content; min-width:100%; font-size:11.5px; }
-  #tab-content-rastreio .rast-table th{ position:sticky; top:0; background:var(--surface); z-index:1; text-align:left; font-weight:600; color:var(--text-muted); padding:6px 8px; border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer; user-select:none; }
-  #tab-content-rastreio .rast-table th.s::after{ content:" ▲"; font-size:10px; }
-  #tab-content-rastreio .rast-table th.s.desc::after{ content:" ▼"; }
-  #tab-content-rastreio .rast-table td{ font-size:11.5px; padding:5px 8px; border-bottom:1px solid var(--border); vertical-align:top; white-space:nowrap; color:var(--text); }
-  #tab-content-rastreio .rast-table tbody tr{ cursor:pointer; }
-  #tab-content-rastreio .rast-table tbody tr:hover td{ background:var(--surface-2); }
-  #tab-content-rastreio .rast-table td.nm{ white-space:normal; min-width:150px; max-width:230px; }
-  #tab-content-rastreio .rast-table td.tx{ max-width:240px; overflow:hidden; text-overflow:ellipsis; }
-  #tab-content-rastreio .rast-table .num{ text-align:right; font-variant-numeric:tabular-nums; }
-  #tab-content-rastreio .rast-sit, #tab-content-rastreio .rast-flag{ display:inline-flex; align-items:center; gap:5px; font-size:10.5px; padding:0 7px; border-radius:99px; border:1px solid var(--border); color:var(--text-muted); white-space:nowrap; margin:1px 3px 1px 0; }
-  #tab-content-rastreio .rast-sit i, #tab-content-rastreio .rast-flag i{ width:7px; height:7px; border-radius:50%; display:inline-block; background:var(--text-faint); }
-  #tab-content-rastreio .good i{ background:var(--ok); }
-  #tab-content-rastreio .warn i{ background:var(--warning); }
-  #tab-content-rastreio .crit i{ background:var(--danger); }
-  #tab-content-rastreio .info i{ background:var(--accent); }
-  #tab-content-rastreio .rast-ov{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:1000; }
-  #tab-content-rastreio .rast-ov.is-on{ display:block; }
-  #tab-content-rastreio .rast-dr{ position:fixed; top:0; right:0; height:100%; width:min(640px,100vw); background:var(--surface); color:var(--text); border-left:1px solid var(--border); box-shadow:-8px 0 24px rgba(0,0,0,.18); transform:translateX(105%); transition:transform .18s ease; z-index:1001; overflow:auto; padding:18px 18px 40px; }
-  #tab-content-rastreio .rast-dr.is-on{ transform:none; }
-  #tab-content-rastreio .rast-dr h2{ font-size:15px; margin:0 30px 4px 0; }
-  #tab-content-rastreio .rast-dr h3{ font-size:11.5px; margin:16px 0 6px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.03em; }
-  #tab-content-rastreio .rast-x{ position:absolute; top:12px; right:12px; font-size:20px; line-height:1; border:0; background:none; color:var(--text-muted); cursor:pointer; padding:4px 8px; }
-  #tab-content-rastreio .rast-kv{ display:grid; grid-template-columns:150px 1fr; gap:4px 12px; font-size:12px; margin:0; }
-  #tab-content-rastreio .rast-kv dt{ color:var(--text-muted); }
-  #tab-content-rastreio .rast-kv dd{ margin:0; }
-  #tab-content-rastreio .rast-linha{ list-style:none; margin:0; padding:0 0 0 14px; border-left:2px solid var(--border); }
-  #tab-content-rastreio .rast-linha li{ position:relative; margin:0 0 10px; font-size:12px; }
-  #tab-content-rastreio .rast-linha li::before{ content:""; position:absolute; left:-20px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--surface); border:2px solid var(--text-faint); }
-  #tab-content-rastreio .rast-linha li.is-ult::before{ border-color:var(--accent); background:var(--accent); }
-  #tab-content-rastreio .rast-linha .q{ color:var(--text-faint); font-size:11px; }
-  #tab-content-rastreio .rast-muted{ color:var(--text-faint); }
+  .rast-scope > .panel{ padding:14px 16px 10px; }
+  .rast-scope > .panel > .footnote{ padding:10px 0 2px; }
+  .rast-scope .rast-bar{ display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:8px; margin:4px 0 12px; max-width:960px; }
+  @media (max-width:760px){ .rast-scope .rast-bar{ grid-template-columns:1fr 1fr; } }
+  .rast-scope .rast-link{ color:var(--accent); cursor:pointer; text-decoration:underline; background:none; border:0; font:inherit; padding:0; }
+  .rast-scope .rast-bar select, .rast-scope .rast-tbar select, .rast-scope .rast-tbar input{ font:inherit; font-size:12px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:5px 8px; width:100%; min-width:0; box-sizing:border-box; }
+  .rast-scope .rast-rot{ display:block; font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.04em; margin:0 0 2px; }
+  .rast-scope .rast-kpis{ display:grid; grid-template-columns:repeat(auto-fill, minmax(165px, 1fr)); gap:8px; margin:0 0 12px; }
+  .rast-scope .rast-kpi{ border:1px solid var(--border); background:var(--surface); border-radius:8px; padding:8px 10px; min-width:0; }
+  .rast-scope .rast-kpi .t{ font-size:11px; color:var(--text-muted); line-height:1.3; min-height:2.6em; }
+  .rast-scope .rast-kpi .v{ font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0 1px; white-space:nowrap; }
+  .rast-scope .rast-kpi .s{ font-size:10.5px; color:var(--text-faint); line-height:1.35; }
+  .rast-scope .rast-kpi.is-alerta .v{ color:var(--danger); }
+  .rast-scope .rast-graficos{ display:grid; grid-template-columns:1.6fr 1fr 1fr; gap:10px; margin:0 0 14px; }
+  @media (max-width:1100px){ .rast-scope .rast-graficos{ grid-template-columns:1fr; } }
+  .rast-scope .rast-card{ border:1px solid var(--border); background:var(--surface); border-radius:10px; padding:10px 12px; min-width:0; }
+  .rast-scope .rast-card h3{ font-size:12.5px; margin:0 0 2px; color:var(--text); }
+  .rast-scope .rast-card .cap{ font-size:10.5px; color:var(--text-faint); margin:0 0 8px; }
+  .rast-scope .rast-leg{ display:flex; flex-wrap:wrap; gap:10px; font-size:10.5px; color:var(--text-muted); margin:0 0 6px; }
+  .rast-scope .rast-leg i{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:-1px; }
+  .rast-scope .rast-hbar{ display:grid; grid-template-columns:minmax(90px, 40%) 1fr auto; gap:4px 8px; align-items:center; font-size:11px; }
+  .rast-scope .rast-hbar .l{ color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rast-scope .rast-hbar .b{ height:12px; background:var(--surface-2); border-radius:3px; overflow:hidden; }
+  .rast-scope .rast-hbar .b span{ display:block; height:100%; border-radius:3px; }
+  .rast-scope .rast-hbar .n{ font-variant-numeric:tabular-nums; color:var(--text); text-align:right; white-space:nowrap; }
+  .rast-scope .rast-hbar .clic{ cursor:pointer; }
+  .rast-scope .rast-hbar .clic:hover{ color:var(--text); text-decoration:underline; }
+  .rast-scope .rast-vistas{ display:flex; gap:4px; margin:4px 0 8px; border-bottom:1px solid var(--border); }
+  .rast-scope .rast-vistas button{ border:0; background:none; color:var(--text-muted); font:inherit; font-weight:600; font-size:12.5px; padding:7px 12px; border-bottom:2px solid transparent; cursor:pointer; }
+  .rast-scope .rast-vistas button.is-on{ color:var(--text); border-bottom-color:var(--accent); }
+  .rast-scope .rast-tbar{ display:grid; grid-template-columns:1.6fr 1fr 1fr auto auto; gap:8px; align-items:center; margin:0 0 8px; }
+  @media (max-width:900px){ .rast-scope .rast-tbar{ grid-template-columns:1fr 1fr; } }
+  .rast-scope .rast-tot{ color:var(--text-muted); font-size:12px; margin:0 0 8px; }
+  .rast-scope .rast-tot b{ color:var(--text); }
+  .rast-scope .rast-msg{ padding:30px; text-align:center; color:var(--text-muted); }
+  .rast-scope .rast-tw{ overflow:auto; max-height:calc(100vh - 300px); min-height:260px; border:1px solid var(--border); border-radius:10px; background:var(--surface); }
+  .rast-scope .rast-table{ border-collapse:separate; border-spacing:0; width:max-content; min-width:100%; font-size:11.5px; }
+  .rast-scope .rast-table th{ position:sticky; top:0; background:var(--surface); z-index:1; text-align:left; font-weight:600; color:var(--text-muted); padding:6px 8px; border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer; user-select:none; }
+  .rast-scope .rast-table th.s::after{ content:" ▲"; font-size:10px; }
+  .rast-scope .rast-table th.s.desc::after{ content:" ▼"; }
+  .rast-scope .rast-table td{ font-size:11.5px; padding:5px 8px; border-bottom:1px solid var(--border); vertical-align:top; white-space:nowrap; color:var(--text); }
+  .rast-scope .rast-table tbody tr{ cursor:pointer; }
+  .rast-scope .rast-table tbody tr:hover td{ background:var(--surface-2); }
+  .rast-scope .rast-table td.nm{ white-space:normal; min-width:150px; max-width:230px; }
+  .rast-scope .rast-table td.tx{ max-width:240px; overflow:hidden; text-overflow:ellipsis; }
+  .rast-scope .rast-table .num{ text-align:right; font-variant-numeric:tabular-nums; }
+  .rast-scope .rast-sit, .rast-scope .rast-flag{ display:inline-flex; align-items:center; gap:5px; font-size:10.5px; padding:0 7px; border-radius:99px; border:1px solid var(--border); color:var(--text-muted); white-space:nowrap; margin:1px 3px 1px 0; }
+  .rast-scope .rast-sit i, .rast-scope .rast-flag i{ width:7px; height:7px; border-radius:50%; display:inline-block; background:var(--text-faint); }
+  .rast-scope .good i{ background:var(--ok); }
+  .rast-scope .warn i{ background:var(--warning); }
+  .rast-scope .crit i{ background:var(--danger); }
+  .rast-scope .info i{ background:var(--accent); }
+  .rast-scope .rast-ov{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:none; z-index:1000; }
+  .rast-scope .rast-ov.is-on{ display:block; }
+  .rast-scope .rast-dr{ position:fixed; top:0; right:0; height:100%; width:min(640px,100vw); background:var(--surface); color:var(--text); border-left:1px solid var(--border); box-shadow:-8px 0 24px rgba(0,0,0,.18); transform:translateX(105%); transition:transform .18s ease; z-index:1001; overflow:auto; padding:18px 18px 40px; }
+  .rast-scope .rast-dr.is-on{ transform:none; }
+  .rast-scope .rast-dr h2{ font-size:15px; margin:0 30px 4px 0; }
+  .rast-scope .rast-dr h3{ font-size:11.5px; margin:16px 0 6px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.03em; }
+  .rast-scope .rast-x{ position:absolute; top:12px; right:12px; font-size:20px; line-height:1; border:0; background:none; color:var(--text-muted); cursor:pointer; padding:4px 8px; }
+  .rast-scope .rast-kv{ display:grid; grid-template-columns:150px 1fr; gap:4px 12px; font-size:12px; margin:0; }
+  .rast-scope .rast-kv dt{ color:var(--text-muted); }
+  .rast-scope .rast-kv dd{ margin:0; }
+  .rast-scope .rast-linha{ list-style:none; margin:0; padding:0 0 0 14px; border-left:2px solid var(--border); }
+  .rast-scope .rast-linha li{ position:relative; margin:0 0 10px; font-size:12px; }
+  .rast-scope .rast-linha li::before{ content:""; position:absolute; left:-20px; top:4px; width:9px; height:9px; border-radius:50%; background:var(--surface); border:2px solid var(--text-faint); }
+  .rast-scope .rast-linha li.is-ult::before{ border-color:var(--accent); background:var(--accent); }
+  .rast-scope .rast-linha .q{ color:var(--text-faint); font-size:11px; }
+  .rast-scope .rast-muted{ color:var(--text-faint); }
   /* card "Análises" (curva ABC por cidade + ranking de tempo) e situação consolidada */
-  #tab-content-rastreio .rast-ana{ margin:0 0 14px; }
-  #tab-content-rastreio .rast-ana .rast-vistas{ margin-top:0; }
-  #tab-content-rastreio .rast-tw-mini{ max-height:300px; min-height:0; }
-  #tab-content-rastreio .rast-abc-resumo{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin:0 0 10px; }
-  #tab-content-rastreio .rast-abc-chip{ border:1px solid var(--border); border-left-width:4px; border-radius:8px; padding:6px 10px; font-size:11px; color:var(--text-muted); }
-  #tab-content-rastreio .rast-abc-chip b{ color:var(--text); font-size:13px; }
-  #tab-content-rastreio .rast-abc-chip.A{ border-left-color:var(--accent); } #tab-content-rastreio .rast-abc-chip.B{ border-left-color:var(--warning); } #tab-content-rastreio .rast-abc-chip.C{ border-left-color:var(--text-faint); }
-  #tab-content-rastreio .rast-classe{ display:inline-block; min-width:18px; text-align:center; font-size:10.5px; font-weight:700; border-radius:4px; padding:0 4px; color:#fff; }
-  #tab-content-rastreio .rast-classe.A{ background:var(--accent); } #tab-content-rastreio .rast-classe.B{ background:var(--warning); color:#222; } #tab-content-rastreio .rast-classe.C{ background:var(--text-faint); }
-  #tab-content-rastreio .rast-rank-bar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin:0 0 8px; }
-  #tab-content-rastreio .rast-sub{ border-bottom:0; margin:0; }
-  #tab-content-rastreio .rast-sub button{ font-size:11.5px; padding:4px 10px; border:1px solid var(--border); border-radius:99px; margin-right:4px; }
-  #tab-content-rastreio .rast-sub button.is-on{ border-color:var(--accent); background:var(--accent-soft); }
-  #tab-content-rastreio .rast-modal{ display:inline-block; font-size:10.5px; font-weight:600; padding:0 7px; border-radius:99px; border:1px solid var(--border); }
-  #tab-content-rastreio .rast-modal.pac{ border-color:var(--accent); color:var(--accent); } #tab-content-rastreio .rast-modal.sedex{ border-color:var(--warning); color:var(--warning); }
-  #tab-content-rastreio .rast-explica{ margin:4px 0 0; padding:0 0 0 16px; font-size:12px; }
-  #tab-content-rastreio .rast-explica li{ margin:0 0 4px; }
-  #tab-content-rastreio .rast-table tr.rast-clic{ cursor:pointer; }
+  .rast-scope .rast-ana{ margin:0 0 14px; }
+  .rast-scope .rast-ana .rast-vistas{ margin-top:0; }
+  .rast-scope .rast-tw-mini{ max-height:300px; min-height:0; }
+  .rast-scope .rast-abc-resumo{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin:0 0 10px; }
+  .rast-scope .rast-abc-chip{ border:1px solid var(--border); border-left-width:4px; border-radius:8px; padding:6px 10px; font-size:11px; color:var(--text-muted); }
+  .rast-scope .rast-abc-chip b{ color:var(--text); font-size:13px; }
+  .rast-scope .rast-abc-chip.A{ border-left-color:var(--accent); } .rast-scope .rast-abc-chip.B{ border-left-color:var(--warning); } .rast-scope .rast-abc-chip.C{ border-left-color:var(--text-faint); }
+  .rast-scope .rast-classe{ display:inline-block; min-width:18px; text-align:center; font-size:10.5px; font-weight:700; border-radius:4px; padding:0 4px; color:#fff; }
+  .rast-scope .rast-classe.A{ background:var(--accent); } .rast-scope .rast-classe.B{ background:var(--warning); color:#222; } .rast-scope .rast-classe.C{ background:var(--text-faint); }
+  .rast-scope .rast-rank-bar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin:0 0 8px; }
+  .rast-scope .rast-sub{ border-bottom:0; margin:0; }
+  .rast-scope .rast-sub button{ font-size:11.5px; padding:4px 10px; border:1px solid var(--border); border-radius:99px; margin-right:4px; }
+  .rast-scope .rast-sub button.is-on{ border-color:var(--accent); background:var(--accent-soft); }
+  .rast-scope .rast-modal{ display:inline-block; font-size:10.5px; font-weight:600; padding:0 7px; border-radius:99px; border:1px solid var(--border); }
+  .rast-scope .rast-modal.pac{ border-color:var(--accent); color:var(--accent); } .rast-scope .rast-modal.sedex{ border-color:var(--warning); color:var(--warning); }
+  .rast-scope .rast-explica{ margin:4px 0 0; padding:0 0 0 16px; font-size:12px; }
+  .rast-scope .rast-explica li{ margin:0 0 4px; }
+  .rast-scope .rast-table tr.rast-clic{ cursor:pointer; }
   /* aviso dos objetos sem histórico nos Correios + marcador de envio agrupado (mais de um pedido no mesmo código) */
-  #tab-content-rastreio .rast-aviso{ font-size:11px; color:var(--text-muted); background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:6px 10px; margin:-4px 0 12px; line-height:1.45; }
-  #tab-content-rastreio .rast-aviso:empty{ display:none; }
-  #tab-content-rastreio .rast-aviso div + div{ margin-top:4px; padding-top:4px; border-top:1px solid var(--border); }
+  .rast-scope .rast-aviso{ font-size:11px; color:var(--text-muted); background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:6px 10px; margin:-4px 0 12px; line-height:1.45; }
+  .rast-scope .rast-aviso:empty{ display:none; }
+  .rast-scope .rast-aviso div + div{ margin-top:4px; padding-top:4px; border-top:1px solid var(--border); }
   /* filtros ativos (selects + cliques em gráficos/cartões) */
-  #tab-content-rastreio .rast-ativos{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:-4px 0 10px; font-size:11.5px; }
-  #tab-content-rastreio .rast-ativos:empty{ display:none; }
-  #tab-content-rastreio .rast-ativos .rot{ color:var(--text-faint); }
-  #tab-content-rastreio .rast-chip{ display:inline-flex; align-items:center; gap:4px; border:1px solid var(--accent); color:var(--text); background:var(--surface); border-radius:99px; padding:1px 4px 1px 9px; }
-  #tab-content-rastreio .rast-chip button, #tab-content-rastreio .rast-ativos .todos{ border:0; background:none; color:var(--text-muted); cursor:pointer; font:inherit; padding:0 4px; }
-  #tab-content-rastreio .rast-ativos .todos{ text-decoration:underline; }
-  #tab-content-rastreio .rast-kpi.clic{ cursor:pointer; }
-  #tab-content-rastreio .rast-kpi.clic:hover{ border-color:var(--text-faint); }
-  #tab-content-rastreio .rast-kpi.is-on{ border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); }
-  #tab-content-rastreio #rast-g-mes rect, #tab-content-rastreio #rast-g-mes text.m, #tab-content-rastreio #rast-abc-graf rect.c{ cursor:pointer; }
-  #tab-content-rastreio #rast-leg-mes span{ cursor:pointer; }
-  #tab-content-rastreio #rast-leg-mes span.is-off{ opacity:.4; }
-  #tab-content-rastreio .rast-hbar .is-off{ opacity:.35; }
-  #tab-content-rastreio .rast-hbar .pequena span{ opacity:.45; }
-  #tab-content-rastreio .rast-hbar .sep{ grid-column:1/-1; font-size:10px; color:var(--text-faint); border-top:1px dashed var(--border); padding-top:3px; margin-top:2px; }
-  #tab-content-rastreio .rast-hbar-rol{ max-height:290px; overflow:auto; padding-right:4px; }
-  #tab-content-rastreio .rast-table tr.rast-muted td{ color:var(--text-faint); }
-  #tab-content-rastreio .rast-table tr.is-sel td{ background:var(--surface-2); font-weight:600; }
+  .rast-scope .rast-ativos{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:-4px 0 10px; font-size:11.5px; }
+  .rast-scope .rast-ativos:empty{ display:none; }
+  .rast-scope .rast-ativos .rot{ color:var(--text-faint); }
+  .rast-scope .rast-chip{ display:inline-flex; align-items:center; gap:4px; border:1px solid var(--accent); color:var(--text); background:var(--surface); border-radius:99px; padding:1px 4px 1px 9px; }
+  .rast-scope .rast-chip button, .rast-scope .rast-ativos .todos{ border:0; background:none; color:var(--text-muted); cursor:pointer; font:inherit; padding:0 4px; }
+  .rast-scope .rast-ativos .todos{ text-decoration:underline; }
+  .rast-scope .rast-kpi.clic{ cursor:pointer; }
+  .rast-scope .rast-kpi.clic:hover{ border-color:var(--text-faint); }
+  .rast-scope .rast-kpi.is-on{ border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); }
+  .rast-scope #rast-g-mes rect, .rast-scope #rast-g-mes text.m, .rast-scope #rast-abc-graf rect.c{ cursor:pointer; }
+  .rast-scope #rast-leg-mes span{ cursor:pointer; }
+  .rast-scope #rast-leg-mes span.is-off{ opacity:.4; }
+  .rast-scope .rast-hbar .is-off{ opacity:.35; }
+  .rast-scope .rast-hbar .pequena span{ opacity:.45; }
+  .rast-scope .rast-hbar .sep{ grid-column:1/-1; font-size:10px; color:var(--text-faint); border-top:1px dashed var(--border); padding-top:3px; margin-top:2px; }
+  .rast-scope .rast-hbar-rol{ max-height:290px; overflow:auto; padding-right:4px; }
+  .rast-scope .rast-table tr.rast-muted td{ color:var(--text-faint); }
+  .rast-scope .rast-table tr.is-sel td{ background:var(--surface-2); font-weight:600; }
   /* análise "Tempo de atendimento e estoque" */
-  #tab-content-rastreio .rast-lt-kpis{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px; margin:0 0 12px; }
-  @media (max-width:900px){ #tab-content-rastreio .rast-lt-kpis{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
-  #tab-content-rastreio .rast-lt-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 12px; }
-  @media (max-width:1100px){ #tab-content-rastreio .rast-lt-grid{ grid-template-columns:1fr; } }
-  #tab-content-rastreio .rast-lt-box{ border:1px solid var(--border); border-radius:8px; padding:8px 10px; min-width:0; margin:0 0 12px; }
+  .rast-scope .rast-lt-kpis{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px; margin:0 0 12px; }
+  @media (max-width:900px){ .rast-scope .rast-lt-kpis{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+  .rast-scope .rast-lt-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 12px; }
+  @media (max-width:1100px){ .rast-scope .rast-lt-grid{ grid-template-columns:1fr; } }
+  .rast-scope .rast-lt-box{ border:1px solid var(--border); border-radius:8px; padding:8px 10px; min-width:0; margin:0 0 12px; }
   /* evolução mensal/semanal: barras clicáveis + dica ao passar o mouse + tabela compacta */
-  #tab-content-rastreio .rast-ev-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin:0 0 4px; }
-  #tab-content-rastreio .rast-ev-bar h4{ margin:0; }
-  #tab-content-rastreio .rast-ev-graf{ position:relative; }
-  #tab-content-rastreio .rast-ev-graf rect.hit{ cursor:pointer; }
-  #tab-content-rastreio .rast-ev-graf rect.hit:hover{ fill:var(--surface-2) !important; fill-opacity:.35; }
-  #tab-content-rastreio .rast-ev-tip{ position:absolute; display:none; pointer-events:none; z-index:5; background:var(--surface); color:var(--text); border:1px solid var(--border); box-shadow:var(--shadow); border-radius:8px; padding:6px 9px; font-size:11px; line-height:1.5; white-space:nowrap; }
-  #tab-content-rastreio .rast-ev-tw{ max-height:230px; min-height:0; margin-top:8px; }
-  #tab-content-rastreio .rast-lt-box h4, #tab-content-rastreio .rast-lt-h{ font-size:11.5px; color:var(--text-muted); margin:0 0 8px; font-weight:600; }
-  #tab-content-rastreio .rast-lt-h{ margin:2px 0 6px; }
-  #tab-content-rastreio .rast-tw-auto{ max-height:none; overflow:visible; border:0; }
-  #tab-content-rastreio .rast-lt-box .rast-table{ width:100%; min-width:0; }
-  #tab-content-rastreio .rast-lt-box .rast-table th{ white-space:normal; cursor:default; }
-  #tab-content-rastreio .rast-lt-box .rast-table tbody tr{ cursor:default; }
-  #tab-content-rastreio .rast-mais{ font-size:10px; color:var(--text-muted); border:1px solid var(--border); border-radius:99px; padding:0 5px; margin-left:4px; }
+  .rast-scope .rast-ev-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; margin:0 0 4px; }
+  .rast-scope .rast-ev-bar h4{ margin:0; }
+  .rast-scope .rast-ev-graf{ position:relative; }
+  .rast-scope .rast-ev-graf rect.hit{ cursor:pointer; }
+  .rast-scope .rast-ev-graf rect.hit:hover{ fill:var(--surface-2) !important; fill-opacity:.35; }
+  .rast-scope .rast-ev-tip{ position:absolute; display:none; pointer-events:none; z-index:5; background:var(--surface); color:var(--text); border:1px solid var(--border); box-shadow:var(--shadow); border-radius:8px; padding:6px 9px; font-size:11px; line-height:1.5; white-space:nowrap; }
+  .rast-scope .rast-ev-tw{ max-height:230px; min-height:0; margin-top:8px; }
+  .rast-scope .rast-lt-box h4, .rast-scope .rast-lt-h{ font-size:11.5px; color:var(--text-muted); margin:0 0 8px; font-weight:600; }
+  .rast-scope .rast-lt-h{ margin:2px 0 6px; }
+  .rast-scope .rast-tw-auto{ max-height:none; overflow:visible; border:0; }
+  .rast-scope .rast-lt-box .rast-table{ width:100%; min-width:0; }
+  .rast-scope .rast-lt-box .rast-table th{ white-space:normal; cursor:default; }
+  .rast-scope .rast-lt-box .rast-table tbody tr{ cursor:default; }
+  .rast-scope .rast-dr-kpis{ display:grid; grid-template-columns:repeat(auto-fill, minmax(175px, 1fr)); gap:8px; margin:10px 0 4px; }
+  .rast-scope .rast-dr-acoes{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0; }
+  .rast-scope .rast-dr .rast-tw-mini{ max-height:260px; }
+  .rast-scope .rast-mais{ font-size:10px; color:var(--text-muted); border:1px solid var(--border); border-radius:99px; padding:0 5px; margin-left:4px; }
 </style>
 
 <div class="app">
@@ -1446,6 +1451,7 @@
       <button class="tab-btn" id="tab-btn-comparar" type="button" data-tab="comparar">Comparar Períodos</button>
       <button class="tab-btn" id="tab-btn-inadimplencia" type="button" data-tab="inadimplencia">Detalhamento Inadimplência</button>
       <button class="tab-btn" id="tab-btn-rastreio" type="button" data-tab="rastreio">Rastreio de Envios</button>
+      <button class="tab-btn" id="tab-btn-consultarastreio" type="button" data-tab="consultarastreio">Consulta de Rastreios</button>
     </div>
 
     <!-- ===================== TAB: STATUS DOS PEDIDOS ===================== -->
@@ -1831,17 +1837,18 @@
     <!-- ===================== TAB: RASTREIO DE ENVIOS ===================== -->
     <!-- Objetos dos Correios rastreados pela API (banco correios_gateway do time de Tech), ligados ao pedido do
          Aqui Tem+ e do Mira. Dados NÃO embutidos (nomes de clientes): GET /api/rastreio, filtrado por empresa. -->
-    <div id="tab-content-rastreio" class="is-hidden">
+    <div id="tab-content-rastreio" class="is-hidden rast-scope">
     <div class="panel">
       <p class="tab-context-note">
         <b>Rastreio de Envios</b> · objetos dos Correios acompanhados pela API dos Correios · última consulta aos Correios em <b id="rast-sync">—</b> &middot;
-        tempos em dias corridos &middot; clique em colunas, barras, cartões e cidades para filtrar a página inteira, e numa linha para ver o histórico do objeto.
+        tempos em dias corridos &middot; clique em colunas, barras, cartões e cidades para filtrar &middot; a lista de envios fica na aba <button type="button" class="rast-link" data-ir="consultarastreio">Consulta de Rastreios</button>, com os mesmos filtros.
       </p>
       <div class="rast-bar">
         <label><span class="rast-rot">Mês de postagem</span><select id="rast-mes"></select></label>
         <label><span class="rast-rot">Filial</span><select id="rast-fil"></select></label>
         <label><span class="rast-rot">UF de destino</span><select id="rast-uf"></select></label>
         <label><span class="rast-rot">Prazo</span><select id="rast-prazo"></select></label>
+        <label><span class="rast-rot">Tipo de produto</span><select id="rast-tipo"></select></label>
       </div>
       <div class="rast-ativos" id="rast-ativos"></div>
       <div class="rast-kpis" id="rast-kpis"></div>
@@ -1900,11 +1907,39 @@
             <div class="rast-ev-graf" id="rast-ev-graf"></div>
             <div class="rast-tw rast-tw-mini rast-ev-tw"><table class="rast-table"><thead id="rast-ev-th"></thead><tbody id="rast-ev-tb"></tbody></table></div>
           </div>
-          <div class="rast-ev-bar"><h4 class="rast-lt-h" style="margin:0">Detalhamento · do pior para o melhor</h4><div class="rast-vistas rast-sub" id="rast-lt-por"><button type="button" data-por="filial" class="is-on">Por filial</button><button type="button" data-por="uf">Por UF de destino</button></div></div>
+          <div class="rast-ev-bar"><h4 class="rast-lt-h" style="margin:0">Detalhamento · do pior para o melhor · clique numa linha para abrir</h4><div class="rast-vistas rast-sub" id="rast-lt-por"><button type="button" data-por="filial" class="is-on">Por filial</button><button type="button" data-por="uf">Por UF de destino</button><button type="button" data-por="tipo">Por tipo de produto</button></div></div>
           <div class="rast-tw rast-tw-mini" style="margin-top:6px"><table class="rast-table"><thead id="rast-lt-th"></thead><tbody id="rast-lt-tb"></tbody></table></div>
           <p class="cap" style="margin:6px 0 0"><b>Como ler:</b> média ponderada = cada envio pesa pelo número de chips, então é o tempo que um chip leva do pedido até o cliente. Estoque flutuante = chips já pedidos que ainda estão a caminho (capital parado no trajeto); confere com chips por dia × tempo médio. <b>Estoque para cobrir a espera</b> = chips por dia × prazo em que chegam 90% dos envios: quanto os clientes daquela filial ou UF precisam ter, somados, para não ficar sem chip enquanto o pedido chega. <b>Interno</b> = do pedido à postagem (processamento, etiqueta e postagem, o que depende da filial); <b>Correios</b> = da postagem à entrega. Para planejar, use os 90% e não a média, que esconde os envios demorados.</p>
         </div>
       </div>
+      <div class="footnote">
+        Fonte: banco do time de Tech com os dados da API dos Correios (só objetos dos Correios; LATAM, J&amp;T e retiradas não entram) &middot;
+        situação = último evento dos Correios (entregue, em trânsito, saiu para entrega, aguardando retirada, problema na entrega, devolvido ao remetente, etiqueta emitida sem postagem, etiqueta expirada) &middot;
+        prazo = data da entrega contra a previsão de entrega informada pelos Correios &middot; dias corridos contados por data (postagem → entrega; em aberto: postagem → hoje) &middot;
+        objetos dos pedidos do Aqui Tem+ e, desde 21/10, também dos pedidos feitos só no Mira &middot;
+        filial e cliente vêm do pedido do Mira que o banco dos Correios referencia (ligação pelo identificador único do pedido, porque o número do pedido se repete entre empresas); sem essa referência, do pedido do Mira com o mesmo código; sem pedido no Mira, a filial do distribuidor do pedido do Aqui Tem+ &middot;
+        "+N" no pedido = outros pedidos do Mira enviados no mesmo código (envio agrupado) &middot;
+        cobertura = pedidos do Mira com código dos Correios que têm histórico no banco dos Correios &middot;
+        rastreio desatualizado = objeto em aberto que o banco dos Correios não consulta há 2 dias ou mais (não conta como atrasado nem parado) &middot;
+        tempo de atendimento = data do pedido no Mira → entrega; processamento = data e hora em que o pedido foi processado no Mira.
+      </div>
+    </div>
+    </div>
+
+    <div id="tab-content-consultarastreio" class="is-hidden rast-scope">
+    <div class="panel">
+      <p class="tab-context-note">
+        <b>Consulta de Rastreios</b> · lista dos objetos dos Correios · última consulta aos Correios em <b id="cons-sync">—</b> &middot;
+        busque por código, pedido, cliente, loja ou cidade e clique numa linha para ver o histórico do objeto &middot; os filtros valem também na aba <button type="button" class="rast-link" data-ir="rastreio">Rastreio de Envios</button>, com os gráficos e análises.
+      </p>
+      <div class="rast-bar">
+        <label><span class="rast-rot">Mês de postagem</span><select id="cons-mes"></select></label>
+        <label><span class="rast-rot">Filial</span><select id="cons-fil"></select></label>
+        <label><span class="rast-rot">UF de destino</span><select id="cons-uf"></select></label>
+        <label><span class="rast-rot">Prazo</span><select id="cons-prazo"></select></label>
+        <label><span class="rast-rot">Tipo de produto</span><select id="cons-tipo"></select></label>
+      </div>
+      <div class="rast-ativos" id="cons-ativos"></div>
       <div class="rast-vistas" id="rast-vistas">
         <button type="button" data-vista="atencao" class="is-on">Precisam de atenção</button>
         <button type="button" data-vista="todos">Todos os envios</button>
@@ -1919,17 +1954,13 @@
       <p class="rast-tot" id="rast-tot"></p>
       <div class="rast-tw"><table class="rast-table"><thead id="rast-th"></thead><tbody id="rast-tb"><tr><td class="rast-msg">Carregando…</td></tr></tbody></table></div>
       <div class="footnote">
-        Fonte: banco do time de Tech com os dados da API dos Correios (só objetos dos Correios; LATAM, J&amp;T e retiradas não entram) &middot;
-        situação = último evento dos Correios (entregue, em trânsito, saiu para entrega, aguardando retirada, problema na entrega, devolvido ao remetente, etiqueta emitida sem postagem, etiqueta expirada) &middot;
-        prazo = data da entrega contra a previsão de entrega informada pelos Correios &middot; dias corridos contados por data (postagem → entrega; em aberto: postagem → hoje) &middot;
-        objetos dos pedidos do Aqui Tem+ e, desde 21/10, também dos pedidos feitos só no Mira &middot;
-        filial e cliente vêm do pedido do Mira que o banco dos Correios referencia (ligação pelo identificador único do pedido, porque o número do pedido se repete entre empresas); sem essa referência, do pedido do Mira com o mesmo código; sem pedido no Mira, a filial do distribuidor do pedido do Aqui Tem+ &middot;
-        "+N" no pedido = outros pedidos do Mira enviados no mesmo código (envio agrupado) &middot;
-        cobertura = pedidos do Mira com código dos Correios que têm histórico no banco dos Correios &middot;
-        rastreio desatualizado = objeto em aberto que o banco dos Correios não consulta há 2 dias ou mais (não conta como atrasado nem parado) &middot;
-        tempo de atendimento = data do pedido no Mira → entrega; processamento = data e hora em que o pedido foi processado no Mira.
+        situação = último evento dos Correios; "sem atualização" = objeto em aberto que o banco dos Correios não consulta há 2 dias ou mais (não conta como atrasado nem parado) &middot;
+        dias corridos contados por data (postagem → entrega; em aberto: postagem → hoje) &middot; "+N" no pedido = outros pedidos do Mira enviados no mesmo código &middot;
+        objetos sem nenhum evento dos Correios e com pedido de mais de 30 dias ficam fora da lista (vão numa planilha à parte na exportação).
       </div>
     </div>
+    </div>
+    <div class="rast-scope">
     <div class="rast-ov" id="rast-ov"></div>
     <aside class="rast-dr" id="rast-dr" aria-hidden="true"><button class="rast-x" id="rast-fecha" type="button" title="Fechar (Esc)">×</button><div id="rast-drc"></div></aside>
     </div>
@@ -3740,7 +3771,7 @@ const BiXlsx = (() => {
   const pill = (cls, txt, fam) => '<span class="' + cls + " " + (fam || "") + '"><i></i>' + esc(txt) + "</span>";
   const EM_ANDAMENTO = ["Em trânsito", "Saiu para entrega", "Aguardando retirada"];
   const PRAZOS = ["No prazo", "Com atraso", "Em aberto, no prazo", "Em aberto, atrasado", "Sem previsão"];
-  const st = { mes: "", fil: "", uf: "", prazo: "", vista: "atencao", sit: "", flag: "", grupo: "", cat: "", cidade: "", sem: "", evPer: "mes", evMet: "tempo", ltPor: "filial", q: "", sort: { atencao: ["status", 1], todos: ["postadoEm", -1] }, rows: [], ana: "abc", rankModo: "entregue", rankRows: [] };
+  const st = { mes: "", fil: "", uf: "", prazo: "", vista: "atencao", sit: "", flag: "", grupo: "", cat: "", cidade: "", sem: "", tipo: "", evPer: "mes", evMet: "tempo", ltPor: "filial", q: "", sort: { atencao: ["status", 1], todos: ["postadoEm", -1] }, rows: [], ana: "abc", rankModo: "entregue", rankRows: [] };
   // colunas: [chave, título, tipo]  tipos: t texto, nm nome, d data, n0 inteiro, st situação consolidada, mod modalidade, ult último evento, ped pedido Mira (+N agrupados)
   const COLS = [["status", "Situação", "st"], ["filial", "Filial", "t"], ["cliente", "Cliente Mira", "nm"], ["loja", "Loja AQT", "nm"],
     ["pedAQT", "Pedido AQT", "t"], ["pedMira", "Pedido Mira", "ped"], ["codigo", "Código de rastreio", "t"], ["modalidade", "Modalidade", "mod"], ["etiquetaEm", "Etiqueta", "d"], ["postadoEm", "Postado", "d"], ["entregueEm", "Entregue", "d"],
@@ -3784,12 +3815,18 @@ const BiXlsx = (() => {
     sit: ["Situação", r => r.situacao === st.sit], cat: ["Situação do mês", r => catMes(r) === st.cat], grupo: ["Cartão", r => GRUPOS[st.grupo][1](r), v => GRUPOS[v][0]],
     cidade: ["Cidade", r => r.destino === st.cidade], flag: ["Motivo", r => r.atencao.includes(st.flag)],
     sem: ["Semana", r => r.semRef === st.sem, v => rotSem(v)],
+    tipo: ["Tipo de produto", r => ((r.tipos || {})[st.tipo] || 0) > 0, v => rotTipo(v)],
   };
+  // grupo do produto no cadastro em texto normal ("CHIP E-SIM" -> "Chip e-SIM")
+  const rotTipo = g => { const t = String(g || "").toLowerCase(); return (t.charAt(0).toUpperCase() + t.slice(1)).split("e-sim").join("e-SIM"); };
+  const tiposTxt = r => Object.entries(r.tipos || {}).sort((a, b) => b[1] - a[1]).map(([g, q]) => rotTipo(g) + " " + NUM(q)).join(" · ");
   const recorte = (pula) => D.envios.filter(r => Object.keys(FILTROS).every(k => !st[k] || (pula && pula.includes(k)) || FILTROS[k][1](r)));
-  const SELECT_DE = { mes: "rast-mes", fil: "rast-fil", uf: "rast-uf", prazo: "rast-prazo", sit: "rast-sit", flag: "rast-flag" };
+  // filtros com select: os do topo existem nas duas abas (rast-* e cons-*), situação e motivo só na Consulta de Rastreios
+  const SELECT_DE = { mes: ["rast-mes", "cons-mes"], fil: ["rast-fil", "cons-fil"], uf: ["rast-uf", "cons-uf"], prazo: ["rast-prazo", "cons-prazo"], tipo: ["rast-tipo", "cons-tipo"], sit: ["rast-sit"], flag: ["rast-flag"] };
+  const syncSel = k => (SELECT_DE[k] || []).forEach(id => { el(id).value = st[k]; });
   function setFiltro(k, v) {
     st[k] = st[k] === v ? "" : v;
-    if (SELECT_DE[k]) el(SELECT_DE[k]).value = st[k];
+    syncSel(k);
     // filtro que pode esvaziar a vista "Precisam de atenção" leva a tabela para "Todos os envios"
     if (st[k] && ["sit", "cat", "cidade", "grupo"].includes(k)) st.vista = k === "grupo" && v === "atencao" ? "atencao" : "todos";
     document.querySelectorAll("#rast-vistas button").forEach(b => b.classList.toggle("is-on", b.dataset.vista === st.vista));
@@ -3797,9 +3834,12 @@ const BiXlsx = (() => {
   }
   function ativos() {
     const ks = Object.keys(FILTROS).filter(k => st[k]);
-    el("rast-ativos").innerHTML = ks.length ? '<span class="rot">Filtros:</span>' + ks.map(k => '<span class="rast-chip">' + esc(FILTROS[k][0] + ": " + (FILTROS[k][2] ? FILTROS[k][2](st[k]) : st[k])) + '<button type="button" data-k="' + k + '" title="Tirar este filtro">×</button></span>').join("") + '<button type="button" class="todos">limpar tudo</button>' : "";
+    const html = ks.length ? '<span class="rot">Filtros:</span>' + ks.map(k => '<span class="rast-chip">' + esc(FILTROS[k][0] + ": " + (FILTROS[k][2] ? FILTROS[k][2](st[k]) : st[k])) + '<button type="button" data-k="' + k + '" title="Tirar este filtro">×</button></span>').join("") + '<button type="button" class="todos">limpar tudo</button>' : "";
+    el("rast-ativos").innerHTML = html; el("cons-ativos").innerHTML = html;
   }
-  el("rast-ativos").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; if (b.classList.contains("todos")) el("rast-limpa").click(); else setFiltro(b.dataset.k, st[b.dataset.k]); });
+  ["rast-ativos", "cons-ativos"].forEach(id => el(id).addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; if (b.classList.contains("todos")) el("rast-limpa").click(); else setFiltro(b.dataset.k, st[b.dataset.k]); }));
+  // links entre as duas abas (só se a aba de destino estiver liberada para o usuário)
+  document.querySelectorAll(".rast-scope .rast-link[data-ir]").forEach(b => { if (Array.isArray(ABAS_PERMITIDAS) && !ABAS_PERMITIDAS.includes(b.dataset.ir)) b.replaceWith(document.createTextNode(b.textContent)); else b.onclick = () => window.abrirAba && window.abrirAba(b.dataset.ir); });
   const mediana = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? s[Math.floor((s.length - 1) / 2)] : null; };
   const p90 = a => { const s = a.slice().sort((x, y) => x - y); return s.length ? s[Math.floor(0.9 * (s.length - 1))] : null; };
 
@@ -3825,12 +3865,12 @@ const BiXlsx = (() => {
       ["Cobertura do rastreio", PCT(cr, cc), NUM(cc - cr - ch) + " pedidos do Mira com código fora do banco" + (ch ? " · " + NUM(ch) + " sem histórico" : "") + (outrosFiltros ? " · usa só mês e filial" : ""), false, ""],
     ];
     aviso();
-    const DICA = { todos: "Clique para ver todos os envios na tabela", entregue: "Clique para filtrar só os entregues", rank: "Clique para filtrar os entregues e abrir o ranking de tempo", andamento: "Clique para filtrar os envios em andamento", atencao: "Clique para filtrar os envios que precisam de atenção" };
+    const DICA = { todos: "Clique para ver todos os envios na Consulta de Rastreios", entregue: "Clique para filtrar só os entregues", rank: "Clique para filtrar os entregues e abrir o ranking de tempo", andamento: "Clique para filtrar os envios em andamento", atencao: "Clique para filtrar os envios que precisam de atenção" };
     el("rast-kpis").innerHTML = cards.map(c => '<div class="rast-kpi' + (c[3] ? " is-alerta" : "") + (c[4] ? " clic" : "") + (c[4] && (st.grupo === c[4] || (c[4] === "rank" && st.grupo === "entregue" && st.ana === "rank")) ? " is-on" : "") + '"' + (c[4] ? ' data-acao="' + c[4] + '" title="' + DICA[c[4]] + '"' : ' title="Cobertura considera só os filtros de mês e filial"') + '><div class="t">' + esc(c[0]) + '</div><div class="v">' + esc(c[1]) + '</div><div class="s">' + esc(c[2]) + "</div></div>").join("");
   }
   el("rast-kpis").addEventListener("click", e => {
     if (!D) return; const c = e.target.closest("[data-acao]"); if (!c) return; const a = c.dataset.acao;
-    if (a === "todos") { st.grupo = ""; trocaVista("todos"); return; }
+    if (a === "todos") { st.grupo = ""; trocaVista("todos"); if (window.abrirAba) window.abrirAba("consultarastreio"); return; }
     if (a === "rank") { if (st.grupo !== "entregue") setFiltro("grupo", "entregue"); trocaAna("rank"); el("rast-ana-tabs").scrollIntoView({ behavior: "smooth", block: "start" }); return; }
     setFiltro("grupo", a);
   });
@@ -3989,7 +4029,9 @@ const BiXlsx = (() => {
   // = itens do pedido sem frete (r.qte). Período = dias dos meses de postagem do recorte (o mês atual só até hoje).
   const N1 = v => v == null || isNaN(v) ? "—" : v.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const media = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
-  const ponderada = (rows, f) => { const v = rows.filter(r => r.qte > 0 && f(r) != null); const q = v.reduce((t, r) => t + r.qte, 0); return q ? v.reduce((t, r) => t + f(r) * r.qte, 0) / q : null; };
+  // chips do envio que entram nas contas: com filtro de tipo de produto, só os daquele tipo
+  const qd = r => st.tipo ? ((r.tipos || {})[st.tipo] || 0) : (r.qte || 0);
+  const ponderada = (rows, f, w = qd) => { const v = rows.filter(r => w(r) > 0 && f(r) != null); const q = v.reduce((t, r) => t + w(r), 0); return q ? v.reduce((t, r) => t + f(r) * w(r), 0) / q : null; };
   const tAtend = r => r.dataPedido && r.entregueEm ? difDias(r.dataPedido, r.entregueEm) : null;
   // dias do período: os meses de postagem do recorte, começando na 1a postagem do recorte (o banco só tem histórico a
   // partir de 23/04/2026) e terminando hoje no mês atual
@@ -4002,16 +4044,16 @@ const BiXlsx = (() => {
   // chips a caminho em cada dia: do dia do pedido até a véspera da entrega (em aberto e atualizado: até hoje;
   // devolvido/expirado/desatualizado: até o último evento conhecido)
   const ABERTOS_LT = ["Em trânsito", "Saiu para entrega", "Aguardando retirada", "Problema na entrega", "Etiqueta emitida, não postado"];
-  function pipeDe(R, dias) {
-    const faixas = R.filter(r => r.qte > 0 && r.dataPedido).map(r => ({ a: r.dataPedido, b: r.entregueEm ? String(r.entregueEm).slice(0, 10) : ABERTOS_LT.includes(r.situacao) && !r.desatualizado ? "9999" : r.ultimo ? String(r.ultimo.em).slice(0, 10) : r.dataPedido, q: r.qte }));
+  function pipeDe(R, dias, w = qd) {
+    const faixas = R.filter(r => w(r) > 0 && r.dataPedido).map(r => ({ a: r.dataPedido, b: r.entregueEm ? String(r.entregueEm).slice(0, 10) : ABERTOS_LT.includes(r.situacao) && !r.desatualizado ? "9999" : r.ultimo ? String(r.ultimo.em).slice(0, 10) : r.dataPedido, q: w(r) }));
     return dias.map(d => faixas.reduce((t, x) => t + (x.a <= d && d < x.b ? x.q : 0), 0));
   }
   // ---- evolução mensal/semanal: mês = mês de postagem (mesRef); semana = segunda a domingo da postagem (semRef)
   const segunda = d => { const t = Date.parse(String(d).slice(0, 10)); if (isNaN(t)) return ""; const w = new Date(t).getUTCDay(); return new Date(t - ((w + 6) % 7) * 86400000).toISOString().slice(0, 10); };
   const rotSem = k => DT(k).slice(0, 5) + " a " + DT(new Date(Date.parse(k) + 6 * 86400000).toISOString().slice(0, 10)).slice(0, 5);
-  function evolucao(R, per) {
+  function evolucao(R, per, w = qd) {
     const chave = per === "mes" ? (r => r.mesRef) : (r => r.semRef), chaveDia = per === "mes" ? (d => d.slice(0, 7)) : segunda;
-    const dias = periodoDe(R), pipe = pipeDe(R, dias), G = new Map();
+    const dias = periodoDe(R), pipe = pipeDe(R, dias, w), G = new Map();
     const g = k => G.get(k) || G.set(k, { k, dias: 0, pipeSoma: 0, ent: [], tot: 0, ab: 0 }).get(k);
     dias.forEach((d, i) => { const o = g(chaveDia(d)); o.dias++; o.pipeSoma += pipe[i]; });
     for (const r of R) {
@@ -4019,10 +4061,10 @@ const BiXlsx = (() => {
       if (r.situacao === "Entregue" && tAtend(r) != null && tAtend(r) >= 0) o.ent.push(r);
     }
     return [...G.values()].sort((a, b) => a.k.localeCompare(b.k)).map(o => {
-      const t = o.ent.map(tAtend), q = o.ent.reduce((s2, r) => s2 + (r.qte || 0), 0), pd = q / Math.max(1, o.dias), p9 = p90(t);
+      const t = o.ent.map(tAtend), q = o.ent.reduce((s2, r) => s2 + w(r), 0), pd = q / Math.max(1, o.dias), p9 = p90(t);
       const tamanho = per === "mes" ? new Date(Date.UTC(+o.k.slice(0, 4), +o.k.slice(5, 7), 0)).getUTCDate() : 7;
       const cor = o.ent.map(r => r.postadoEm ? difDias(r.postadoEm, r.entregueEm) : null).filter(x => x != null && x >= 0);
-      return { k: o.k, rot: per === "mes" ? rotMes(o.k) : "semana de " + rotSem(o.k), curto: per === "mes" ? rotMes(o.k) : DT(o.k).slice(0, 5), n: o.ent.length, chips: q, porDia: pd, pond: ponderada(o.ent, tAtend), med: mediana(t), p: p9, correios: media(cor), flut: o.dias ? o.pipeSoma / o.dias : null, cobre: p9 == null ? null : pd * p9, parcial: o.dias < tamanho, diasP: o.dias, aCaminho: o.ab, pendente: o.tot > 0 && o.ab / o.tot > 0.1 };
+      return { k: o.k, rot: per === "mes" ? rotMes(o.k) : "semana de " + rotSem(o.k), curto: per === "mes" ? rotMes(o.k) : DT(o.k).slice(0, 5), n: o.ent.length, chips: q, porDia: pd, pond: ponderada(o.ent, tAtend, w), med: mediana(t), p: p9, correios: media(cor), flut: o.dias ? o.pipeSoma / o.dias : null, cobre: p9 == null ? null : pd * p9, parcial: o.dias < tamanho, diasP: o.dias, aCaminho: o.ab, pendente: o.tot > 0 && o.ab / o.tot > 0.1 };
     });
   }
   const EV_MET = {
@@ -4061,21 +4103,28 @@ const BiXlsx = (() => {
       return '<tr class="rast-clic' + (sel === p.k ? " is-sel" : "") + (p.parcial || p.n < 5 || p.pendente ? " rast-muted" : "") + '" data-i="' + i + '" title="' + (p.parcial ? "Período incompleto (" + plural(p.diasP, "dia", "dias") + ") · " : "") + (p.n < 5 ? "Menos de 5 entregas · " : "") + (p.pendente ? plural(p.aCaminho, "envio ainda a caminho", "envios ainda a caminho") + ": o tempo médio ainda pode subir · " : "") + 'Clique para filtrar a página"><td>' + esc(p.rot) + '</td><td class="num">' + NUM(p.n) + '</td><td class="num">' + N1(p.porDia) + '</td><td class="num"><b>' + (p.pond == null ? "—" : N1(p.pond) + " d") + '</b></td><td class="num">' + varHtml + '</td><td class="num">' + (p.p == null ? "—" : p.p + " d") + '</td><td class="num">' + (p.correios == null ? "—" : N1(p.correios) + " d") + '</td><td class="num">' + NUM(Math.round(p.flut || 0)) + '</td><td class="num">' + (p.cobre == null ? "—" : NUM(Math.round(p.cobre))) + "</td></tr>";
     }).join("");
   }
+  const interno = r => r.dataPedido && r.postadoEm ? difDias(r.dataPedido, r.postadoEm) : null, nosCorreios = r => r.postadoEm && r.entregueEm ? difDias(r.postadoEm, r.entregueEm) : null;
+  const pos = fn => r => { const x = fn(r); return x != null && x >= 0 ? x : null; };
+  // resumo de um grupo de envios entregues; w = chips de cada envio que contam; nd = dias do período
+  function resumoGrupo(k, rows, w, nd) {
+    const t = rows.map(tAtend), q = rows.reduce((s2, r) => s2 + w(r), 0), pd = q / nd, pp = ponderada(rows, tAtend, w), p9 = p90(t);
+    return { k, n: rows.length, q, porDia: pd, pond: pp, med: mediana(t), p: p9, interno: ponderada(rows, pos(interno), w), correios: ponderada(rows, pos(nosCorreios), w), flut: pp == null ? null : pd * pp, cobre: p9 == null ? null : pd * p9 };
+  }
+  const ordenaGrupos = a => a.sort((x, y) => (y.n >= 5) - (x.n >= 5) || y.p - x.p || (y.pond || 0) - (x.pond || 0) || y.n - x.n);
   function calcLt(R) {
     const ent = R.filter(r => r.situacao === "Entregue" && tAtend(r) != null && tAtend(r) >= 0);
     const tot = ent.map(tAtend); const dias = periodoDe(R); const nd = Math.max(1, dias.length);
-    const chips = ent.reduce((t, r) => t + (r.qte || 0), 0), porDia = chips / nd, pond = ponderada(ent, tAtend);
+    const chips = ent.reduce((t, r) => t + qd(r), 0), porDia = chips / nd, pond = ponderada(ent, tAtend);
     const ABERTO = ABERTOS_LT, pipe = pipeDe(R, dias);
     const abertos = R.filter(r => ABERTO.includes(r.situacao));
     // detalhamento por filial ou por UF de destino: do pior (90% mais alto) para o melhor; menos de 5 entregas vai para o fim
-    const interno = r => r.dataPedido && r.postadoEm ? difDias(r.dataPedido, r.postadoEm) : null, nosCorreios = r => r.postadoEm && r.entregueEm ? difDias(r.postadoEm, r.entregueEm) : null;
-    const pos = fn => r => { const x = fn(r); return x != null && x >= 0 ? x : null; };
-    const agrupa = chave => { const G = new Map(); for (const r of ent) { const k = chave(r); if (k) (G.get(k) || G.set(k, []).get(k)).push(r); }
-      return [...G.entries()].map(([k, rows]) => { const t = rows.map(tAtend), q = rows.reduce((s2, r) => s2 + (r.qte || 0), 0), pd = q / nd, pp = ponderada(rows, tAtend), p9 = p90(t);
-        return { k, n: rows.length, q, porDia: pd, pond: pp, med: mediana(t), p: p9, interno: ponderada(rows, pos(interno)), correios: ponderada(rows, pos(nosCorreios)), flut: pp == null ? null : pd * pp, cobre: pd * p9 }; })
-        .sort((a, b) => (b.n >= 5) - (a.n >= 5) || b.p - a.p || (b.pond || 0) - (a.pond || 0) || b.n - a.n); };
+    const resumo = (k, rows, w) => resumoGrupo(k, rows, w, nd), ordena = ordenaGrupos;
+    const agrupa = chave => { const G = new Map(); for (const r of ent) { const k = chave(r); if (k) (G.get(k) || G.set(k, []).get(k)).push(r); } return ordena([...G.entries()].map(([k, rows]) => resumo(k, rows, qd))); };
     const ufs = agrupa(r => r.ufDestino), fils = agrupa(r => r.filial || "Sem filial");
-    return { ent, tot: { n: tot.length, media: media(tot), med: mediana(tot), p: p90(tot), pond }, dias, chips, porDia, pipe, pipeMedia: media(pipe), abertos, chipsAbertos: abertos.filter(r => !r.desatualizado).reduce((t, r) => t + (r.qte || 0), 0), chipsDesat: abertos.filter(r => r.desatualizado).reduce((t, r) => t + (r.qte || 0), 0), desatAbertos: abertos.filter(r => r.desatualizado).length, ufs, fils, semQte: ent.filter(r => !(r.qte > 0)).length };
+    // tipo de produto: um envio entra em cada tipo que leva, pesando só os chips daquele tipo
+    const tiposK = st.tipo ? [st.tipo] : [...new Set(ent.flatMap(r => Object.keys(r.tipos || {})))];
+    const tipos = ordena(tiposK.map(g => resumo(g, ent.filter(r => ((r.tipos || {})[g] || 0) > 0), r => (r.tipos || {})[g] || 0)).filter(x => x.n));
+    return { nd, ent, tot: { n: tot.length, media: media(tot), med: mediana(tot), p: p90(tot), pond }, dias, chips, porDia, pipe, pipeMedia: media(pipe), abertos, chipsAbertos: abertos.filter(r => !r.desatualizado).reduce((t, r) => t + qd(r), 0), chipsDesat: abertos.filter(r => r.desatualizado).reduce((t, r) => t + qd(r), 0), desatAbertos: abertos.filter(r => r.desatualizado).length, ufs, fils, tipos, semQte: ent.filter(r => !(qd(r) > 0)).length };
   }
   function analiseLt(R) {
     const L = calcLt(R); st.lt = L;
@@ -4089,9 +4138,9 @@ const BiXlsx = (() => {
     ];
     el("rast-lt-kpis").innerHTML = cards.map(c => '<div class="rast-kpi"><div class="t">' + esc(c[0]) + '</div><div class="v">' + esc(c[1]) + '</div><div class="s">' + esc(c[2]) + "</div></div>").join("");
     analiseEvol();
-    const porFil = st.ltPor === "filial", linhas = porFil ? L.fils : L.ufs, sel = porFil ? st.fil : st.uf;
-    el("rast-lt-th").innerHTML = "<tr><th>" + (porFil ? "Filial" : "UF de destino") + "</th><th class='num'>Entregas</th><th class='num'>Chips por dia</th><th class='num'>Tempo médio (ponderado)</th><th class='num'>90% em até</th><th class='num' title='Do pedido à postagem: processamento, etiqueta e postagem'>Interno</th><th class='num' title='Da postagem à entrega'>Correios</th><th class='num'>Estoque flutuante</th><th class='num' title='Chips por dia × prazo em que chegam 90% dos envios'>Estoque para cobrir a espera</th></tr>";
-    el("rast-lt-tb").innerHTML = linhas.map(u => '<tr class="rast-clic' + (sel === u.k ? " is-sel" : "") + (u.n < 5 ? " rast-muted" : "") + '" data-k="' + esc(u.k) + '" title="' + (u.n < 5 ? "Amostra pequena (menos de 5 entregas) · " : "") + (u.k === "Sem filial" ? "Envios sem filial atribuída" : "Clique para filtrar a página por " + (porFil ? "esta filial" : "esta UF")) + '"><td>' + esc(u.k) + '</td><td class="num">' + NUM(u.n) + '</td><td class="num">' + N1(u.porDia) + '</td><td class="num"><b>' + N1(u.pond) + ' d</b></td><td class="num"><b>' + u.p + ' d</b></td><td class="num">' + (u.interno == null ? "—" : N1(u.interno) + " d") + '</td><td class="num">' + (u.correios == null ? "—" : N1(u.correios) + " d") + '</td><td class="num">' + NUM(Math.round(u.flut || 0)) + '</td><td class="num"><b>' + NUM(Math.round(u.cobre)) + "</b></td></tr>").join("");
+    const porFil = st.ltPor === "filial", porTipo = st.ltPor === "tipo", linhas = porFil ? L.fils : porTipo ? L.tipos : L.ufs, sel = porFil ? st.fil : porTipo ? st.tipo : st.uf;
+    el("rast-lt-th").innerHTML = "<tr><th>" + (porFil ? "Filial" : porTipo ? "Tipo de produto" : "UF de destino") + "</th><th class='num'>" + (porTipo ? "Envios com o tipo" : "Entregas") + "</th><th class='num'>Chips por dia</th><th class='num'>Tempo médio (ponderado)</th><th class='num'>90% em até</th><th class='num' title='Do pedido à postagem: processamento, etiqueta e postagem'>Interno</th><th class='num' title='Da postagem à entrega'>Correios</th><th class='num'>Estoque flutuante</th><th class='num' title='Chips por dia × prazo em que chegam 90% dos envios'>Estoque para cobrir a espera</th></tr>";
+    el("rast-lt-tb").innerHTML = linhas.map(u => '<tr class="rast-clic' + (sel === u.k ? " is-sel" : "") + (u.n < 5 ? " rast-muted" : "") + '" data-k="' + esc(u.k) + '" title="' + (u.n < 5 ? "Amostra pequena (menos de 5 entregas) · " : "") + (u.k === "Sem filial" ? "Envios sem filial atribuída · " : "") + 'Clique para ver o detalhamento"><td>' + esc(porTipo ? rotTipo(u.k) : u.k) + '</td><td class="num">' + NUM(u.n) + '</td><td class="num">' + N1(u.porDia) + '</td><td class="num"><b>' + N1(u.pond) + ' d</b></td><td class="num"><b>' + u.p + ' d</b></td><td class="num">' + (u.interno == null ? "—" : N1(u.interno) + " d") + '</td><td class="num">' + (u.correios == null ? "—" : N1(u.correios) + " d") + '</td><td class="num">' + NUM(Math.round(u.flut || 0)) + '</td><td class="num"><b>' + (u.cobre == null ? "—" : NUM(Math.round(u.cobre))) + "</b></td></tr>").join("");
   }
   function trocaAna(a) {
     st.ana = a; document.querySelectorAll("#rast-ana-tabs button").forEach(x => x.classList.toggle("is-on", x.dataset.ana === a));
@@ -4102,7 +4151,7 @@ const BiXlsx = (() => {
   function trocaVista(v) { st.vista = v; document.querySelectorAll("#rast-vistas button").forEach(b => b.classList.toggle("is-on", b.dataset.vista === v)); render(); }
 
   // ---- painel lateral: dados do objeto + linha do tempo dos Correios (mais recente primeiro)
-  function abre(r) {
+  function abre(r, voltar) {
     const kv = pares => '<dl class="rast-kv">' + pares.filter(p => p[1] !== "" && p[1] != null).map(p => "<dt>" + p[0] + "</dt><dd>" + p[1] + "</dd>").join("") + "</dl>";
     const linha = r.eventos.length ? '<ol class="rast-linha">' + r.eventos.map((e, i) => '<li class="' + (i === 0 ? "is-ult" : "") + '">' + esc(e.desc) + '<div class="q">' + DTH(e.em) + (e.local ? " · " + esc(e.local) : "") + (e.unidade ? " · " + esc(e.unidade) : "") + " · " + esc(e.cod) + "</div></li>").join("") + "</ol>"
       : '<p class="rast-muted">Nenhum evento dos Correios para este objeto ainda.</p>';
@@ -4121,14 +4170,76 @@ const BiXlsx = (() => {
     if (r.dias != null) ex.push((r.entregueEm ? "Da postagem à entrega: " : "Desde a postagem: ") + plural(r.dias, "dia corrido", "dias corridos") + ".");
     if (tAtend(r) != null && tAtend(r) >= 0) ex.push("Do pedido à entrega (tempo de atendimento): <b>" + plural(tAtend(r), "dia corrido", "dias corridos") + "</b>.");
     ex.push("Modalidade: " + (r.modalidade ? "<b>" + esc(r.modalidade) + "</b>" + (r.tipoPostagem ? " (" + esc(r.tipoPostagem) + ")" : "") + " · sigla " + esc(r.sigla) + "." : "não informada pelos Correios."));
-    el("rast-drc").innerHTML = "<h2>" + esc(r.codigo) + "</h2><div>" + statusHtml(r) + " " + modalHtml(r) + "</div>"
+    el("rast-drc").innerHTML = (voltar ? "<button type='button' class='rast-link' id='rast-voltar' style='margin:0 0 6px'>← voltar para " + esc(voltar.rot) + "</button>" : "") + "<h2>" + esc(r.codigo) + "</h2><div>" + statusHtml(r) + " " + modalHtml(r) + "</div>"
       + "<h3>O que está acontecendo</h3><ul class='rast-explica'>" + ex.map(t => "<li>" + t + "</li>").join("") + "</ul>"
       + "<h3>Pedido</h3>" + kv([["Origem do envio", esc(ORIGEM[r.origem] || r.origem || "")], ["Filial", esc(r.filial)], ["Empresa atribuída por", esc(r.empVia)], ["Cliente Mira", esc(r.cliente)],
         ["Pedido Mira", r.pedMira ? esc(r.pedMira) + (r.dataPedido ? " <span class='rast-muted'>de " + DT(r.dataPedido) + "</span>" : "") : ""],
         ["Outros pedidos no mesmo envio", nOutros(r) ? esc(outrosTxt(r)) + (r.outrosClientes ? "<br><span class='rast-muted'>O mesmo código aparece em pedido de " + plural(r.outrosClientes, "outro cliente", "outros clientes") + "; filial e cliente acima são do pedido que o banco dos Correios referencia.</span>" : "") : ""],
-        ["Processado no Mira", DTH(r.processadoEm)], ["Chips no envio", r.qte ? NUM(r.qte) : ""], ["Loja AQT", esc(r.loja)], ["Pedido AQT", esc(r.pedAQT)], ["Fornecedor AQT", esc(r.fornecedor)]])
+        ["Processado no Mira", DTH(r.processadoEm)], ["Chips no envio", r.qte ? NUM(r.qte) + (Object.keys(r.tipos || {}).length ? " <span class='rast-muted'>(" + esc(tiposTxt(r)) + ")</span>" : "") : ""], ["Loja AQT", esc(r.loja)], ["Pedido AQT", esc(r.pedAQT)], ["Fornecedor AQT", esc(r.fornecedor)]])
       + "<h3>Envio</h3>" + kv([["Etiqueta emitida", DTH(r.etiquetaEm)], ["Postado", DTH(r.postadoEm)], ["Entregue", DTH(r.entregueEm)], ["Previsão de entrega", DT(r.previsao)], [r.entregueEm ? "Dias até a entrega" : "Dias desde a postagem", r.dias == null ? "" : r.dias + " (corridos)"], ["Destino", esc(r.destino)], ["Última consulta aos Correios", DTH(r.consultadoEm) + (r.desatualizado ? " <span class='rast-muted'>(desatualizado)</span>" : "")]])
       + "<h3>Histórico dos Correios (" + r.eventos.length + ")</h3>" + linha;
+    if (voltar && el("rast-voltar")) el("rast-voltar").onclick = voltar.fn;
+    el("rast-dr").scrollTop = 0;
+    el("rast-dr").classList.add("is-on"); el("rast-ov").classList.add("is-on"); el("rast-dr").setAttribute("aria-hidden", "false");
+  }
+  // painel de um grupo do detalhamento (filial, UF de destino ou tipo de produto), sempre dentro do recorte atual da página
+  const DIM = { filial: ["Filial", "fil", r => r.filial || "Sem filial", "esta filial"], uf: ["UF de destino", "uf", r => r.ufDestino, "esta UF"], tipo: ["Tipo de produto", "tipo", null, "este tipo de produto"] };
+  function miniEvol(P) {
+    if (!P.length) return '<p class="rast-muted">Sem entregas no recorte.</p>';
+    const W = 560, H = 140, pt = 14, pb = 20, pl = 6, pr = 6, ph = H - pt - pb, pw = W - pl - pr, max = Math.max(1, ...P.map(p => Math.max(p.pond || 0, p.p || 0)));
+    const slot = pw / P.length, bw = Math.max(6, Math.min(40, slot * 0.6)), y = v => pt + ph - v / max * ph; let svg = "";
+    P.forEach((p, i) => { const x = pl + i * slot + (slot - bw) / 2, op = p.parcial || p.n < 5 || p.pendente ? 0.45 : 1;
+      if (p.pond != null) { svg += '<rect x="' + x.toFixed(1) + '" y="' + y(p.pond).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (pt + ph - y(p.pond)).toFixed(1) + '" rx="2" style="fill:var(--accent);opacity:' + op + '"><title>' + esc(p.rot + ": " + N1(p.pond) + " dias em média · 90% em até " + (p.p == null ? "—" : p.p) + " · " + plural(p.n, "entrega", "entregas")) + "</title></rect>";
+        if (pt + ph - y(p.pond) > 16 && bw >= 20) svg += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (y(p.pond) + 12).toFixed(1) + '" text-anchor="middle" style="font-size:9.5px;font-weight:600;fill:#fff">' + N1(p.pond) + "</text>"; }
+      if (p.p != null) svg += '<line x1="' + (x + bw * 0.15).toFixed(1) + '" x2="' + (x + bw * 0.85).toFixed(1) + '" y1="' + y(p.p).toFixed(1) + '" y2="' + y(p.p).toFixed(1) + '" style="stroke:var(--text);stroke-width:2;opacity:' + op + '"></line>';
+      svg += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 5) + '" text-anchor="middle" style="font-size:9.5px;fill:var(--text-muted)">' + esc(p.curto) + "</text>"; });
+    return '<svg viewBox="0 0 ' + W + " " + H + '" style="width:100%;height:auto;display:block">' + svg + '</svg><p class="rast-muted" style="font-size:10.5px;margin:2px 0 0">Barra = tempo médio do pedido à entrega (ponderado por chips) · traço = 90% em até · tom claro = período incompleto, com poucas entregas ou ainda com envios a caminho</p>';
+  }
+  function abreGrupo(dim, k) {
+    const R = recorte(), L = st.lt && st.lt.ent ? st.lt : calcLt(R), nd = L.nd || 1;
+    const noGrupo = dim === "tipo" ? (r => ((r.tipos || {})[k] || 0) > 0) : (r => DIM[dim][2](r) === k);
+    const w = dim === "tipo" ? (r => (r.tipos || {})[k] || 0) : qd;
+    const RG = R.filter(noGrupo), EG = L.ent.filter(noGrupo), x = resumoGrupo(k, EG, w, nd), nome = dim === "tipo" ? rotTipo(k) : k;
+    const comPrev = EG.filter(r => r.prazo === "No prazo" || r.prazo === "Com atraso"), noPrazo = EG.filter(r => r.prazo === "No prazo").length;
+    const abertos = RG.filter(r => ABERTOS_LT.includes(r.situacao)), desat = abertos.filter(r => r.desatualizado).length, aten = RG.filter(r => r.atencao.length).length;
+    const card = (t, v, d) => '<div class="rast-kpi"><div class="t">' + esc(t) + '</div><div class="v">' + esc(v) + '</div><div class="s">' + esc(d) + "</div></div>";
+    const cards = [
+      card("Tempo médio de atendimento", x.pond == null ? "—" : N1(x.pond) + " dias", "pedido → entrega · 90% em até " + (x.p == null ? "—" : plural(x.p, "dia", "dias")) + " · mediana " + (x.med == null ? "—" : x.med)),
+      card("Onde está o tempo", (x.interno == null ? "—" : N1(x.interno)) + " + " + (x.correios == null ? "—" : N1(x.correios)) + " dias", "interno (pedido → postagem) + Correios (postagem → entrega)"),
+      card("Entregues no prazo", PCT(noPrazo, comPrev.length), NUM(noPrazo) + " no prazo · " + NUM(comPrev.length - noPrazo) + " com atraso, pela previsão dos Correios"),
+      card("Chips por dia", N1(x.porDia), NUM(x.q) + " chips em " + plural(x.n, "entrega", "entregas")),
+      card("Estoque flutuante", NUM(Math.round(x.flut || 0)) + " chips", "a caminho em média por dia"),
+      card("Estoque para cobrir a espera", x.cobre == null ? "—" : NUM(Math.round(x.cobre)) + " chips", "chips por dia × 90% em até"),
+      card("Em aberto agora", NUM(abertos.length), (desat ? NUM(desat) + " sem atualização dos Correios · " : "") + plural(aten, "precisa de atenção", "precisam de atenção")),
+    ];
+    // cruzamento com as outras duas dimensões
+    const cruza = d => {
+      let rows;
+      if (d === "tipo") rows = [...new Set(EG.flatMap(r => Object.keys(r.tipos || {})))].map(g => resumoGrupo(g, EG.filter(r => ((r.tipos || {})[g] || 0) > 0), r => (r.tipos || {})[g] || 0, nd));
+      else { const G = new Map(); for (const r of EG) { const c = DIM[d][2](r); if (c) (G.get(c) || G.set(c, []).get(c)).push(r); } rows = [...G.entries()].map(([c, rs]) => resumoGrupo(c, rs, w, nd)); }
+      rows = ordenaGrupos(rows.filter(u => u.n));
+      if (!rows.length) return "";
+      return "<h3>Por " + DIM[d][0].toLowerCase() + "</h3><div class='rast-tw rast-tw-mini'><table class='rast-table'><thead><tr><th>" + DIM[d][0] + "</th><th class='num'>Entregas</th><th class='num'>Tempo médio</th><th class='num'>90% em até</th><th class='num'>Correios</th><th class='num'>Chips por dia</th></tr></thead><tbody>"
+        + rows.slice(0, 10).map(u => '<tr class="' + (u.n < 5 ? "rast-muted" : "") + '" style="cursor:default"><td>' + esc(d === "tipo" ? rotTipo(u.k) : u.k) + '</td><td class="num">' + NUM(u.n) + '</td><td class="num"><b>' + N1(u.pond) + ' d</b></td><td class="num">' + (u.p == null ? "—" : u.p + " d") + '</td><td class="num">' + (u.correios == null ? "—" : N1(u.correios) + " d") + '</td><td class="num">' + N1(u.porDia) + "</td></tr>").join("")
+        + "</tbody></table></div>" + (rows.length > 10 ? "<p class='rast-muted' style='font-size:10.5px;margin:2px 0 0'>Mostrando os 10 piores de " + rows.length + ".</p>" : "");
+    };
+    // envios mais demorados (pedido -> entrega) do grupo
+    const lentos = EG.slice().sort((a, b) => tAtend(b) - tAtend(a)).slice(0, 5); st.grupoLentos = lentos;
+    const lentosHtml = lentos.length ? "<h3>Envios mais demorados</h3><div class='rast-tw rast-tw-mini'><table class='rast-table'><thead><tr><th>Código</th><th>Cliente</th><th class='num'>Dias</th><th>Destino</th><th>Entregue</th></tr></thead><tbody>"
+      + lentos.map((r, i) => '<tr class="rast-clic" data-lento="' + i + '" title="Clique para ver o histórico do envio"><td>' + esc(r.codigo) + '</td><td class="nm">' + esc(clienteDe(r)) + '</td><td class="num"><b>' + tAtend(r) + "</b></td><td>" + esc(r.destino) + "</td><td>" + DT(r.entregueEm) + "</td></tr>").join("") + "</tbody></table></div>" : "";
+    const filtros = Object.keys(FILTROS).filter(f2 => st[f2]).map(f2 => FILTROS[f2][0] + ": " + (FILTROS[f2][2] ? FILTROS[f2][2](st[f2]) : st[f2]));
+    const podeFiltrar = k !== "Sem filial";
+    el("rast-drc").innerHTML = "<h2>" + esc(nome) + "</h2><div class='rast-muted' style='font-size:11.5px'>" + DIM[dim][0] + " · tempo de atendimento e estoque" + (filtros.length ? " · com os filtros da página: " + esc(filtros.join(" · ")) : " · todo o período") + "</div>"
+      + (podeFiltrar ? "<div class='rast-dr-acoes'><button type='button' class='clear-btn' id='rast-g-filtra'>Filtrar a página por " + DIM[dim][3] + "</button>" + (!Array.isArray(ABAS_PERMITIDAS) || ABAS_PERMITIDAS.includes("consultarastreio") ? "<button type='button' class='clear-btn' id='rast-g-lista'>Ver os envios na Consulta de Rastreios</button>" : "") + "</div>" : "")
+      + "<div class='rast-dr-kpis'>" + cards.join("") + "</div>"
+      + "<h3>Evolução mensal</h3>" + miniEvol(evolucao(RG, "mes", w))
+      + Object.keys(DIM).filter(d => d !== dim).map(cruza).join("")
+      + lentosHtml;
+    const filtra = () => { if (st[DIM[dim][1]] !== k) setFiltro(DIM[dim][1], k); };
+    if (el("rast-g-filtra")) el("rast-g-filtra").onclick = () => { filtra(); fecha(); };
+    if (el("rast-g-lista")) el("rast-g-lista").onclick = () => { filtra(); fecha(); if (window.abrirAba) window.abrirAba("consultarastreio"); };
+    el("rast-drc").querySelectorAll("tr[data-lento]").forEach(tr => tr.onclick = () => abre(st.grupoLentos[+tr.dataset.lento], { rot: nome, fn: () => abreGrupo(dim, k) }));
+    el("rast-dr").scrollTop = 0;
     el("rast-dr").classList.add("is-on"); el("rast-ov").classList.add("is-on"); el("rast-dr").setAttribute("aria-hidden", "false");
   }
   function fecha() { el("rast-dr").classList.remove("is-on"); el("rast-ov").classList.remove("is-on"); el("rast-dr").setAttribute("aria-hidden", "true"); }
@@ -4156,14 +4267,14 @@ const BiXlsx = (() => {
   el("rast-ev-graf").addEventListener("click", clicaEv); el("rast-ev-tb").addEventListener("click", clicaEv);
   document.querySelectorAll("#rast-ev-per button").forEach(b => b.onclick = () => { st.evPer = b.dataset.per; document.querySelectorAll("#rast-ev-per button").forEach(x => x.classList.toggle("is-on", x === b)); if (D) analiseEvol(); });
   document.querySelectorAll("#rast-ev-met button").forEach(b => b.onclick = () => { st.evMet = b.dataset.met; document.querySelectorAll("#rast-ev-met button").forEach(x => x.classList.toggle("is-on", x === b)); if (D) analiseEvol(); });
-  el("rast-lt-tb").addEventListener("click", e => { if (!D) return; const t = e.target.closest("tr[data-k]"); if (!t || t.dataset.k === "Sem filial") return; setFiltro(st.ltPor === "filial" ? "fil" : "uf", t.dataset.k); });
+  el("rast-lt-tb").addEventListener("click", e => { if (!D) return; const t = e.target.closest("tr[data-k]"); if (t) abreGrupo(st.ltPor, t.dataset.k); });
   document.querySelectorAll("#rast-lt-por button").forEach(b => b.onclick = () => { st.ltPor = b.dataset.por; document.querySelectorAll("#rast-lt-por button").forEach(x => x.classList.toggle("is-on", x === b)); if (D) analiseLt(recorte()); });
   // gráfico por mês: pedaço = mês + situação do mês; rótulo do mês = só o mês; legenda = só a situação
   el("rast-g-mes").addEventListener("click", e => {
     if (!D) return; const t = e.target.closest("[data-mes]"); if (!t) return;
     if (!t.dataset.cat) { setFiltro("mes", t.dataset.mes); return; }
     const mesmo = st.mes === t.dataset.mes && st.cat === t.dataset.cat;
-    st.mes = mesmo ? "" : t.dataset.mes; el("rast-mes").value = st.mes;
+    st.mes = mesmo ? "" : t.dataset.mes; syncSel("mes");
     st.cat = mesmo ? t.dataset.cat : "";   // setFiltro alterna: vazio -> escolhe a situação; igual -> limpa
     setFiltro("cat", t.dataset.cat);
   });
@@ -4176,17 +4287,20 @@ const BiXlsx = (() => {
   // ---- filtros
   function montaFiltros() {
     const uni = f => [...new Set(D.envios.map(f).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true }));
-    opts(el("rast-mes"), uni(r => r.mesRef).reverse(), "Todo o período", rotMes);
-    opts(el("rast-fil"), uni(r => r.filial), "Toda filial");
-    opts(el("rast-uf"), uni(r => r.ufDestino), "Toda UF");
-    opts(el("rast-prazo"), PRAZOS.filter(p => D.envios.some(r => r.prazo === p)), "Todo prazo");
+    for (const p of ["rast", "cons"]) {
+      opts(el(p + "-mes"), uni(r => r.mesRef).reverse(), "Todo o período", rotMes);
+      opts(el(p + "-fil"), uni(r => r.filial), "Toda filial");
+      opts(el(p + "-uf"), uni(r => r.ufDestino), "Toda UF");
+      opts(el(p + "-prazo"), PRAZOS.filter(pz => D.envios.some(r => r.prazo === pz)), "Todo prazo");
+      opts(el(p + "-tipo"), [...new Set(D.envios.flatMap(r => Object.keys(r.tipos || {})))].sort(), "Todo tipo", rotTipo);
+    }
     opts(el("rast-sit"), (D.meta.situacoes || []).filter(s => D.envios.some(r => r.situacao === s)), "Toda situação");
     opts(el("rast-flag"), [...new Set(D.envios.flatMap(r => r.atencao))].sort(), "Todo motivo de atenção");
   }
-  [["rast-mes", "mes"], ["rast-fil", "fil"], ["rast-uf", "uf"], ["rast-prazo", "prazo"], ["rast-sit", "sit"], ["rast-flag", "flag"]].forEach(([id, k]) => el(id).onchange = e => { st[k] = e.target.value; render(); });
+  Object.entries(SELECT_DE).forEach(([k, ids]) => ids.forEach(id => el(id).onchange = e => { st[k] = e.target.value; syncSel(k); render(); }));
   el("rast-q").oninput = e => { st.q = e.target.value; render(); };
   document.querySelectorAll("#rast-vistas button").forEach(b => b.onclick = () => { if (D) trocaVista(b.dataset.vista); });
-  el("rast-limpa").onclick = () => { st.mes = st.fil = st.uf = st.prazo = st.sit = st.flag = st.grupo = st.cat = st.cidade = st.sem = st.q = ""; ["rast-mes", "rast-fil", "rast-uf", "rast-prazo", "rast-sit", "rast-flag", "rast-q"].forEach(id => el(id).value = ""); render(); };
+  el("rast-limpa").onclick = () => { st.mes = st.fil = st.uf = st.prazo = st.sit = st.flag = st.grupo = st.cat = st.cidade = st.sem = st.tipo = st.q = ""; Object.values(SELECT_DE).flat().concat(["rast-q"]).forEach(id => el(id).value = ""); render(); };
 
   // ---- exportação .xlsx (BiXlsx compartilhado): envios da tabela + 1 linha por evento dos Correios
   el("rast-xls").onclick = () => {
@@ -4194,7 +4308,7 @@ const BiXlsx = (() => {
     const colsE = [["Situação", "t", r => statusResumo(r).txt], ["Situação nos Correios", "t", r => r.situacao], ["Prazo", "t", r => r.prazo], ["Motivos de atenção", "t", r => r.atencao.join("; ")], ["Filial", "t", r => r.filial], ["Cliente Mira", "t", r => r.cliente], ["Loja AQT", "t", r => r.loja],
       ["Fornecedor AQT", "t", r => r.fornecedor], ["Pedido AQT", "t", r => r.pedAQT], ["Pedido Mira", "t", r => r.pedMira], ["Outros pedidos Mira no mesmo envio", "t", r => outrosTxt(r)], ["Origem do envio", "t", r => ORIGEM[r.origem] || r.origem || ""], ["Código de rastreio", "t", r => r.codigo], ["Modalidade", "t", r => modalTxt(r)], ["Sigla do tipo de postagem", "t", r => r.sigla], ["Etiqueta", "d", r => r.etiquetaEm], ["Postado", "d", r => r.postadoEm],
       ["Entregue", "d", r => r.entregueEm], ["Previsão", "d", r => r.previsao], ["Dias (corridos)", "n0", r => r.dias], ["Destino", "t", r => r.destino], ["UF destino", "t", r => r.ufDestino],
-      ["Data do pedido", "d", r => r.dataPedido], ["Processado no Mira", "d", r => r.processadoEm], ["Tempo de atendimento: pedido → entrega (dias)", "n0", r => { const t = tAtend(r); return t != null && t >= 0 ? t : null; }], ["Chips no envio", "n0", r => r.qte || null],
+      ["Data do pedido", "d", r => r.dataPedido], ["Processado no Mira", "d", r => r.processadoEm], ["Tempo de atendimento: pedido → entrega (dias)", "n0", r => { const t = tAtend(r); return t != null && t >= 0 ? t : null; }], ["Chips no envio", "n0", r => r.qte || null], ["Chips por tipo de produto", "t", r => tiposTxt(r)],
       ["Última consulta aos Correios", "d", r => r.consultadoEm], ["Rastreio desatualizado", "t", r => r.desatualizado ? "Sim" : ""],
       ["Último evento", "t", r => r.ultimo ? r.ultimo.desc : ""], ["Data do último evento", "d", r => r.ultimo ? r.ultimo.em : ""], ["Local do último evento", "t", r => r.ultimo ? r.ultimo.local : ""]];
     const evs = st.rows.flatMap(r => r.eventos.slice().reverse().map(e => ({ r, e })));
@@ -4209,7 +4323,7 @@ const BiXlsx = (() => {
     const L = calcLt(recorte());
     const colsU = rot => [[rot, "t", u => u.k], ["Entregas", "n0", u => u.n], ["Chips entregues", "n0", u => u.q], ["Chips por dia", "t", u => N1(u.porDia)], ["Tempo médio ponderado (dias)", "t", u => N1(u.pond)], ["Mediana (dias)", "n0", u => u.med], ["90% em até (dias)", "n0", u => u.p],
       ["Interno: pedido → postagem (dias)", "t", u => N1(u.interno)], ["Correios: postagem → entrega (dias)", "t", u => N1(u.correios)], ["Estoque flutuante (chips)", "n0", u => Math.round(u.flut || 0)], ["Estoque para cobrir a espera (chips)", "n0", u => Math.round(u.cobre)]];
-    if (L.ent.length) abas.push({ nome: "Tempo de atendimento por filial", xml: BiXlsx.planilhaXml(colsU("Filial"), L.fils) }, { nome: "Tempo de atendimento por UF", xml: BiXlsx.planilhaXml(colsU("UF de destino"), L.ufs) });
+    if (L.ent.length) abas.push({ nome: "Tempo de atendimento por filial", xml: BiXlsx.planilhaXml(colsU("Filial"), L.fils) }, { nome: "Tempo de atendimento por UF", xml: BiXlsx.planilhaXml(colsU("UF de destino"), L.ufs) }, { nome: "Tempo de atendimento por tipo", xml: BiXlsx.planilhaXml(colsU("Tipo de produto").map((c, i) => i === 0 ? [c[0], c[1], u => rotTipo(u.k)] : c), L.tipos) });
     const colsP = (rot) => [[rot, "t", p => p.rot], ["Entregas", "n0", p => p.n], ["Chips entregues", "n0", p => p.chips], ["Chips por dia", "t", p => N1(p.porDia)], ["Tempo médio ponderado (dias)", "t", p => N1(p.pond)], ["Mediana (dias)", "n0", p => p.med], ["90% em até (dias)", "n0", p => p.p],
       ["Correios: postagem → entrega (dias)", "t", p => N1(p.correios)], ["Estoque flutuante (chips)", "n0", p => Math.round(p.flut || 0)], ["Estoque para cobrir a espera (chips)", "n0", p => p.cobre == null ? null : Math.round(p.cobre)], ["Período incompleto", "t", p => p.parcial ? "Sim (" + p.diasP + " dias)" : ""], ["Envios ainda a caminho", "n0", p => p.aCaminho || null]];
     const PM = evolucao(recorte(["mes", "sem"]), "mes"), PS = evolucao(recorte(["sem"]), "sem");
@@ -4234,16 +4348,17 @@ const BiXlsx = (() => {
         // semana (segunda-feira) da mesma data que define o mês do envio: postagem; sem ela, etiqueta, 1o evento ou pedido
         for (const r of todos) { const ev = r.eventos || [], base = r.postadoEm || r.etiquetaEm || (ev.length ? ev[ev.length - 1].em : "") || r.dataPedido; r.semRef = base ? segunda(base) : ""; }
         D = { envios: todos.filter(r => !r.semHist), semHist: todos.filter(r => r.semHist), cobertura: j.cobertura || [], meta: j.meta || {} };
-        el("rast-sync").textContent = D.meta.ultimaConsulta ? DTH(D.meta.ultimaConsulta) : D.meta.sincronizadoEm ? DTH(D.meta.sincronizadoEm) : "—";
+        el("rast-sync").textContent = el("cons-sync").textContent = D.meta.ultimaConsulta ? DTH(D.meta.ultimaConsulta) : D.meta.sincronizadoEm ? DTH(D.meta.sincronizadoEm) : "—";
         montaFiltros(); render();
       })
       .catch(() => { carregando = false; msg("Não consegui carregar os dados. Se a sessão expirou, recarregue a página e entre de novo."); });
   }
   window.renderRastreio = () => { if (D) render(); else carregar(); };
+  window.renderConsultaRastreio = window.renderRastreio;
 })();
 
 (function initTabs() {
-  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar", "inadimplencia", "rastreio"];
+  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar", "inadimplencia", "rastreio", "consultarastreio"];
   const btns = {}, contents = {};
   for (const t of tabs) {
     btns[t] = document.getElementById("tab-btn-" + t);
@@ -4263,6 +4378,7 @@ const BiXlsx = (() => {
     if (tab === "comparar" && window.renderComparar) window.renderComparar();
     if (tab === "inadimplencia" && window.renderInadimplencia) window.renderInadimplencia();
     if (tab === "rastreio" && window.renderRastreio) window.renderRastreio();
+    if (tab === "consultarastreio" && window.renderConsultaRastreio) window.renderConsultaRastreio();
 
     // log de acessos por aba (fase 2) - so na versao hospedada (tem sessao/usuario logado),
     // fire-and-forget: nunca deve travar/atrasar a troca de aba, mesmo se a chamada falhar.
@@ -4280,6 +4396,8 @@ const BiXlsx = (() => {
   // liberada, abre na primeira que estiver (o conteudo das outras fica escondido e sem dados)
   const liberadas = tabs.filter((t) => !Array.isArray(ABAS_PERMITIDAS) || ABAS_PERMITIDAS.includes(t));
   window.ABA_INICIAL = liberadas[0] || null;
+  // troca de aba chamada de dentro de outra aba (ex.: Rastreio de Envios -> Consulta de Rastreios), só para aba liberada
+  window.abrirAba = t => { if (liberadas.includes(t)) { activate(t); window.scrollTo({ top: 0, behavior: "smooth" }); } };
   if (liberadas.length < tabs.length) {
     for (const t of tabs) if (!liberadas.includes(t)) btns[t].remove();
     if (!liberadas.length) {

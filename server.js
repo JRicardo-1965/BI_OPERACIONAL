@@ -221,7 +221,7 @@ function requireAuth(req, res, next) {
 // O Portal manda no token do /sso a lista de abas do usuario neste BI SO quando ha restricao
 // (USUARIOS_SIS_BI_ABAS); sem o campo = todas. A lista fica no cookie de sessao (assinado) e vale ate o
 // proximo login pelo Portal. Aba nao liberada: some da tela E o servidor nao manda os dados dela.
-const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'faturamento', 'comparar', 'inadimplencia', 'rastreio'];
+const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'faturamento', 'comparar', 'inadimplencia', 'rastreio', 'consultarastreio'];
 function abasValidas(abas) {
   if (!Array.isArray(abas)) return null;
   // lado seguro: lista que so tem abas desconhecidas vira "nenhuma aba", nunca "todas"
@@ -368,7 +368,8 @@ app.post('/api/sync-rastreio', express.json({ limit: '25mb' }), (req, res) => {
 // Mesma regra da inadimplência: linha com codEmpresa só para quem tem a empresa; sem empresa, só para quem tem todas.
 app.get('/api/rastreio', requireAuth, (req, res) => {
   res.set('Cache-Control', 'no-store');
-  if (!abaLiberada(req.abas, 'rastreio')) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
+  // os mesmos dados alimentam "Rastreio de Envios" (gráficos e análises) e "Consulta de Rastreios" (lista)
+  if (!algumaLiberada(req.abas, ['rastreio', 'consultarastreio'])) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
   if (!latestRastreio) return res.json({ ok: false, motivo: 'sem_dados' });
   const allowed = empresasDoUsuario(req.userEmail);
   const universo = [...new Set((latestData.usuariosEmpresas || []).map((v) => String(v.empresa)))];
