@@ -1402,6 +1402,18 @@
   .rast-scope .rast-dr-kpis{ display:grid; grid-template-columns:repeat(auto-fill, minmax(175px, 1fr)); gap:8px; margin:10px 0 4px; }
   .rast-scope .rast-dr-acoes{ display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0; }
   .rast-scope .rast-dr .rast-tw-mini{ max-height:260px; }
+  /* aba "Consulta de ICCID" (usa o visual .rast-scope) */
+  .icc-scope .icc-entrada{ display:grid; grid-template-columns:1fr auto; gap:8px; margin:4px 0 12px; align-items:start; }
+  @media (max-width:760px){ .icc-scope .icc-entrada{ grid-template-columns:1fr; } }
+  .icc-scope textarea{ font:12px/1.45 Consolas, "Courier New", monospace; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 10px; width:100%; min-height:96px; resize:vertical; box-sizing:border-box; }
+  .icc-scope .icc-acoes{ display:flex; flex-direction:column; gap:6px; min-width:170px; }
+  .icc-scope .icc-principal{ border-color:var(--accent); font-weight:600; }
+  .icc-scope .icc-resumo{ display:flex; flex-wrap:wrap; gap:6px 18px; font-size:11.5px; color:var(--text-muted); margin:-4px 0 12px; }
+  .icc-scope .icc-resumo:empty{ display:none; }
+  .icc-scope .icc-resumo b{ color:var(--text); }
+  .icc-scope .icc-nao{ font-size:11.5px; color:var(--text-muted); margin:8px 0 0; }
+  .icc-scope .icc-nao:empty{ display:none; }
+  .icc-scope .icc-nao code{ font:11px Consolas, "Courier New", monospace; color:var(--text); }
   .rast-scope .rast-mais{ font-size:10px; color:var(--text-muted); border:1px solid var(--border); border-radius:99px; padding:0 5px; margin-left:4px; }
 </style>
 
@@ -1449,6 +1461,7 @@
       <button class="tab-btn" id="tab-btn-inadimplencia" type="button" data-tab="inadimplencia">Detalhamento Inadimplência</button>
       <button class="tab-btn" id="tab-btn-rastreio" type="button" data-tab="rastreio">Rastreio de Envios</button>
       <button class="tab-btn" id="tab-btn-consultarastreio" type="button" data-tab="consultarastreio">Consulta de Rastreios</button>
+      <button class="tab-btn" id="tab-btn-consultaiccid" type="button" data-tab="consultaiccid">Consulta de ICCID</button>
     </div>
 
     <!-- ===================== TAB: STATUS DOS PEDIDOS ===================== -->
@@ -1959,6 +1972,40 @@
     <div class="rast-scope">
     <div class="rast-ov" id="rast-ov"></div>
     <aside class="rast-dr" id="rast-dr" aria-hidden="true"><button class="rast-x" id="rast-fecha" type="button" title="Fechar (Esc)">×</button><div id="rast-drc"></div></aside>
+    </div>
+
+    <div id="tab-content-consultaiccid" class="is-hidden rast-scope icc-scope">
+    <div class="panel">
+      <p class="tab-context-note">
+        <b>Consulta de ICCID</b> · chips vendidos pelas empresas desde <b id="icc-desde">—</b> (Claro, Vivo e TIM) · base atualizada em <b id="icc-sync">—</b> &middot;
+        cole os ICCIDs abaixo, um por linha ou separados por espaço, vírgula ou ponto e vírgula (19 ou 20 dígitos, até <span id="icc-limite">5.000</span> por consulta).
+      </p>
+      <div class="icc-entrada">
+        <textarea id="icc-txt" rows="5" spellcheck="false" placeholder="Cole aqui um ou vários ICCIDs (Ctrl+Enter consulta)"></textarea>
+        <div class="icc-acoes">
+          <button type="button" class="clear-btn icc-principal" id="icc-buscar">Consultar</button>
+          <button type="button" class="clear-btn" id="icc-limpar">Limpar</button>
+          <span class="rast-muted" id="icc-conta">nenhum ICCID colado</span>
+        </div>
+      </div>
+      <div class="rast-kpis" id="icc-kpis"></div>
+      <div class="icc-resumo" id="icc-resumo"></div>
+      <div class="rast-tbar icc-tbar">
+        <input type="search" id="icc-q" placeholder="Filtrar o resultado (ICCID, comprador, cidade, produto…)">
+        <select id="icc-loja"></select>
+        <select id="icc-chip"></select>
+        <button class="clear-btn copy-btn" id="icc-xls" type="button">📋 Exportar para Excel</button>
+      </div>
+      <p class="rast-tot" id="icc-tot"></p>
+      <div class="rast-tw"><table class="rast-table"><thead id="icc-th"></thead><tbody id="icc-tb"><tr><td class="rast-msg">Cole os ICCIDs acima e clique em Consultar.</td></tr></tbody></table></div>
+      <div class="icc-nao" id="icc-nao"></div>
+      <div class="footnote" id="icc-nota">
+        Fonte: DW do Aqui Tem+ (vendas do Mira cruzadas com as ativações das operadoras) · 1 linha por chip vendido com o ICCID registrado na venda &middot;
+        tipo de loja = segmento do cadastro de quem comprou: Revenda = PDV loja física; Parceiros e Agentes Autorizados = SUB; Afiliados = Afiliado &middot;
+        tipo de chip = grupo do produto no cadastro &middot; ICCID com 19 dígitos (sem o dígito verificador) também é encontrado &middot;
+        só aparecem chips vendidos pelas empresas do seu usuário; os demais contam como não encontrados.
+      </div>
+    </div>
     </div>
 
     <p class="footer-note" style="font-size:10.5px;color:var(--text-faint);text-align:center;padding:4px 0 0;">BI Operacional — Aqui Tem Mais · dados processados em <b>__PROCESSADO_EM__</b></p>
@@ -4338,8 +4385,133 @@ const BiXlsx = (() => {
   window.renderConsultaRastreio = window.renderRastreio;
 })();
 
+(function initIccidTab() {
+  // aba "Consulta de ICCID": nada da base vai na página; a consulta vai ao servidor (POST /api/iccid/consulta)
+  const el = id => document.getElementById(id);
+  if (!el("tab-content-consultaiccid")) return;
+  const esc = s => String(s == null ? "" : s).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;");
+  const DT = v => v ? String(v).slice(0, 10).split("-").reverse().join("/") : "";
+  const NUM = v => (v || 0).toLocaleString("pt-BR");
+  const PCT = (a, b) => b ? Math.round(100 * a / b) + "%" : "—";
+  const st = { meta: null, limite: 5000, res: null, q: "", loja: "", chip: "", sort: ["dataVenda", -1], rows: [] };
+  // ICCIDs colados: separa por linha, vírgula, ponto e vírgula ou tab; se o pedaço tiver 19/20 dígitos é 1 ICCID
+  // (mesmo com espaços no meio), senão cada palavra vira um item
+  const ehDig = ch => ch >= "0" && ch <= "9";
+  const SEP = [",", ";", String.fromCharCode(9), String.fromCharCode(10), String.fromCharCode(13)];
+  function extrai(txt) {
+    const pedacos = []; let cur = "";
+    for (const ch of String(txt || "")) { if (SEP.includes(ch)) { pedacos.push(cur); cur = ""; } else cur += ch; }
+    pedacos.push(cur);
+    const out = [];
+    for (const p of pedacos) {
+      const t = p.trim(); if (!t) continue;
+      const so = [...t].filter(ehDig).join("");
+      if (so.length === 19 || so.length === 20) { out.push(so); continue; }
+      for (const pal of t.split(" ")) { const d = [...pal].filter(ehDig).join(""); if (d) out.push(d); }
+    }
+    return out;
+  }
+  const validos = lista => [...new Set(lista.filter(k => k.length === 19 || k.length === 20))];
+  function conta() {
+    const l = extrai(el("icc-txt").value), v = validos(l);
+    el("icc-conta").textContent = !l.length ? "nenhum ICCID colado" : NUM(v.length) + (v.length === 1 ? " ICCID" : " ICCIDs") + (l.length - v.length ? " · " + NUM(l.length - v.length) + " itens repetidos ou inválidos" : "");
+  }
+  // nome da operadora como se escreve (o DW manda em maiúsculas)
+  const rotOp = o => !o ? "" : o === "TIM" ? "TIM" : o.charAt(0) + o.slice(1).toLowerCase();
+  const SIT_FAM = s => s === "Ativado" ? "good" : s === "Não ativado" ? "warn" : "";
+  const ativTxt = a => !a ? "" : a.situacao === "Ativado" ? (a.data ? "Ativado em " + DT(a.data) : "Ativado") : a.ate ? a.situacao + (a.situacao === "Não ativado" ? " até " : " (dados até ") + DT(a.ate) + (a.situacao === "Não ativado" ? "" : ")") : a.situacao;
+  const COLS = [["iccid", "ICCID", "t"], ["comprador", "Comprador", "nm"], ["tipoLoja", "Tipo de loja", "t"], ["tipoChip", "Tipo de chip", "t"], ["dataVenda", "Data da venda", "d"],
+    ["operadora", "Operadora", "t"], ["produto", "Produto", "t"], ["filial", "Filial", "t"], ["pedido", "Pedido Mira", "t"], ["ativacao", "Ativação", "at"], ["cidade", "Cidade / UF", "cid"]];
+  const val = (r, k) => k === "ativacao" ? ativTxt(r.ativacao) : k === "cidade" ? [r.cidade, r.uf].filter(Boolean).join(" / ") : k === "operadora" ? rotOp(r.operadora) : (r[k] || "");
+  function opts(sel, vals, rot) { sel.innerHTML = '<option value="">' + rot + "</option>" + vals.map(v => '<option value="' + esc(v) + '">' + esc(v) + "</option>").join(""); }
+  function linhas() {
+    const R = (st.res && st.res.resultados) || [], q = st.q.trim().toLowerCase();
+    return R.filter(r => (!st.loja || r.tipoLoja === st.loja) && (!st.chip || r.tipoChip === st.chip) && (!q || COLS.some(c => String(val(r, c[0])).toLowerCase().includes(q))));
+  }
+  function tabela() {
+    const [sk, sd] = st.sort, R = linhas();
+    const sv = (r, k) => k === "dataVenda" ? r.dataVenda || "" : String(val(r, k));
+    const rows = R.slice().sort((a, b) => sv(a, sk).localeCompare(sv(b, sk), "pt-BR", { numeric: true }) * sd); st.rows = rows;
+    el("icc-th").innerHTML = "<tr>" + COLS.map(c => '<th data-k="' + c[0] + '" class="' + (sk === c[0] ? "s" + (sd < 0 ? " desc" : "") : "") + '">' + c[1] + "</th>").join("") + "</tr>";
+    el("icc-th").querySelectorAll("th").forEach(h => h.onclick = () => { const k = h.dataset.k; st.sort = [k, st.sort[0] === k ? -st.sort[1] : 1]; tabela(); });
+    el("icc-tb").innerHTML = rows.length ? rows.map(r => "<tr style='cursor:default'>" + COLS.map(c => {
+      if (c[2] === "at") return '<td><span class="rast-sit ' + SIT_FAM(r.ativacao && r.ativacao.situacao) + '"><i></i>' + esc(ativTxt(r.ativacao)) + "</span></td>";
+      if (c[2] === "d") return "<td>" + DT(r.dataVenda) + "</td>";
+      if (c[0] === "iccid") return '<td title="' + (r.consultado && r.consultado.length === 19 ? "consultado com 19 dígitos" : "") + '">' + esc(r.iccid) + "</td>";
+      return '<td class="' + (c[2] === "nm" ? "nm" : "") + '">' + esc(val(r, c[0])) + "</td>";
+    }).join("") + "</tr>").join("") : '<tr><td class="rast-msg" colspan="' + COLS.length + '">' + (st.res ? "Nenhum chip com esses filtros." : "Cole os ICCIDs acima e clique em Consultar.") + "</td></tr>";
+    el("icc-tot").innerHTML = st.res ? "<b>" + NUM(rows.length) + "</b> de " + NUM((st.res.resultados || []).length) + " chips encontrados" : "";
+  }
+  function resumo() {
+    const r = st.res; if (!r) { el("icc-kpis").innerHTML = ""; el("icc-resumo").innerHTML = ""; el("icc-nao").innerHTML = ""; return; }
+    const achados = new Set(r.resultados.map(x => x.consultado)).size, consultados = achados + r.naoEncontrados.length;
+    const ativos = r.resultados.filter(x => x.ativacao && x.ativacao.situacao === "Ativado").length, compradores = new Set(r.resultados.map(x => x.codEmpresa + "|" + x.comprador)).size;
+    const card = (t, v, d) => '<div class="rast-kpi"><div class="t">' + esc(t) + '</div><div class="v">' + esc(v) + '</div><div class="s">' + esc(d) + "</div></div>";
+    el("icc-kpis").innerHTML = [card("ICCIDs consultados", NUM(consultados), (r.repetidos ? NUM(r.repetidos) + " repetidos ignorados" : "sem repetidos") + (r.invalidos.length ? " · " + NUM(r.invalidos.length) + " inválidos" : "")),
+      card("Encontrados", NUM(achados), PCT(achados, consultados) + " dos consultados"), card("Não encontrados", NUM(r.naoEncontrados.length), "fora da base ou de outra empresa"),
+      card("Ativados", NUM(ativos), PCT(ativos, r.resultados.length) + " dos encontrados, pelos dados das operadoras"), card("Compradores", NUM(compradores), "clientes diferentes nos chips encontrados")].join("");
+    const grupo = k => { const m = {}; r.resultados.forEach(x => { const v = (k === "operadora" ? rotOp(x[k]) : x[k]) || "—"; m[v] = (m[v] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([n, q]) => esc(n) + " <b>" + NUM(q) + "</b>").join(" · "); };
+    el("icc-resumo").innerHTML = r.resultados.length ? "<span>Tipo de loja: " + grupo("tipoLoja") + "</span><span>Tipo de chip: " + grupo("tipoChip") + "</span><span>Operadora: " + grupo("operadora") + "</span>" : "";
+    const lista = (t, a) => a.length ? "<div><b>" + NUM(a.length) + "</b> " + t + ": <code>" + a.slice(0, 60).map(esc).join(", ") + "</code>" + (a.length > 60 ? " … (lista completa na exportação)" : "") + "</div>" : "";
+    el("icc-nao").innerHTML = lista(r.naoEncontrados.length === 1 ? "ICCID não encontrado nas suas empresas" : "ICCIDs não encontrados nas suas empresas", r.naoEncontrados) + lista(r.invalidos.length === 1 ? "item não parece ICCID (não tem 19 ou 20 dígitos)" : "itens não parecem ICCID (não têm 19 ou 20 dígitos)", r.invalidos);
+    opts(el("icc-loja"), [...new Set(r.resultados.map(x => x.tipoLoja).filter(Boolean))].sort(), "Todo tipo de loja");
+    opts(el("icc-chip"), [...new Set(r.resultados.map(x => x.tipoChip).filter(Boolean))].sort(), "Todo tipo de chip");
+    st.loja = st.chip = "";
+  }
+  function aviso(t) { st.res = null; resumo(); el("icc-tb").innerHTML = '<tr><td class="rast-msg">' + esc(t) + "</td></tr>"; el("icc-th").innerHTML = ""; el("icc-tot").textContent = ""; }
+  function consultar() {
+    const lista = extrai(el("icc-txt").value);
+    if (!lista.length) { aviso("Cole pelo menos um ICCID para consultar."); return; }
+    if (validos(lista).length > st.limite) { aviso("São " + NUM(validos(lista).length) + " ICCIDs; o limite é " + NUM(st.limite) + " por consulta. Divida a lista em partes."); return; }
+    el("icc-buscar").disabled = true; el("icc-buscar").textContent = "Consultando…";
+    fetch("/api/iccid/consulta", { method: "POST", credentials: "same-origin", cache: "no-store", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ iccids: lista }) })
+      .then(r => { const ct = r.headers.get("content-type") || ""; if (ct.indexOf("json") < 0) throw new Error("sessao"); return r.json(); })
+      .then(j => {
+        if (!j.ok) { aviso(j.motivo === "aba_nao_liberada" ? "Esta aba não está liberada para o seu usuário." : j.motivo === "muitos" ? "O limite é " + NUM(j.limite) + " ICCIDs por consulta." : "A base de ICCIDs ainda não foi sincronizada. Tente de novo depois do próximo ciclo de atualização."); return; }
+        st.res = j; st.q = ""; el("icc-q").value = ""; resumo(); tabela();
+      })
+      .catch(() => aviso("Não consegui consultar. Se a sessão expirou, recarregue a página e entre de novo."))
+      .finally(() => { el("icc-buscar").disabled = false; el("icc-buscar").textContent = "Consultar"; });
+  }
+  el("icc-txt").addEventListener("input", conta);
+  el("icc-txt").addEventListener("keydown", e => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); consultar(); } });
+  el("icc-buscar").onclick = consultar;
+  el("icc-limpar").onclick = () => { el("icc-txt").value = ""; conta(); st.res = null; resumo(); tabela(); el("icc-txt").focus(); };
+  el("icc-q").oninput = e => { st.q = e.target.value; tabela(); };
+  el("icc-loja").onchange = e => { st.loja = e.target.value; tabela(); };
+  el("icc-chip").onchange = e => { st.chip = e.target.value; tabela(); };
+  opts(el("icc-loja"), [], "Todo tipo de loja"); opts(el("icc-chip"), [], "Todo tipo de chip");
+  el("icc-xls").onclick = () => {
+    if (!st.res) return;
+    const colsR = [["ICCID", "t", r => r.iccid], ["ICCID consultado", "t", r => r.consultado], ["Comprador", "t", r => r.comprador], ["Tipo de loja", "t", r => r.tipoLoja], ["Tipo de chip", "t", r => r.tipoChip], ["Data da venda", "d", r => r.dataVenda],
+      ["Operadora", "t", r => rotOp(r.operadora)], ["Produto", "t", r => r.produto], ["Filial", "t", r => r.filial], ["Pedido Mira", "t", r => r.pedido], ["Situação de ativação", "t", r => r.ativacao ? r.ativacao.situacao : ""],
+      ["Data da ativação", "d", r => r.ativacao ? r.ativacao.data : ""], ["Dados de ativação até", "d", r => r.ativacao ? r.ativacao.ate || "" : ""], ["Cidade", "t", r => r.cidade], ["UF", "t", r => r.uf]];
+    const abas = [{ nome: "ICCIDs encontrados", xml: BiXlsx.planilhaXml(colsR, st.rows) }];
+    if (st.res.naoEncontrados.length) abas.push({ nome: "Não encontrados", xml: BiXlsx.planilhaXml([["ICCID", "t", k => k]], st.res.naoEncontrados) });
+    if (st.res.invalidos.length) abas.push({ nome: "Inválidos", xml: BiXlsx.planilhaXml([["Item colado", "t", k => k]], st.res.invalidos) });
+    const blob = BiXlsx.montaXlsx(abas), a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "consulta_iccid_" + new Date().toISOString().slice(0, 10) + ".xlsx"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  // dados da base (período, atualização, até quando cada operadora tem ativação) ao abrir a aba
+  window.renderIccid = () => {
+    if (st.meta) return;
+    fetch("/api/iccid/meta", { credentials: "same-origin", cache: "no-store" })
+      .then(r => { const ct = r.headers.get("content-type") || ""; if (ct.indexOf("json") < 0) throw new Error("sessao"); return r.json(); })
+      .then(j => {
+        if (!j.ok) { if (j.motivo === "aba_nao_liberada") aviso("Esta aba não está liberada para o seu usuário."); return; }
+        st.meta = j.meta || {}; st.limite = j.limite || 5000; el("icc-limite").textContent = NUM(st.limite);
+        el("icc-desde").textContent = DT(st.meta.vendaDe) || "—";
+        const at = j.syncedAt || st.meta.geradoEm; el("icc-sync").textContent = at ? new Date(at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+        const c = st.meta.corteAtivacao || {}, ops = ["CLARO", "VIVO", "TIM"].map(o => rotOp(o) + (c[o] ? " até " + DT(c[o]) : " sem dados"));
+        el("icc-nota").insertAdjacentHTML("beforeend", " &middot; dados de ativação das operadoras: " + esc(ops.join(", ")) + ".");
+      })
+      .catch(() => {});
+  };
+  tabela();
+})();
+
 (function initTabs() {
-  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar", "inadimplencia", "rastreio", "consultarastreio"];
+  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar", "inadimplencia", "rastreio", "consultarastreio", "consultaiccid"];
   const btns = {}, contents = {};
   for (const t of tabs) {
     btns[t] = document.getElementById("tab-btn-" + t);
@@ -4360,6 +4532,7 @@ const BiXlsx = (() => {
     if (tab === "inadimplencia" && window.renderInadimplencia) window.renderInadimplencia();
     if (tab === "rastreio" && window.renderRastreio) window.renderRastreio();
     if (tab === "consultarastreio" && window.renderConsultaRastreio) window.renderConsultaRastreio();
+    if (tab === "consultaiccid" && window.renderIccid) window.renderIccid();
 
     // log de acessos por aba (fase 2) - so na versao hospedada (tem sessao/usuario logado),
     // fire-and-forget: nunca deve travar/atrasar a troca de aba, mesmo se a chamada falhar.

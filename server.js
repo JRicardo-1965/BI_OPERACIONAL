@@ -70,6 +70,21 @@ if (fs.existsSync(RASTREIO_FILE)) {
   }
 }
 
+// Aba "Consulta de ICCID": o pacote gzip (op_iccid.json.gz do cruza_iccid.js, ~715 mil chips) chega em
+// POST /api/sync-iccid e fica em memória como texto ordenado + busca binária (iccid_busca.js); a página só consulta
+// os ICCIDs colados em POST /api/iccid/consulta, filtrando pelas empresas do usuário. Nunca vai embutido no HTML.
+const iccidBusca = require('./iccid_busca');
+const ICCID_FILE = path.join(__dirname, 'data', 'iccid.json.gz');
+let latestIccid = null;
+if (fs.existsSync(ICCID_FILE)) {
+  try {
+    latestIccid = iccidBusca.carregaPacote(fs.readFileSync(ICCID_FILE));
+    latestIccid.syncedAt = fs.statSync(ICCID_FILE).mtime.toISOString();
+  } catch (err) {
+    console.error('Não consegui ler data/iccid.json.gz existente, começando sem ICCIDs:', err.message);
+  }
+}
+
 let latestData = null;
 if (fs.existsSync(DATA_FILE)) {
   try {
@@ -221,7 +236,7 @@ function requireAuth(req, res, next) {
 // O Portal manda no token do /sso a lista de abas do usuario neste BI SO quando ha restricao
 // (USUARIOS_SIS_BI_ABAS); sem o campo = todas. A lista fica no cookie de sessao (assinado) e vale ate o
 // proximo login pelo Portal. Aba nao liberada: some da tela E o servidor nao manda os dados dela.
-const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'faturamento', 'comparar', 'inadimplencia', 'rastreio', 'consultarastreio'];
+const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'faturamento', 'comparar', 'inadimplencia', 'rastreio', 'consultarastreio', 'consultaiccid'];
 function abasValidas(abas) {
   if (!Array.isArray(abas)) return null;
   // lado seguro: lista que so tem abas desconhecidas vira "nenhuma aba", nunca "todas"
@@ -376,6 +391,43 @@ app.get('/api/rastreio', requireAuth, (req, res) => {
   const temTodas = universo.length > 0 && universo.every((e) => allowed.includes(e));
   const pode = (r) => (r.codEmpresa ? allowed.includes(String(r.codEmpresa)) : temTodas);
   res.json({ ok: true, meta: latestRastreio.meta, envios: latestRastreio.envios.filter(pode), cobertura: latestRastreio.cobertura.filter(pode), temTodas });
+});
+
+// --- Consulta de ICCID -------------------------------------------------------------
+app.post('/api/sync-iccid', express.raw({ type: 'application/octet-stream', limit: '40mb' }), (req, res) => {
+  const secret = req.header('X-Sync-Secret');
+  if (!secret || secret !== SYNC_SECRET) return res.status(403).json({ ok: false, error: 'Segredo de sincronização inválido.' });
+  if (!Buffer.isBuffer(req.body) || !req.body.length) return res.status(400).json({ ok: false, error: 'Pacote de ICCID vazio.' });
+  try {
+    const P = iccidBusca.carregaPacote(req.body);
+    P.syncedAt = new Date().toISOString();
+    latestIccid = P;
+    fs.mkdirSync(path.dirname(ICCID_FILE), { recursive: true });
+    fs.writeFileSync(ICCID_FILE, req.body);
+    res.json({ ok: true, syncedAt: P.syncedAt, chips: P.pos.length });
+  } catch (err) {
+    console.error('Erro processando /api/sync-iccid:', err);
+    res.status(500).json({ ok: false, error: 'Erro ao processar o pacote de ICCID.' });
+  }
+});
+const ICCID_MAX = 5000;
+app.get('/api/iccid/meta', requireAuth, (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!abaLiberada(req.abas, 'consultaiccid')) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
+  if (!latestIccid) return res.json({ ok: false, motivo: 'sem_dados' });
+  const m = latestIccid.meta || {};
+  res.json({ ok: true, meta: { geradoEm: m.geradoEm, vendaDe: m.vendaDe, vendaAte: m.vendaAte, corteAtivacao: m.corteAtivacao || {} }, syncedAt: latestIccid.syncedAt, limite: ICCID_MAX });
+});
+app.post('/api/iccid/consulta', requireAuth, express.json({ limit: '2mb' }), (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!abaLiberada(req.abas, 'consultaiccid')) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
+  if (!latestIccid) return res.json({ ok: false, motivo: 'sem_dados' });
+  const lista = Array.isArray(req.body && req.body.iccids) ? req.body.iccids : [];
+  if (lista.length > ICCID_MAX) return res.status(400).json({ ok: false, motivo: 'muitos', limite: ICCID_MAX });
+  // chip de empresa que o usuário não tem volta como "não encontrado" (não revela que existe)
+  const allowed = empresasDoUsuario(req.userEmail);
+  const r = iccidBusca.consulta(latestIccid, lista, (e) => allowed.includes(String(e)));
+  res.json(Object.assign({ ok: true, corteAtivacao: (latestIccid.meta || {}).corteAtivacao || {} }, r));
 });
 
 // --- log de acessos por aba (fase 2) ------------------------------------------
