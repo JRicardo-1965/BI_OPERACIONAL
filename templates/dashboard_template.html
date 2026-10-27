@@ -1413,6 +1413,10 @@
   .icc-scope .icc-resumo b{ color:var(--text); }
   .icc-scope .icc-nao{ font-size:11.5px; color:var(--text-muted); margin:8px 0 0; }
   .icc-scope .icc-nao:empty{ display:none; }
+  .icc-scope .icc-tbar{ grid-template-columns:1.6fr 1fr 1fr 1fr auto; }
+  @media (max-width:900px){ .icc-scope .icc-tbar{ grid-template-columns:1fr 1fr; } }
+  .icc-scope .icc-sis{ display:inline-block; padding:1px 7px; border-radius:9px; font-size:11px; font-weight:600; border:1px solid var(--border); color:var(--text-muted); }
+  .icc-scope .icc-sis.sgr{ border-color:var(--accent); color:var(--accent); }
   .icc-scope .icc-nao code{ font:11px Consolas, "Courier New", monospace; color:var(--text); }
   .rast-scope .rast-mais{ font-size:10px; color:var(--text-muted); border:1px solid var(--border); border-radius:99px; padding:0 5px; margin-left:4px; }
 </style>
@@ -1978,7 +1982,7 @@
     <div id="tab-content-consultaiccid" class="is-hidden rast-scope icc-scope">
     <div class="panel">
       <p class="tab-context-note">
-        <b>Consulta de ICCID</b> · chips vendidos pelas empresas desde <b id="icc-desde">—</b> (Claro, Vivo e TIM) · base atualizada em <b id="icc-sync">—</b> &middot;
+        <b>Consulta de ICCID</b> · <span id="icc-periodo">chips vendidos pelas empresas desde <b id="icc-desde">—</b></span> (Claro, Vivo e TIM) · base atualizada em <b id="icc-sync">—</b> &middot;
         cole os ICCIDs abaixo, um por linha ou separados por espaço, vírgula ou ponto e vírgula (19 ou 20 dígitos, até <span id="icc-limite">5.000</span> por consulta).
       </p>
       <div class="icc-entrada">
@@ -1995,6 +1999,7 @@
         <input type="search" id="icc-q" placeholder="Filtrar o resultado (ICCID, comprador, cidade, produto…)">
         <select id="icc-loja"></select>
         <select id="icc-chip"></select>
+        <select id="icc-ref" title="Em quais sistemas o ICCID tem venda"></select>
         <button class="clear-btn copy-btn" id="icc-xls" type="button">📋 Exportar para Excel</button>
       </div>
       <p class="rast-tot" id="icc-tot"></p>
@@ -4477,7 +4482,7 @@ const BiXlsx = (() => {
   const DT = v => v ? String(v).slice(0, 10).split("-").reverse().join("/") : "";
   const NUM = v => (v || 0).toLocaleString("pt-BR");
   const PCT = (a, b) => b ? Math.round(100 * a / b) + "%" : "—";
-  const st = { meta: null, limite: 5000, res: null, q: "", loja: "", chip: "", sort: ["dataVenda", -1], rows: [] };
+  const st = { meta: null, limite: 5000, res: null, q: "", loja: "", chip: "", ref: "", sort: ["dataVenda", -1], rows: [] };
   // ICCIDs colados: separa por linha, vírgula, ponto e vírgula ou tab; se o pedaço tiver 19/20 dígitos é 1 ICCID
   // (mesmo com espaços no meio), senão cada palavra vira um item
   const ehDig = ch => ch >= "0" && ch <= "9";
@@ -4503,14 +4508,20 @@ const BiXlsx = (() => {
   // nome da operadora como se escreve (o DW manda em maiúsculas)
   const rotOp = o => !o ? "" : o === "TIM" ? "TIM" : o.charAt(0) + o.slice(1).toLowerCase();
   const SIT_FAM = s => s === "Ativado" ? "good" : s === "Não ativado" ? "warn" : "";
-  const ativTxt = a => !a ? "" : a.situacao === "Ativado" ? (a.data ? "Ativado em " + DT(a.data) : "Ativado") : a.ate ? a.situacao + (a.situacao === "Não ativado" ? " até " : " (dados até ") + DT(a.ate) + (a.situacao === "Não ativado" ? "" : ")") : a.situacao;
-  const COLS = [["iccid", "ICCID", "t"], ["comprador", "Comprador", "nm"], ["tipoLoja", "Tipo de loja", "t"], ["tipoChip", "Tipo de chip", "t"], ["dataVenda", "Data da venda", "d"],
-    ["operadora", "Operadora", "t"], ["produto", "Produto", "t"], ["filial", "Filial", "t"], ["pedido", "Pedido Mira", "t"], ["ativacao", "Ativação", "at"], ["cidade", "Cidade / UF", "cid"]];
+  const ativTxt = a => !a ? "" : a.situacao === "Ativado" ? (a.data ? "Ativado em " + DT(a.data) : "Ativado") : a.desde ? a.situacao + " (dados desde " + DT(a.desde) + ")" : a.ate ? a.situacao + (a.situacao === "Não ativado" ? " até " : " (dados até ") + DT(a.ate) + (a.situacao === "Não ativado" ? "" : ")") : a.situacao;
+  // com o SGR (o sistema antigo) entram as colunas Sistema e Segmento no SGR, e o pedido pode ser do Mira ou do SGR
+  const temSgr = () => !!(st.meta && st.meta.sgr);
+  const COLS_TODAS = [["iccid", "ICCID", "t"], ["sistema", "Sistema", "sis"], ["comprador", "Comprador", "nm"], ["tipoLoja", "Tipo de loja", "t"], ["segmentoSgr", "Segmento no SGR", "t"], ["tipoChip", "Tipo de chip", "t"], ["dataVenda", "Data da venda", "d"],
+    ["operadora", "Operadora", "t"], ["produto", "Produto", "t"], ["filial", "Filial", "t"], ["pedido", "Pedido", "t"], ["ativacao", "Ativação", "at"], ["cidade", "Cidade / UF", "cid"]];
+  let COLS = COLS_TODAS;
+  const colunas = () => { COLS = temSgr() ? COLS_TODAS : COLS_TODAS.filter(c => c[0] !== "sistema" && c[0] !== "segmentoSgr").map(c => c[0] === "pedido" ? ["pedido", "Pedido Mira", "t"] : c); };
+  const REF_ROT = { "Mira": "Só no Mira", "SGR": "Só no SGR", "Mira e SGR": "No Mira e no SGR" };
+  colunas();
   const val = (r, k) => k === "ativacao" ? ativTxt(r.ativacao) : k === "cidade" ? [r.cidade, r.uf].filter(Boolean).join(" / ") : k === "operadora" ? rotOp(r.operadora) : (r[k] || "");
   function opts(sel, vals, rot) { sel.innerHTML = '<option value="">' + rot + "</option>" + vals.map(v => '<option value="' + esc(v) + '">' + esc(v) + "</option>").join(""); }
   function linhas() {
     const R = (st.res && st.res.resultados) || [], q = st.q.trim().toLowerCase();
-    return R.filter(r => (!st.loja || r.tipoLoja === st.loja) && (!st.chip || r.tipoChip === st.chip) && (!q || COLS.some(c => String(val(r, c[0])).toLowerCase().includes(q))));
+    return R.filter(r => (!st.loja || r.tipoLoja === st.loja) && (!st.chip || r.tipoChip === st.chip) && (!st.ref || r.referencia === st.ref) && (!q || COLS.some(c => String(val(r, c[0])).toLowerCase().includes(q))));
   }
   function tabela() {
     const [sk, sd] = st.sort, R = linhas();
@@ -4521,7 +4532,8 @@ const BiXlsx = (() => {
     el("icc-tb").innerHTML = rows.length ? rows.map(r => "<tr style='cursor:default'>" + COLS.map(c => {
       if (c[2] === "at") return '<td><span class="rast-sit ' + SIT_FAM(r.ativacao && r.ativacao.situacao) + '"><i></i>' + esc(ativTxt(r.ativacao)) + "</span></td>";
       if (c[2] === "d") return "<td>" + DT(r.dataVenda) + "</td>";
-      if (c[0] === "iccid") return '<td title="' + (r.consultado && r.consultado.length === 19 ? "consultado com 19 dígitos" : "") + '">' + esc(r.iccid) + "</td>";
+      if (c[0] === "iccid") return '<td title="' + (r.iccid.length === 19 && r.sistema === "SGR" ? "o SGR guarda o ICCID sem o dígito verificador" : r.consultado && r.consultado.length === 19 ? "consultado com 19 dígitos" : "") + '">' + esc(r.iccid) + "</td>";
+      if (c[2] === "sis") return '<td><span class="icc-sis' + (r.sistema === "SGR" ? " sgr" : "") + '" title="' + (r.sistema === "SGR" ? "venda registrada no SGR, o sistema antigo" : "venda registrada no Mira") + (r.referencia === "Mira e SGR" ? " · este ICCID tem venda nos dois sistemas" : "") + '">' + esc(r.sistema) + "</span></td>";
       return '<td class="' + (c[2] === "nm" ? "nm" : "") + '">' + esc(val(r, c[0])) + "</td>";
     }).join("") + "</tr>").join("") : '<tr><td class="rast-msg" colspan="' + COLS.length + '">' + (st.res ? "Nenhum chip com esses filtros." : "Cole os ICCIDs acima e clique em Consultar.") + "</td></tr>";
     el("icc-tot").innerHTML = st.res ? "<b>" + NUM(rows.length) + "</b> de " + NUM((st.res.resultados || []).length) + " chips encontrados" : "";
@@ -4534,13 +4546,23 @@ const BiXlsx = (() => {
     el("icc-kpis").innerHTML = [card("ICCIDs consultados", NUM(consultados), (r.repetidos ? NUM(r.repetidos) + " repetidos ignorados" : "sem repetidos") + (r.invalidos.length ? " · " + NUM(r.invalidos.length) + " inválidos" : "")),
       card("Encontrados", NUM(achados), PCT(achados, consultados) + " dos consultados"), card("Não encontrados", NUM(r.naoEncontrados.length), "fora da base ou de outra empresa"),
       card("Ativados", NUM(ativos), PCT(ativos, r.resultados.length) + " dos encontrados, pelos dados das operadoras"), card("Compradores", NUM(compradores), "clientes diferentes nos chips encontrados")].join("");
+    // referência de cada ICCID encontrado: só Mira, só SGR ou os dois
+    const refs = {}; new Map(r.resultados.map(x => [x.consultado, x.referencia])).forEach(v => { refs[v] = (refs[v] || 0) + 1; });
+    if (temSgr()) el("icc-kpis").insertAdjacentHTML("beforeend", card("Com venda no SGR", NUM((refs["SGR"] || 0) + (refs["Mira e SGR"] || 0)), NUM(refs["SGR"] || 0) + " só no SGR · " + NUM(refs["Mira e SGR"] || 0) + " também no Mira"));
     const grupo = k => { const m = {}; r.resultados.forEach(x => { const v = (k === "operadora" ? rotOp(x[k]) : x[k]) || "—"; m[v] = (m[v] || 0) + 1; }); return Object.entries(m).sort((a, b) => b[1] - a[1]).map(([n, q]) => esc(n) + " <b>" + NUM(q) + "</b>").join(" · "); };
-    el("icc-resumo").innerHTML = r.resultados.length ? "<span>Tipo de loja: " + grupo("tipoLoja") + "</span><span>Tipo de chip: " + grupo("tipoChip") + "</span><span>Operadora: " + grupo("operadora") + "</span>" : "";
+    const refTxt = Object.entries(refs).sort((a, b) => b[1] - a[1]).map(([n, q]) => esc(REF_ROT[n] || n) + " <b>" + NUM(q) + "</b>").join(" · ");
+    el("icc-resumo").innerHTML = r.resultados.length ? (temSgr() ? "<span>Referência (por ICCID): " + refTxt + "</span>" : "") + "<span>Tipo de loja: " + grupo("tipoLoja") + "</span><span>Tipo de chip: " + grupo("tipoChip") + "</span><span>Operadora: " + grupo("operadora") + "</span>" : "";
     const lista = (t, a) => a.length ? "<div><b>" + NUM(a.length) + "</b> " + t + ": <code>" + a.slice(0, 60).map(esc).join(", ") + "</code>" + (a.length > 60 ? " … (lista completa na exportação)" : "") + "</div>" : "";
     el("icc-nao").innerHTML = lista(r.naoEncontrados.length === 1 ? "ICCID não encontrado nas suas empresas" : "ICCIDs não encontrados nas suas empresas", r.naoEncontrados) + lista(r.invalidos.length === 1 ? "item não parece ICCID (não tem 19 ou 20 dígitos)" : "itens não parecem ICCID (não têm 19 ou 20 dígitos)", r.invalidos);
     opts(el("icc-loja"), [...new Set(r.resultados.map(x => x.tipoLoja).filter(Boolean))].sort(), "Todo tipo de loja");
     opts(el("icc-chip"), [...new Set(r.resultados.map(x => x.tipoChip).filter(Boolean))].sort(), "Todo tipo de chip");
-    st.loja = st.chip = "";
+    optsRef(Object.keys(refs));
+    st.loja = st.chip = st.ref = "";
+  }
+  // filtro de referência: valor = referência do ICCID, rótulo legível; só aparece para quem vê o SGR
+  function optsRef(vals) {
+    const sel = el("icc-ref"); sel.style.display = temSgr() ? "" : "none";
+    sel.innerHTML = '<option value="">Mira e SGR (todos)</option>' + ["Mira", "SGR", "Mira e SGR"].filter(v => vals.includes(v)).map(v => '<option value="' + esc(v) + '">' + esc(REF_ROT[v]) + "</option>").join("");
   }
   function aviso(t) { st.res = null; resumo(); el("icc-tb").innerHTML = '<tr><td class="rast-msg">' + esc(t) + "</td></tr>"; el("icc-th").innerHTML = ""; el("icc-tot").textContent = ""; }
   function consultar() {
@@ -4564,12 +4586,15 @@ const BiXlsx = (() => {
   el("icc-q").oninput = e => { st.q = e.target.value; tabela(); };
   el("icc-loja").onchange = e => { st.loja = e.target.value; tabela(); };
   el("icc-chip").onchange = e => { st.chip = e.target.value; tabela(); };
-  opts(el("icc-loja"), [], "Todo tipo de loja"); opts(el("icc-chip"), [], "Todo tipo de chip");
+  el("icc-ref").onchange = e => { st.ref = e.target.value; tabela(); };
+  opts(el("icc-loja"), [], "Todo tipo de loja"); opts(el("icc-chip"), [], "Todo tipo de chip"); optsRef([]);
   el("icc-xls").onclick = () => {
     if (!st.res) return;
-    const colsR = [["ICCID", "t", r => r.iccid], ["ICCID consultado", "t", r => r.consultado], ["Comprador", "t", r => r.comprador], ["Tipo de loja", "t", r => r.tipoLoja], ["Tipo de chip", "t", r => r.tipoChip], ["Data da venda", "d", r => r.dataVenda],
-      ["Operadora", "t", r => rotOp(r.operadora)], ["Produto", "t", r => r.produto], ["Filial", "t", r => r.filial], ["Pedido Mira", "t", r => r.pedido], ["Situação de ativação", "t", r => r.ativacao ? r.ativacao.situacao : ""],
-      ["Data da ativação", "d", r => r.ativacao ? r.ativacao.data : ""], ["Dados de ativação até", "d", r => r.ativacao ? r.ativacao.ate || "" : ""], ["Cidade", "t", r => r.cidade], ["UF", "t", r => r.uf]];
+    const sg = temSgr();
+    const colsR = [["ICCID", "t", r => r.iccid], ["ICCID consultado", "t", r => r.consultado], ...(sg ? [["Sistema", "t", r => r.sistema], ["Referência do ICCID", "t", r => REF_ROT[r.referencia] || r.referencia]] : []),
+      ["Comprador", "t", r => r.comprador], ["Tipo de loja", "t", r => r.tipoLoja], ...(sg ? [["Segmento no SGR", "t", r => r.segmentoSgr]] : []), ["Tipo de chip", "t", r => r.tipoChip], ["Data da venda", "d", r => r.dataVenda],
+      ["Operadora", "t", r => rotOp(r.operadora)], ["Produto", "t", r => r.produto], ["Filial", "t", r => r.filial], [sg ? "Pedido" : "Pedido Mira", "t", r => r.pedido], ["Situação de ativação", "t", r => r.ativacao ? r.ativacao.situacao : ""],
+      ["Data da ativação", "d", r => r.ativacao ? r.ativacao.data : ""], ["Dados de ativação até", "d", r => r.ativacao ? r.ativacao.ate || "" : ""], ...(sg ? [["Dados de ativação desde", "d", r => r.ativacao ? r.ativacao.desde || "" : ""]] : []), ["Cidade", "t", r => r.cidade], ["UF", "t", r => r.uf]];
     const abas = [{ nome: "ICCIDs encontrados", xml: BiXlsx.planilhaXml(colsR, st.rows) }];
     if (st.res.naoEncontrados.length) abas.push({ nome: "Não encontrados", xml: BiXlsx.planilhaXml([["ICCID", "t", k => k]], st.res.naoEncontrados) });
     if (st.res.invalidos.length) abas.push({ nome: "Inválidos", xml: BiXlsx.planilhaXml([["Item colado", "t", k => k]], st.res.invalidos) });
@@ -4588,6 +4613,17 @@ const BiXlsx = (() => {
         const at = j.syncedAt || st.meta.geradoEm; el("icc-sync").textContent = at ? new Date(at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
         const c = st.meta.corteAtivacao || {}, ops = ["CLARO", "VIVO", "TIM"].map(o => rotOp(o) + (c[o] ? " até " + DT(c[o]) : " sem dados"));
         el("icc-nota").insertAdjacentHTML("beforeend", " &middot; dados de ativação das operadoras: " + esc(ops.join(", ")) + ".");
+        const sg = st.meta.sgr;
+        if (sg) {
+          el("icc-periodo").innerHTML = "chips vendidos no Mira desde <b>" + esc(DT(st.meta.vendaDe) || "—") + "</b> e no SGR, o sistema antigo, de <b>" + esc(DT(sg.vendaDe)) + "</b> a <b>" + esc(DT(sg.vendaAte)) + "</b>";
+          const ini = Object.values(sg.inicioAtivacao || {}).sort()[0];
+          el("icc-nota").insertAdjacentHTML("beforeend", "<br>SGR: Sistema = onde a venda foi registrada (Mira ou SGR; pedidos cancelados no SGR ficam de fora) e Referência = em quais sistemas o ICCID tem venda &middot; "
+            + "tipo de loja = segmento do mesmo CPF/CNPJ no cadastro do Mira; sem cadastro no Mira = Não classificado (cliente só do SGR) &middot; Segmento no SGR = segmento e tipo de cliente como estão no SGR &middot; "
+            + "tipo de chip = o mesmo grupo que o Mira dá ao produto de mesmo nome &middot; filial = filial do Mira que atende a UF da empresa do SGR (código da empresa no SGR entre parênteses) &middot; "
+            + "o SGR guarda o ICCID com 19 dígitos: quando a operadora tem a ativação aparece o ICCID completo (20 dígitos), senão os 19"
+            + (ini ? " &middot; ativações de chips do SGR só existem a partir de " + esc(DT(ini)) + " (antes disso: Sem dados de ativação da época da venda)" : "") + ".");
+        }
+        colunas(); optsRef([]); tabela();
       })
       .catch(() => {});
   };

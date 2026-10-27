@@ -73,6 +73,8 @@ if (fs.existsSync(RASTREIO_FILE)) {
 // Aba "Consulta de ICCID": o pacote gzip (op_iccid.json.gz do cruza_iccid.js, ~715 mil chips) chega em
 // POST /api/sync-iccid e fica em memória como texto ordenado + busca binária (iccid_busca.js); a página só consulta
 // os ICCIDs colados em POST /api/iccid/consulta, filtrando pelas empresas do usuário. Nunca vai embutido no HTML.
+// Vendas do SGR (o sistema antigo, empresas que não existem no Mira): só para quem tem TODAS as empresas, como as linhas
+// sem empresa da inadimplência e do rastreio.
 const iccidBusca = require('./iccid_busca');
 const ICCID_FILE = path.join(__dirname, 'data', 'iccid.json.gz');
 let latestIccid = null;
@@ -411,12 +413,16 @@ app.post('/api/sync-iccid', express.raw({ type: 'application/octet-stream', limi
   }
 });
 const ICCID_MAX = 5000;
+function temTodasEmpresas(allowed) {
+  const universo = [...new Set(((latestData && latestData.usuariosEmpresas) || []).map((v) => String(v.empresa)))];
+  return universo.length > 0 && universo.every((e) => allowed.includes(e));
+}
 app.get('/api/iccid/meta', requireAuth, (req, res) => {
   res.set('Cache-Control', 'no-store');
   if (!abaLiberada(req.abas, 'consultaiccid')) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
   if (!latestIccid) return res.json({ ok: false, motivo: 'sem_dados' });
-  const m = latestIccid.meta || {};
-  res.json({ ok: true, meta: { geradoEm: m.geradoEm, vendaDe: m.vendaDe, vendaAte: m.vendaAte, corteAtivacao: m.corteAtivacao || {} }, syncedAt: latestIccid.syncedAt, limite: ICCID_MAX });
+  const m = latestIccid.meta || {}, sgr = temTodasEmpresas(empresasDoUsuario(req.userEmail)) && m.sgr ? m.sgr : null;
+  res.json({ ok: true, meta: { geradoEm: m.geradoEm, vendaDe: m.vendaDe, vendaAte: m.vendaAte, corteAtivacao: m.corteAtivacao || {}, sgr: sgr ? { vendaDe: sgr.vendaDe, vendaAte: sgr.vendaAte, inicioAtivacao: sgr.inicioAtivacao || {} } : null }, syncedAt: latestIccid.syncedAt, limite: ICCID_MAX });
 });
 app.post('/api/iccid/consulta', requireAuth, express.json({ limit: '2mb' }), (req, res) => {
   res.set('Cache-Control', 'no-store');
@@ -424,9 +430,9 @@ app.post('/api/iccid/consulta', requireAuth, express.json({ limit: '2mb' }), (re
   if (!latestIccid) return res.json({ ok: false, motivo: 'sem_dados' });
   const lista = Array.isArray(req.body && req.body.iccids) ? req.body.iccids : [];
   if (lista.length > ICCID_MAX) return res.status(400).json({ ok: false, motivo: 'muitos', limite: ICCID_MAX });
-  // chip de empresa que o usuário não tem volta como "não encontrado" (não revela que existe)
+  // chip de empresa que o usuário não tem (ou do SGR, sem ter todas as empresas) volta como "não encontrado" (não revela que existe)
   const allowed = empresasDoUsuario(req.userEmail);
-  const r = iccidBusca.consulta(latestIccid, lista, (e) => allowed.includes(String(e)));
+  const r = iccidBusca.consulta(latestIccid, lista, (e) => allowed.includes(String(e)), temTodasEmpresas(allowed));
   res.json(Object.assign({ ok: true, corteAtivacao: (latestIccid.meta || {}).corteAtivacao || {} }, r));
 });
 
