@@ -4047,7 +4047,7 @@ const BiXlsx = (() => {
   // ---- ranking de tempo (maior para o menor): entregues = postagem -> entrega; em aberto = postagem -> hoje
   const LEG_RANK = {
     envio: 'Dias corridos: entregues = postagem → entrega; em aberto = postagem → hoje · origem = cidade onde o objeto foi postado · modalidade = categoria do tipo de postagem informada pela API dos Correios (Sedex ou PAC); "não informado" quando os Correios não devolvem o tipo.',
-    cidade: 'Só entregues · tempo = dias corridos da postagem à entrega · cidade de destino = unidade dos Correios que entregou · "sai de" = cidades onde esses objetos foram postados · do pior para o melhor pela mediana; cidades com menos de 5 entregas ficam no fim, em tom claro · clique numa linha para filtrar a página pela cidade.',
+    cidade: 'Só entregues · tempo = dias corridos da postagem à entrega · cidade de destino = unidade dos Correios que entregou · "sai de" = cidades onde esses objetos foram postados · do pior para o melhor pela mediana; cidades com menos de 5 entregas ficam no fim, em tom claro · clique numa linha para ver o detalhamento da cidade.',
   };
   // cidades de destino, do pior para o melhor (mediana, depois 90%, média e volume; menos de 5 entregas no fim)
   function gruposRank(R) {
@@ -4068,7 +4068,7 @@ const BiXlsx = (() => {
     el("rast-rank-th").innerHTML = "<tr><th class='num'>#</th><th>Cidade de destino</th><th>Sai de</th>"
       + "<th class='num'>Entregas</th><th class='num'>Mediana (dias)</th><th class='num'>90% em até</th><th class='num'>Média</th><th class='num'>% no prazo</th><th class='num'>Mais demorado</th></tr>";
     el("rast-rank-tb").innerHTML = top.length ? top.map((x, i) => '<tr class="rast-clic' + (x.n < 5 ? " rast-muted" : "") + (sel === x.k ? " is-sel" : "") + '" data-g="' + i + '" title="' + (x.n < 5 ? "Amostra pequena (menos de 5 entregas) · " : "")
-        + esc("Postados em: " + x.origens.map(o => o[0] + " (" + o[1] + ")").join(", ")) + ' · Clique para filtrar a página pela cidade">'
+        + esc("Postados em: " + x.origens.map(o => o[0] + " (" + o[1] + ")").join(", ")) + ' · Clique para ver o detalhamento da cidade">'
         + '<td class="num">' + (i + 1) + "</td><td>" + esc(x.k) + "</td><td>" + saiDe(x) + "</td>"
         + '<td class="num">' + NUM(x.n) + '</td><td class="num"><b>' + x.med + '</b></td><td class="num">' + x.p + '</td><td class="num">' + N1r(x.media) + '</td><td class="num">' + PCT(x.np, x.comPrev) + '</td><td class="num">' + x.pior + " d</td></tr>").join("")
       : '<tr><td class="rast-msg" colspan="9">Nenhuma entrega nesse recorte.</td></tr>';
@@ -4254,6 +4254,50 @@ const BiXlsx = (() => {
       svg += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 5) + '" text-anchor="middle" style="font-size:9.5px;fill:var(--text-muted)">' + esc(p.curto) + "</text>"; });
     return '<svg viewBox="0 0 ' + W + " " + H + '" style="width:100%;height:auto;display:block">' + svg + '</svg><p class="rast-muted" style="font-size:10.5px;margin:2px 0 0">Barra = tempo médio do pedido à entrega (ponderado por chips) · traço = 90% em até · tom claro = período incompleto, com poucas entregas ou ainda com envios a caminho</p>';
   }
+  // painel de uma cidade de destino (ranking por cidade), sempre dentro do recorte atual da página. Tempos dos Correios =
+  // postagem -> entrega (como no ranking); tempo de atendimento = pedido -> entrega; tipo de produto pelos chips de cada envio.
+  function abreCidade(k) {
+    const R = recorte(), RG = R.filter(r => r.destino === k), E = RG.filter(r => r.situacao === "Entregue" && r.dias != null);
+    const L = calcLt(R), at = resumoGrupo(k, L.ent.filter(r => r.destino === k), qd, L.nd || 1);
+    const dias = E.map(r => r.dias), comPrev = E.filter(r => r.prazo === "No prazo" || r.prazo === "Com atraso").length, np = E.filter(r => r.prazo === "No prazo").length;
+    const abertos = RG.filter(r => ABERTOS_LT.includes(r.situacao)), chips = E.reduce((t, r) => t + qd(r), 0);
+    const clientes = new Set(RG.map(r => r.codEmpresa + "|" + clienteDe(r)).filter(x => !x.endsWith("|"))).size;
+    const N1c = v => v == null ? "—" : v.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const card = (t, v, d) => '<div class="rast-kpi"><div class="t">' + esc(t) + '</div><div class="v">' + esc(v) + '</div><div class="s">' + esc(d) + "</div></div>";
+    const cards = [
+      card("Entregas", NUM(E.length), abertos.length ? plural(abertos.length, "envio em aberto agora", "envios em aberto agora") : "nenhum envio em aberto agora"),
+      card("Tempo nos Correios", dias.length ? plural(mediana(dias), "dia", "dias") : "—", dias.length ? "mediana da postagem à entrega · 90% em até " + p90(dias) + " · média " + N1c(dias.reduce((a, b) => a + b, 0) / dias.length) : "sem entregas no recorte"),
+      card("Entregues no prazo", PCT(np, comPrev), NUM(np) + " no prazo · " + NUM(comPrev - np) + " com atraso, pela previsão dos Correios"),
+      card("Tempo de atendimento", at.pond == null ? "—" : N1c(at.pond) + " dias", "pedido → entrega, ponderado por chips · interno " + N1c(at.interno) + " + Correios " + N1c(at.correios)),
+      card("Chips entregues", NUM(chips), plural(clientes, "cliente", "clientes") + " na cidade"),
+    ];
+    // tabelas pequenas: linhas [rótulo, envios, chips, mediana, 90%, % no prazo]
+    const resumo = (rows, w) => { const d = rows.map(r => r.dias).filter(v => v != null), cp = rows.filter(r => r.prazo === "No prazo" || r.prazo === "Com atraso").length, n2 = rows.filter(r => r.prazo === "No prazo").length;
+      return { n: rows.length, q: rows.reduce((t, r) => t + w(r), 0), med: d.length ? mediana(d) : null, p: d.length ? p90(d) : null, pct: PCT(n2, cp) }; };
+    const tabela = (titulo, cab, linhas) => linhas.length ? "<h3>" + titulo + "</h3><div class='rast-tw rast-tw-mini'><table class='rast-table'><thead><tr><th>" + cab + "</th><th class='num'>Entregas</th><th class='num'>Chips</th><th class='num'>Mediana (dias)</th><th class='num'>90% em até</th><th class='num'>% no prazo</th></tr></thead><tbody>"
+      + linhas.map(([rot, x]) => "<tr style='cursor:default'><td>" + esc(rot) + '</td><td class="num">' + NUM(x.n) + '</td><td class="num">' + NUM(x.q) + '</td><td class="num"><b>' + (x.med == null ? "—" : x.med) + '</b></td><td class="num">' + (x.p == null ? "—" : x.p) + '</td><td class="num">' + x.pct + "</td></tr>").join("") + "</tbody></table></div>" : "";
+    const tiposK = st.tipo ? [st.tipo] : [...new Set(E.flatMap(r => Object.keys(r.tipos || {})))];
+    const porTipo = tiposK.map(g => [rotTipo(g), resumo(E.filter(r => ((r.tipos || {})[g] || 0) > 0), r => (r.tipos || {})[g] || 0)]).filter(x => x[1].n).sort((a, b) => b[1].q - a[1].q);
+    const agrupa = chave => { const G = new Map(); for (const r of E) { const c = chave(r) || "não informada"; (G.get(c) || G.set(c, []).get(c)).push(r); } return [...G.entries()].map(([c, rows]) => [c, resumo(rows, qd)]).sort((a, b) => b[1].n - a[1].n); };
+    // envios da cidade (mais recentes primeiro), clicáveis
+    const lista = RG.slice().sort((a, b) => String(b.postadoEm || b.etiquetaEm || "").localeCompare(String(a.postadoEm || a.etiquetaEm || ""))).slice(0, 20); st.cidadeEnvios = lista;
+    const enviosHtml = lista.length ? "<h3>Envios" + (RG.length > 20 ? " (os 20 mais recentes de " + NUM(RG.length) + ")" : "") + "</h3><div class='rast-tw rast-tw-mini'><table class='rast-table'><thead><tr><th>Código</th><th>Cliente</th><th>Postado</th><th class='num'>Dias</th><th>Tipo de produto</th><th>Situação</th></tr></thead><tbody>"
+      + lista.map((r, i) => '<tr class="rast-clic" data-env="' + i + '" title="Clique para ver o histórico do envio"><td>' + esc(r.codigo) + '</td><td class="nm">' + esc(clienteDe(r)) + "</td><td>" + DT(r.postadoEm) + '</td><td class="num">' + (r.dias == null ? "" : r.dias) + "</td><td>" + (Object.keys(r.tipos || {}).length ? esc(Object.keys(r.tipos || {}).map(rotTipo).join(", ")) : '<span class="rast-muted" title="Pedido sem itens de chip registrados">—</span>') + "</td><td>" + statusHtml(r) + "</td></tr>").join("") + "</tbody></table></div>" : "";
+    const filtros = Object.keys(FILTROS).filter(f2 => st[f2]).map(f2 => FILTROS[f2][0] + ": " + (FILTROS[f2][2] ? FILTROS[f2][2](st[f2]) : st[f2]));
+    el("rast-drc").innerHTML = "<h2>" + esc(k) + "</h2><div class='rast-muted' style='font-size:11.5px'>Cidade de destino · entregas pelos Correios" + (filtros.length ? " · com os filtros da página: " + esc(filtros.join(" · ")) : " · todo o período") + "</div>"
+      + "<div class='rast-dr-acoes'><button type='button' class='clear-btn' id='rast-c-filtra'>Filtrar a página por esta cidade</button>" + (!Array.isArray(ABAS_PERMITIDAS) || ABAS_PERMITIDAS.includes("consultarastreio") ? "<button type='button' class='clear-btn' id='rast-c-lista'>Ver os envios na Consulta de Rastreios</button>" : "") + "</div>"
+      + "<div class='rast-dr-kpis'>" + cards.join("") + "</div>"
+      + tabela("Por tipo de produto", "Tipo de produto", porTipo)
+      + tabela("Sai de (cidade de postagem)", "Origem", agrupa(r => r.cidadePostagem))
+      + tabela("Por filial", "Filial", agrupa(r => r.filial))
+      + enviosHtml;
+    const filtra = () => { if (st.cidade !== k) setFiltro("cidade", k); };
+    el("rast-c-filtra").onclick = () => { filtra(); fecha(); };
+    if (el("rast-c-lista")) el("rast-c-lista").onclick = () => { filtra(); fecha(); if (window.abrirAba) window.abrirAba("consultarastreio"); };
+    el("rast-drc").querySelectorAll("tr[data-env]").forEach(tr => tr.onclick = () => abre(st.cidadeEnvios[+tr.dataset.env], { rot: k, fn: () => abreCidade(k) }));
+    el("rast-dr").scrollTop = 0;
+    el("rast-dr").classList.add("is-on"); el("rast-ov").classList.add("is-on"); el("rast-dr").setAttribute("aria-hidden", "false");
+  }
   function abreGrupo(dim, k) {
     const R = recorte(), L = st.lt && st.lt.ent ? st.lt : calcLt(R), nd = L.nd || 1;
     const noGrupo = dim === "tipo" ? (r => ((r.tipos || {})[k] || 0) > 0) : (r => DIM[dim][2](r) === k);
@@ -4305,7 +4349,7 @@ const BiXlsx = (() => {
   el("rast-tb").addEventListener("click", e => { if (!D || (window.getSelection && String(window.getSelection()).length)) return; const tr = e.target.closest("tr[data-i]"); if (tr) abre(st.rows[+tr.dataset.i]); });
   el("rast-rank-tb").addEventListener("click", e => {
     if (!D) return; const tr = e.target.closest("tr[data-r]"); if (tr) { abre(st.rankRows[+tr.dataset.r]); return; }
-    const g = e.target.closest("tr[data-g]"); if (g) setFiltro("cidade", st.rankGrupos[+g.dataset.g].k);
+    const g = e.target.closest("tr[data-g]"); if (g) abreCidade(st.rankGrupos[+g.dataset.g].k);
   });
   // cidade da curva ABC -> filtra a tabela de envios pela cidade (busca) e rola até ela
   // cidade da curva ABC (linha da tabela ou barra do gráfico) -> filtro de cidade na página inteira
