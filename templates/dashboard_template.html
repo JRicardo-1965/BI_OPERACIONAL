@@ -1895,13 +1895,14 @@
         <div id="rast-ana-rank" class="is-hidden">
           <div class="rast-rank-bar">
             <div class="rast-vistas rast-sub" id="rast-rank-modo">
-              <button type="button" data-modo="entregue" class="is-on">Entregues · postagem → entrega</button>
-              <button type="button" data-modo="aberto">Em aberto · dias desde a postagem</button>
+              <button type="button" data-modo="entregue" class="is-on">Envios entregues</button>
+              <button type="button" data-modo="aberto">Envios em aberto</button>
+              <button type="button" data-modo="cidade">Cidades de destino</button>
             </div>
             <span class="rast-muted" id="rast-rank-info"></span>
           </div>
           <div class="rast-tw rast-tw-mini"><table class="rast-table"><thead id="rast-rank-th"></thead><tbody id="rast-rank-tb"></tbody></table></div>
-          <p class="cap" style="margin:6px 0 0">Modalidade = categoria do tipo de postagem informada pela API dos Correios (Sedex ou PAC); "não informado" quando os Correios não devolvem o tipo.</p>
+          <p class="cap" style="margin:6px 0 0" id="rast-rank-cap"></p>
         </div>
         <div id="rast-ana-lt" class="is-hidden">
           <p class="cap">Do pedido no Mira até a entrega pelos Correios, só com objetos entregues do recorte. Tempos em dias corridos; quantidades = itens do pedido (sem frete), somando os pedidos de um envio agrupado.</p>
@@ -4044,14 +4045,44 @@ const BiXlsx = (() => {
     el("rast-abc-tb").innerHTML = lista.map((c, i) => '<tr class="rast-clic' + (st.cidade === c.cidade ? " is-sel" : "") + '" data-c="' + i + '" title="Clique para filtrar a página por esta cidade"><td><span class="rast-classe ' + c.classe + '">' + c.classe + '</span></td><td class="num">' + (i + 1) + "</td><td>" + esc(c.cidade) + '</td><td class="num">' + NUM(c.n) + '</td><td class="num">' + pct1(c.pct) + '</td><td class="num">' + pct1(c.acum) + '</td><td class="num">' + (c.med == null ? "—" : c.med) + '</td><td class="num">' + PCT(c.np, c.np + c.ca) + "</td></tr>").join("");
   }
   // ---- ranking de tempo (maior para o menor): entregues = postagem -> entrega; em aberto = postagem -> hoje
+  const LEG_RANK = {
+    envio: 'Dias corridos: entregues = postagem → entrega; em aberto = postagem → hoje · origem = cidade onde o objeto foi postado · modalidade = categoria do tipo de postagem informada pela API dos Correios (Sedex ou PAC); "não informado" quando os Correios não devolvem o tipo.',
+    cidade: 'Só entregues · tempo = dias corridos da postagem à entrega · cidade de destino = unidade dos Correios que entregou · "sai de" = cidades onde esses objetos foram postados · do pior para o melhor pela mediana; cidades com menos de 5 entregas ficam no fim, em tom claro · clique numa linha para filtrar a página pela cidade.',
+  };
+  // cidades de destino, do pior para o melhor (mediana, depois 90%, média e volume; menos de 5 entregas no fim)
+  function gruposRank(R) {
+    const G = new Map();
+    for (const r of R) if (r.situacao === "Entregue" && r.dias != null && r.destino) { const k = r.destino; (G.get(k) || G.set(k, []).get(k)).push(r); }
+    return [...G.entries()].map(([k, rows]) => {
+      const d = rows.map(r => r.dias), comPrev = rows.filter(r => r.prazo === "No prazo" || r.prazo === "Com atraso").length, np = rows.filter(r => r.prazo === "No prazo").length;
+      const orig = {}; for (const r of rows) { const o = r.cidadePostagem || "não informada"; orig[o] = (orig[o] || 0) + 1; }
+      return { k, n: rows.length, med: mediana(d), p: p90(d), media: d.reduce((a, b) => a + b, 0) / d.length, comPrev, np, origens: Object.entries(orig).sort((a, b) => b[1] - a[1]), pior: Math.max(...d) };
+    }).sort((a, b) => (b.n >= 5) - (a.n >= 5) || b.med - a.med || b.p - a.p || b.media - a.media || b.n - a.n);
+  }
+  function rankGrupos(R) {
+    const lista = gruposRank(R), top = lista.slice(0, 50), n5 = lista.filter(x => x.n >= 5).length; st.rankGrupos = top;
+    el("rast-rank-info").textContent = lista.length ? (lista.length > 50 ? "as 50 piores de " : "") + plural(lista.length, "cidade", "cidades") + " · " + NUM(n5) + " com 5 ou mais entregas" : "";
+    const sel = st.cidade, N1r = v => v.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    // origens escritas com a quantidade de entregas de cada uma (quase toda cidade tem 1 origem; no máximo 3 na tela)
+    const saiDe = x => x.origens.length === 1 ? esc(x.origens[0][0]) : x.origens.slice(0, 3).map(o => esc(o[0]) + ' <span class="rast-muted">(' + o[1] + ")</span>").join(" · ") + (x.origens.length > 3 ? ' <span class="rast-muted">+' + (x.origens.length - 3) + " origens</span>" : "");
+    el("rast-rank-th").innerHTML = "<tr><th class='num'>#</th><th>Cidade de destino</th><th>Sai de</th>"
+      + "<th class='num'>Entregas</th><th class='num'>Mediana (dias)</th><th class='num'>90% em até</th><th class='num'>Média</th><th class='num'>% no prazo</th><th class='num'>Mais demorado</th></tr>";
+    el("rast-rank-tb").innerHTML = top.length ? top.map((x, i) => '<tr class="rast-clic' + (x.n < 5 ? " rast-muted" : "") + (sel === x.k ? " is-sel" : "") + '" data-g="' + i + '" title="' + (x.n < 5 ? "Amostra pequena (menos de 5 entregas) · " : "")
+        + esc("Postados em: " + x.origens.map(o => o[0] + " (" + o[1] + ")").join(", ")) + ' · Clique para filtrar a página pela cidade">'
+        + '<td class="num">' + (i + 1) + "</td><td>" + esc(x.k) + "</td><td>" + saiDe(x) + "</td>"
+        + '<td class="num">' + NUM(x.n) + '</td><td class="num"><b>' + x.med + '</b></td><td class="num">' + x.p + '</td><td class="num">' + N1r(x.media) + '</td><td class="num">' + PCT(x.np, x.comPrev) + '</td><td class="num">' + x.pior + " d</td></tr>").join("")
+      : '<tr><td class="rast-msg" colspan="9">Nenhuma entrega nesse recorte.</td></tr>';
+  }
   function analiseRank(R) {
+    el("rast-rank-cap").textContent = LEG_RANK[st.rankModo === "cidade" ? "cidade" : "envio"];
+    if (st.rankModo === "cidade") return rankGrupos(R);
     const ent = st.rankModo === "entregue";
     const lista = R.filter(r => r.dias != null && (ent ? r.situacao === "Entregue" : r.situacao !== "Entregue")).sort((a, b) => b.dias - a.dias || String(a.postadoEm).localeCompare(String(b.postadoEm)));
     const top = lista.slice(0, 50); st.rankRows = top;
     el("rast-rank-info").textContent = lista.length ? (lista.length > 50 ? "os 50 maiores de " + NUM(lista.length) + " objetos" : NUM(lista.length) + " objetos") : "";
-    el("rast-rank-th").innerHTML = "<tr><th class='num'>#</th><th>Código de rastreio</th><th>Cliente</th><th class='num'>" + (ent ? "Dias até a entrega" : "Dias desde a postagem") + "</th><th>Modalidade</th><th>Situação</th><th>Destino</th><th>" + (ent ? "Entregue" : "Previsão") + "</th></tr>";
-    el("rast-rank-tb").innerHTML = top.length ? top.map((r, i) => '<tr class="rast-clic" data-r="' + i + '" title="Clique para ver o detalhamento do envio"><td class="num">' + (i + 1) + "</td><td>" + esc(r.codigo) + '</td><td class="nm">' + esc(clienteDe(r)) + '</td><td class="num"><b>' + r.dias + "</b></td><td>" + modalHtml(r) + "</td><td>" + statusHtml(r) + "</td><td>" + esc(r.destino) + "</td><td>" + DT(ent ? r.entregueEm : r.previsao) + "</td></tr>").join("")
-      : '<tr><td class="rast-msg" colspan="8">Nenhum objeto nesse recorte.</td></tr>';
+    el("rast-rank-th").innerHTML = "<tr><th class='num'>#</th><th>Código de rastreio</th><th>Cliente</th><th class='num'>" + (ent ? "Dias até a entrega" : "Dias desde a postagem") + "</th><th>Modalidade</th><th>Situação</th><th>Origem</th><th>Destino</th><th>" + (ent ? "Entregue" : "Previsão") + "</th></tr>";
+    el("rast-rank-tb").innerHTML = top.length ? top.map((r, i) => '<tr class="rast-clic" data-r="' + i + '" title="Clique para ver o detalhamento do envio"><td class="num">' + (i + 1) + "</td><td>" + esc(r.codigo) + '</td><td class="nm">' + esc(clienteDe(r)) + '</td><td class="num"><b>' + r.dias + "</b></td><td>" + modalHtml(r) + "</td><td>" + statusHtml(r) + "</td><td>" + esc(r.cidadePostagem) + "</td><td>" + esc(r.destino) + "</td><td>" + DT(ent ? r.entregueEm : r.previsao) + "</td></tr>").join("")
+      : '<tr><td class="rast-msg" colspan="9">Nenhum objeto nesse recorte.</td></tr>';
   }
   // ---- tempo de atendimento (pedido no Mira -> entrega) e estoque flutuante. Só entregues para os tempos; quantidades
   // = itens do pedido sem frete (r.qte). Período = dias dos meses de postagem do recorte (o mês atual só até hoje).
@@ -4204,7 +4235,7 @@ const BiXlsx = (() => {
         ["Pedido Mira", r.pedMira ? esc(r.pedMira) + (r.dataPedido ? " <span class='rast-muted'>de " + DT(r.dataPedido) + "</span>" : "") : ""],
         ["Outros pedidos no mesmo envio", nOutros(r) ? esc(outrosTxt(r)) + (r.outrosClientes ? "<br><span class='rast-muted'>O mesmo código aparece em pedido de " + plural(r.outrosClientes, "outro cliente", "outros clientes") + "; filial e cliente acima são do pedido que o banco dos Correios referencia.</span>" : "") : ""],
         ["Processado no Mira", DTH(r.processadoEm)], ["Chips no envio", r.qte ? NUM(r.qte) + (Object.keys(r.tipos || {}).length ? " <span class='rast-muted'>(" + esc(tiposTxt(r)) + ")</span>" : "") : ""], ["Loja AQT", esc(r.loja)], ["Pedido AQT", esc(r.pedAQT)], ["Fornecedor AQT", esc(r.fornecedor)]])
-      + "<h3>Envio</h3>" + kv([["Etiqueta emitida", DTH(r.etiquetaEm)], ["Postado", DTH(r.postadoEm)], ["Entregue", DTH(r.entregueEm)], ["Previsão de entrega", DT(r.previsao)], [r.entregueEm ? "Dias até a entrega" : "Dias desde a postagem", r.dias == null ? "" : r.dias + " (corridos)"], ["Destino", esc(r.destino)], ["Última consulta aos Correios", DTH(r.consultadoEm) + (r.desatualizado ? " <span class='rast-muted'>(desatualizado)</span>" : "")]])
+      + "<h3>Envio</h3>" + kv([["Etiqueta emitida", DTH(r.etiquetaEm)], ["Postado", DTH(r.postadoEm)], ["Entregue", DTH(r.entregueEm)], ["Previsão de entrega", DT(r.previsao)], [r.entregueEm ? "Dias até a entrega" : "Dias desde a postagem", r.dias == null ? "" : r.dias + " (corridos)"], ["Cidade de postagem", esc(r.cidadePostagem)], ["Destino", esc(r.destino)], ["Última consulta aos Correios", DTH(r.consultadoEm) + (r.desatualizado ? " <span class='rast-muted'>(desatualizado)</span>" : "")]])
       + "<h3>Histórico dos Correios (" + r.eventos.length + ")</h3>" + linha;
     if (voltar && el("rast-voltar")) el("rast-voltar").onclick = voltar.fn;
     el("rast-dr").scrollTop = 0;
@@ -4272,7 +4303,10 @@ const BiXlsx = (() => {
   }
   function fecha() { el("rast-dr").classList.remove("is-on"); el("rast-ov").classList.remove("is-on"); el("rast-dr").setAttribute("aria-hidden", "true"); }
   el("rast-tb").addEventListener("click", e => { if (!D || (window.getSelection && String(window.getSelection()).length)) return; const tr = e.target.closest("tr[data-i]"); if (tr) abre(st.rows[+tr.dataset.i]); });
-  el("rast-rank-tb").addEventListener("click", e => { if (!D) return; const tr = e.target.closest("tr[data-r]"); if (tr) abre(st.rankRows[+tr.dataset.r]); });
+  el("rast-rank-tb").addEventListener("click", e => {
+    if (!D) return; const tr = e.target.closest("tr[data-r]"); if (tr) { abre(st.rankRows[+tr.dataset.r]); return; }
+    const g = e.target.closest("tr[data-g]"); if (g) setFiltro("cidade", st.rankGrupos[+g.dataset.g].k);
+  });
   // cidade da curva ABC -> filtra a tabela de envios pela cidade (busca) e rola até ela
   // cidade da curva ABC (linha da tabela ou barra do gráfico) -> filtro de cidade na página inteira
   const clicaCidade = e => { if (!D) return; const t = e.target.closest("[data-c]"); if (t) setFiltro("cidade", st.abc[+t.dataset.c].cidade); };
@@ -4335,7 +4369,7 @@ const BiXlsx = (() => {
     if (!D) return;
     const colsE = [["Situação", "t", r => statusResumo(r).txt], ["Situação nos Correios", "t", r => r.situacao], ["Prazo", "t", r => r.prazo], ["Motivos de atenção", "t", r => r.atencao.join("; ")], ["Filial", "t", r => r.filial], ["Cliente Mira", "t", r => r.cliente], ["Loja AQT", "t", r => r.loja],
       ["Fornecedor AQT", "t", r => r.fornecedor], ["Pedido AQT", "t", r => r.pedAQT], ["Pedido Mira", "t", r => r.pedMira], ["Outros pedidos Mira no mesmo envio", "t", r => outrosTxt(r)], ["Origem do envio", "t", r => ORIGEM[r.origem] || r.origem || ""], ["Código de rastreio", "t", r => r.codigo], ["Modalidade", "t", r => modalTxt(r)], ["Sigla do tipo de postagem", "t", r => r.sigla], ["Etiqueta", "d", r => r.etiquetaEm], ["Postado", "d", r => r.postadoEm],
-      ["Entregue", "d", r => r.entregueEm], ["Previsão", "d", r => r.previsao], ["Dias (corridos)", "n0", r => r.dias], ["Destino", "t", r => r.destino], ["UF destino", "t", r => r.ufDestino],
+      ["Entregue", "d", r => r.entregueEm], ["Previsão", "d", r => r.previsao], ["Dias (corridos)", "n0", r => r.dias], ["Cidade de postagem", "t", r => r.cidadePostagem], ["Destino", "t", r => r.destino], ["UF destino", "t", r => r.ufDestino],
       ["Data do pedido", "d", r => r.dataPedido], ["Processado no Mira", "d", r => r.processadoEm], ["Tempo de atendimento: pedido → entrega (dias)", "n0", r => { const t = tAtend(r); return t != null && t >= 0 ? t : null; }], ["Chips no envio", "n0", r => r.qte || null], ["Chips por tipo de produto", "t", r => tiposTxt(r)],
       ["Última consulta aos Correios", "d", r => r.consultadoEm], ["Rastreio desatualizado", "t", r => r.desatualizado ? "Sim" : ""],
       ["Último evento", "t", r => r.ultimo ? r.ultimo.desc : ""], ["Data do último evento", "d", r => r.ultimo ? r.ultimo.em : ""], ["Local do último evento", "t", r => r.ultimo ? r.ultimo.local : ""]];
@@ -4357,6 +4391,10 @@ const BiXlsx = (() => {
     const PM = evolucao(recorte(["mes", "sem"]), "mes"), PS = evolucao(recorte(["sem"]), "sem");
     if (PM.length) abas.push({ nome: "Atendimento por mês", xml: BiXlsx.planilhaXml(colsP("Mês"), PM) });
     if (PS.length) abas.push({ nome: "Atendimento por semana", xml: BiXlsx.planilhaXml(colsP("Semana"), PS) });
+    const colsG = [["Cidade de destino", "t", x => x.k], ["Sai de", "t", x => x.origens.map(o => o[0] + " (" + o[1] + ")").join("; ")],
+      ["Entregas", "n0", x => x.n], ["Mediana (dias)", "n0", x => x.med], ["90% em até (dias)", "n0", x => x.p], ["Média (dias)", "t", x => x.media.toLocaleString("pt-BR", { maximumFractionDigits: 1 })], ["No prazo", "n0", x => x.np], ["Com previsão", "n0", x => x.comPrev], ["Mais demorado (dias)", "n0", x => x.pior]];
+    const GC = gruposRank(recorte());
+    if (GC.length) abas.push({ nome: "Cidades mais demoradas", xml: BiXlsx.planilhaXml(colsG, GC) });
     if (H.length) abas.push({ nome: "Sem histórico nos Correios", xml: BiXlsx.planilhaXml(colsH, H) });
     const blob = BiXlsx.montaXlsx(abas);
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
@@ -4374,7 +4412,9 @@ const BiXlsx = (() => {
         if (!j.ok) { msg(j.motivo === "aba_nao_liberada" ? "Esta aba não está liberada para o seu usuário." : "Os dados de rastreio ainda não foram sincronizados. Tente de novo depois do próximo ciclo de atualização."); return; }
         const todos = j.envios || [];
         // semana (segunda-feira) da mesma data que define o mês do envio: postagem; sem ela, etiqueta, 1o evento ou pedido
-        for (const r of todos) { const ev = r.eventos || [], base = r.postadoEm || r.etiquetaEm || (ev.length ? ev[ev.length - 1].em : "") || r.dataPedido; r.semRef = base ? segunda(base) : ""; }
+        for (const r of todos) { const ev = r.eventos || [], base = r.postadoEm || r.etiquetaEm || (ev.length ? ev[ev.length - 1].em : "") || r.dataPedido; r.semRef = base ? segunda(base) : "";
+          // cidade onde o objeto foi postado (evento PO dos Correios; a lista de eventos vem do mais recente para o mais antigo)
+          const po = ev.slice().reverse().find(e => String(e.cod || "").indexOf("PO") === 0); r.cidadePostagem = po ? po.local || "" : ""; }
         D = { envios: todos.filter(r => !r.semHist), semHist: todos.filter(r => r.semHist), cobertura: j.cobertura || [], meta: j.meta || {} };
         el("rast-sync").textContent = el("cons-sync").textContent = D.meta.ultimaConsulta ? DTH(D.meta.ultimaConsulta) : D.meta.sincronizadoEm ? DTH(D.meta.sincronizadoEm) : "—";
         montaFiltros(); render();
