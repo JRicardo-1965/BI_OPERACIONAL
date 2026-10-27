@@ -1360,9 +1360,6 @@
   .rast-scope .rast-explica li{ margin:0 0 4px; }
   .rast-scope .rast-table tr.rast-clic{ cursor:pointer; }
   /* aviso dos objetos sem histórico nos Correios + marcador de envio agrupado (mais de um pedido no mesmo código) */
-  .rast-scope .rast-aviso{ font-size:11px; color:var(--text-muted); background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:6px 10px; margin:-4px 0 12px; line-height:1.45; }
-  .rast-scope .rast-aviso:empty{ display:none; }
-  .rast-scope .rast-aviso div + div{ margin-top:4px; padding-top:4px; border-top:1px solid var(--border); }
   /* filtros ativos (selects + cliques em gráficos/cartões) */
   .rast-scope .rast-ativos{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:-4px 0 10px; font-size:11.5px; }
   .rast-scope .rast-ativos:empty{ display:none; }
@@ -1852,7 +1849,6 @@
       </div>
       <div class="rast-ativos" id="rast-ativos"></div>
       <div class="rast-kpis" id="rast-kpis"></div>
-      <div class="rast-aviso" id="rast-aviso"></div>
       <div class="rast-graficos">
         <div class="rast-card">
           <h3>Envios por mês de postagem</h3>
@@ -3864,7 +3860,6 @@ const BiXlsx = (() => {
       ["Precisam de atenção", NUM(aten), "atrasos, objetos parados, problemas, devoluções e etiquetas" + (desat ? " · " + NUM(desat) + " com rastreio desatualizado" : ""), aten - desat > 0, "atencao"],
       ["Cobertura do rastreio", PCT(cr, cc), NUM(cc - cr - ch) + " pedidos do Mira com código fora do banco" + (ch ? " · " + NUM(ch) + " sem histórico" : "") + (outrosFiltros ? " · usa só mês e filial" : ""), false, ""],
     ];
-    aviso();
     const DICA = { todos: "Clique para ver todos os envios na Consulta de Rastreios", entregue: "Clique para filtrar só os entregues", rank: "Clique para filtrar os entregues e abrir o ranking de tempo", andamento: "Clique para filtrar os envios em andamento", atencao: "Clique para filtrar os envios que precisam de atenção" };
     el("rast-kpis").innerHTML = cards.map(c => '<div class="rast-kpi' + (c[3] ? " is-alerta" : "") + (c[4] ? " clic" : "") + (c[4] && (st.grupo === c[4] || (c[4] === "rank" && st.grupo === "entregue" && st.ana === "rank")) ? " is-on" : "") + '"' + (c[4] ? ' data-acao="' + c[4] + '" title="' + DICA[c[4]] + '"' : ' title="Cobertura considera só os filtros de mês e filial"') + '><div class="t">' + esc(c[0]) + '</div><div class="v">' + esc(c[1]) + '</div><div class="s">' + esc(c[2]) + "</div></div>").join("");
   }
@@ -3876,22 +3871,8 @@ const BiXlsx = (() => {
   });
 
   // objetos no banco dos Correios sem NENHUM evento e com pedido de mais de N dias (meta.diasSemHist): ficam fora dos
-  // números, gráficos e tabela; o aviso conta os do recorte de mês/filial e a exportação lista numa planilha à parte
+  // números, gráficos e tabela; a exportação lista os do recorte de mês/filial numa planilha à parte
   const semHistRecorte = () => (D.semHist || []).filter(r => (!st.mes || r.mesRef === st.mes) && (!st.fil || r.filial === st.fil));
-  function aviso() {
-    const H = semHistRecorte(), linhas = [];
-    const X = D.envios.filter(r => r.desatualizado && (!st.mes || r.mesRef === st.mes) && (!st.fil || r.filial === st.fil));
-    if (X.length) {
-      const desde = X.map(r => r.consultadoEm).filter(Boolean).sort()[0];
-      linhas.push("<b>" + plural(X.length, "objeto em aberto", "objetos em aberto") + "</b> " + (X.length === 1 ? "não é consultado" : "não são consultados") + " nos Correios" + (desde ? " desde " + DT(desde) : "") + ": o banco dos Correios só tem buscado o rastreio de objetos novos, então a situação " + (X.length === 1 ? "dele" : "deles") + " pode estar desatualizada. " + (X.length === 1 ? "Ele aparece" : "Eles aparecem") + " como “sem atualização” e não " + (X.length === 1 ? "conta" : "contam") + " como atrasado ou parado.");
-    }
-    if (!H.length) { el("rast-aviso").innerHTML = linhas.map(t => "<div>" + t + "</div>").join(""); return; }
-    const ini = D.meta.inicio || "", antigos = ini ? H.filter(r => r.dataPedido && r.dataPedido < ini).length : 0;
-    linhas.push("<b>" + plural(H.length, "objeto", "objetos") + "</b> " + (H.length === 1 ? "está" : "estão") + " no banco dos Correios, mas os Correios não devolveram nenhum evento de rastreio (pedido feito há mais de " + (D.meta.diasSemHist || 30) + " dias)"
-      + (antigos ? "; " + (antigos === H.length ? (H.length === 1 ? "é de pedido anterior" : "todos são de pedidos anteriores") : NUM(antigos) + " são de pedidos anteriores") + " a " + DT(ini) + ", data do histórico mais antigo disponível" : "")
-      + ". " + (H.length === 1 ? "Fica" : "Ficam") + " fora dos números e da tabela; a exportação traz a lista numa planilha à parte.");
-    el("rast-aviso").innerHTML = linhas.map(t => "<div>" + t + "</div>").join("");
-  }
 
   // ---- gráfico: envios por mês (barras empilhadas pela situação de hoje + linha de % no prazo)
   const CATS_MES = [["No prazo", "var(--ok)"], ["Com atraso", "var(--warning)"], ["Sem previsão", "var(--text-faint)"], ["Em andamento", "var(--accent)"], ["Problemas e pendências", "var(--danger)"]];
