@@ -73,8 +73,8 @@ if (fs.existsSync(RASTREIO_FILE)) {
 // Aba "Consulta de ICCID": o pacote gzip (op_iccid.json.gz do cruza_iccid.js, ~715 mil chips) chega em
 // POST /api/sync-iccid e fica em memória como texto ordenado + busca binária (iccid_busca.js); a página só consulta
 // os ICCIDs colados em POST /api/iccid/consulta, filtrando pelas empresas do usuário. Nunca vai embutido no HTML.
-// Vendas do SGR (o sistema antigo, empresas que não existem no Mira): só para quem tem TODAS as empresas, como as linhas
-// sem empresa da inadimplência e do rastreio.
+// Vendas do SGR (o sistema antigo, empresas que não existem no Mira): visíveis para TODO usuário com a aba liberada,
+// sem filtro de empresa (decisão do usuário em 28/10; antes era só para quem tinha todas as empresas).
 const iccidBusca = require('./iccid_busca');
 const ICCID_FILE = path.join(__dirname, 'data', 'iccid.json.gz');
 let latestIccid = null;
@@ -163,12 +163,28 @@ function filterResumoPedidos(resumo, allowed) {
   };
 }
 
+// Empresas de acesso (28/10): o sync principal manda o cadastro de empresas que o módulo de Acessos mostra
+// (CONSULTA_EMPRESA) e as empresas antigas da organização 21 fora dele, ligadas à empresa que atende a UF delas
+// (ex. 182 RN e 183 PB -> 136). Quem tem a empresa atual vê também os dados das antigas ligadas a ela.
+function empresasAcesso() {
+  const a = latestData && latestData.empresasAcesso;
+  return a && Array.isArray(a.catalogo) && a.catalogo.length ? a : null;
+}
 function empresasDoUsuario(email) {
   if (!latestData) return [];
   const alvo = String(email).toLowerCase();
-  return latestData.usuariosEmpresas
+  const lista = [...new Set(latestData.usuariosEmpresas
     .filter((v) => String(v.email).toLowerCase() === alvo)
-    .map((v) => String(v.empresa));
+    .map((v) => String(v.empresa)))];
+  const ac = empresasAcesso();
+  if (ac) for (const [antiga, atual] of Object.entries(ac.alias || {})) if (lista.includes(String(atual)) && !lista.includes(String(antiga))) lista.push(String(antiga));
+  return lista;
+}
+// "todas as empresas" = todas as do cadastro do módulo de Acessos (sem o cadastro ainda: as que aparecem em USUARIOS_EMPRESAS)
+function temTodasEmpresas(allowed) {
+  const ac = empresasAcesso();
+  const universo = ac ? ac.catalogo.map(String) : [...new Set(((latestData && latestData.usuariosEmpresas) || []).map((v) => String(v.empresa)))];
+  return universo.length > 0 && universo.every((e) => allowed.includes(e));
 }
 
 function usuarioAtivo(email) {
@@ -320,6 +336,9 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
       usuarios,
       usuariosEmpresas: (body.usuariosEmpresas || []).map((v) => ({ email: v.email, empresa: String(v.empresa) })),
       usuariosSistemas: (body.usuariosSistemas || []).map((v) => ({ email: v.email, sistema: v.sistema })),
+      empresasAcesso: body.empresasAcesso && Array.isArray(body.empresasAcesso.catalogo)
+        ? { catalogo: body.empresasAcesso.catalogo.map(String), alias: Object.fromEntries(Object.entries(body.empresasAcesso.alias || {}).map(([k, v]) => [String(k), String(v)])) }
+        : null,
       syncedAt: new Date().toISOString()
     };
 
@@ -359,8 +378,7 @@ app.get('/api/inadimplencia', requireAuth, (req, res) => {
   if (!abaLiberada(req.abas, 'inadimplencia')) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
   if (!latestInad) return res.json({ ok: false, motivo: 'sem_dados' });
   const allowed = empresasDoUsuario(req.userEmail);
-  const universo = [...new Set((latestData.usuariosEmpresas || []).map((v) => String(v.empresa)))];
-  const temTodas = universo.length > 0 && universo.every((e) => allowed.includes(e));
+  const temTodas = temTodasEmpresas(allowed);
   const pode = (r) => (r.codEmpresa ? allowed.includes(String(r.codEmpresa)) : temTodas);
   res.json({ ok: true, meta: latestInad.meta, mira: latestInad.mira.filter(pode), aqt: latestInad.aqt.filter(pode), temTodas });
 });
@@ -389,8 +407,7 @@ app.get('/api/rastreio', requireAuth, (req, res) => {
   if (!algumaLiberada(req.abas, ['rastreio', 'consultarastreio'])) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
   if (!latestRastreio) return res.json({ ok: false, motivo: 'sem_dados' });
   const allowed = empresasDoUsuario(req.userEmail);
-  const universo = [...new Set((latestData.usuariosEmpresas || []).map((v) => String(v.empresa)))];
-  const temTodas = universo.length > 0 && universo.every((e) => allowed.includes(e));
+  const temTodas = temTodasEmpresas(allowed);
   const pode = (r) => (r.codEmpresa ? allowed.includes(String(r.codEmpresa)) : temTodas);
   res.json({ ok: true, meta: latestRastreio.meta, envios: latestRastreio.envios.filter(pode), cobertura: latestRastreio.cobertura.filter(pode), temTodas });
 });
@@ -413,15 +430,11 @@ app.post('/api/sync-iccid', express.raw({ type: 'application/octet-stream', limi
   }
 });
 const ICCID_MAX = 5000;
-function temTodasEmpresas(allowed) {
-  const universo = [...new Set(((latestData && latestData.usuariosEmpresas) || []).map((v) => String(v.empresa)))];
-  return universo.length > 0 && universo.every((e) => allowed.includes(e));
-}
 app.get('/api/iccid/meta', requireAuth, (req, res) => {
   res.set('Cache-Control', 'no-store');
   if (!abaLiberada(req.abas, 'consultaiccid')) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
   if (!latestIccid) return res.json({ ok: false, motivo: 'sem_dados' });
-  const m = latestIccid.meta || {}, sgr = temTodasEmpresas(empresasDoUsuario(req.userEmail)) && m.sgr ? m.sgr : null;
+  const m = latestIccid.meta || {}, sgr = m.sgr || null;
   res.json({ ok: true, meta: { geradoEm: m.geradoEm, vendaDe: m.vendaDe, vendaAte: m.vendaAte, corteAtivacao: m.corteAtivacao || {}, sgr: sgr ? { vendaDe: sgr.vendaDe, vendaAte: sgr.vendaAte, inicioAtivacao: sgr.inicioAtivacao || {} } : null }, syncedAt: latestIccid.syncedAt, limite: ICCID_MAX });
 });
 app.post('/api/iccid/consulta', requireAuth, express.json({ limit: '2mb' }), (req, res) => {
@@ -430,9 +443,9 @@ app.post('/api/iccid/consulta', requireAuth, express.json({ limit: '2mb' }), (re
   if (!latestIccid) return res.json({ ok: false, motivo: 'sem_dados' });
   const lista = Array.isArray(req.body && req.body.iccids) ? req.body.iccids : [];
   if (lista.length > ICCID_MAX) return res.status(400).json({ ok: false, motivo: 'muitos', limite: ICCID_MAX });
-  // chip de empresa que o usuário não tem (ou do SGR, sem ter todas as empresas) volta como "não encontrado" (não revela que existe)
+  // chip do Mira de empresa que o usuário não tem volta como "não encontrado" (não revela que existe); SGR: todos veem
   const allowed = empresasDoUsuario(req.userEmail);
-  const r = iccidBusca.consulta(latestIccid, lista, (e) => allowed.includes(String(e)), temTodasEmpresas(allowed));
+  const r = iccidBusca.consulta(latestIccid, lista, (e) => allowed.includes(String(e)), true);
   res.json(Object.assign({ ok: true, corteAtivacao: (latestIccid.meta || {}).corteAtivacao || {} }, r));
 });
 
