@@ -1575,7 +1575,7 @@
         <div class="spacer"></div>
         <span class="result-count" id="result-count-ped"></span>
         <button class="clear-btn" id="clear-filters-ped">Limpar filtros</button>
-        <button class="clear-btn copy-btn" id="copy-ped-btn" type="button">📋 Copiar para Excel</button>
+        <button class="clear-btn copy-btn" id="copy-ped-btn" type="button">📊 Exportar Excel</button>
         <span class="copy-status" id="copy-ped-status"></span>
       </div>
 
@@ -1657,7 +1657,7 @@
           <button class="clear-btn copy-btn" id="vd-sumarizacao-btn" type="button">📊 Sumarização</button>
           <div class="spacer"></div>
           <span class="result-count" id="result-count-vd"></span>
-          <button class="clear-btn copy-btn" id="copy-vd-btn" type="button">📋 Copiar para Excel</button>
+          <button class="clear-btn copy-btn" id="copy-vd-btn" type="button">📊 Exportar Excel</button>
           <span class="copy-status" id="copy-vd-status"></span>
         </div>
         <div class="table-scroll">
@@ -1697,7 +1697,7 @@
       </p>
       <div class="filters" style="margin-top:10px;">
         <span class="result-count" id="result-count-estoquefilial"></span>
-        <button class="clear-btn copy-btn" id="copy-estoquefilial-btn" type="button">📋 Copiar para Excel</button>
+        <button class="clear-btn copy-btn" id="copy-estoquefilial-btn" type="button">📊 Exportar Excel</button>
         <span class="copy-status" id="copy-estoquefilial-status"></span>
       </div>
       <div class="table-scroll">
@@ -2210,44 +2210,126 @@ function showCopyFallback(tsv) {
   ta.select();
 }
 
-async function copyToExcel(headers, rows, statusEl) {
-  if (!rows.length) {
-    if (statusEl) { statusEl.textContent = "Nada para copiar com os filtros atuais."; statusEl.classList.add("is-error"); }
-    return;
+// ================================================================
+// EXPORTAR EXCEL (2026-10-29, pedido do usuário: no lugar do "Copiar para Excel" e dos CSV, baixar um
+// arquivo Excel de verdade, sem precisar copiar e colar). O .xlsx é montado no navegador, sem biblioteca
+// externa (BiXlsx, o mesmo gerador do BI Operacional). exportarExcel(cabecalhos, linhas, statusEl, nome):
+// - número vira número (inteiro sem casas; com fração, duas casas), data aaaa-mm-dd ou dd/mm/aaaa vira
+//   data, o resto vai como texto; ="..." (truque antigo para o Excel não estragar ICCID/código) vira texto;
+// - coluna "Cidade-UF" (ou "Cidade/UF") sai em duas colunas, Cidade e UF;
+// - nome do arquivo e da planilha: o título do quadro do botão (ou da aba) + a data de hoje.
+// ================================================================
+const ExportarExcelBI = (() => {
+  const RX_ACENTO = new RegExp("[" + String.fromCharCode(0x300) + "-" + String.fromCharCode(0x36f) + "]", "g");
+  const semAcento = (s) => String(s == null ? "" : s).normalize("NFD").replace(RX_ACENTO, "");
+  const RX_ISO = new RegExp("^[0-9]{4}-[0-9]{2}-[0-9]{2}$");
+  const RX_BR = new RegExp("^[0-9]{2}/[0-9]{2}/[0-9]{4}$");
+  const RX_CIDADE_UF = new RegExp("^CIDADE *[-/] *UF$");
+  const RX_CIDADE = new RegExp("^CIDADE$");
+  const UFS = new Set("AC AL AM AP BA CE DF ES GO MA MG MS MT PA PB PE PI PR RJ RN RO RR RS SC SE SP TO".split(" "));
+  const temUf = (v) => { const m = String(v).trim().match(RX_UF_FINAL); return !!(m && UFS.has(m[2])); };
+  const RX_UF_FINAL = new RegExp("^(.*[^ ]) *[-/] *([A-Z]{2})$");
+  // número escrito em português ("1.234,56", "12,50", "-3,2") - só converte a coluna em que algum valor tem vírgula
+  const RX_NUM_BR = new RegExp("^-?([0-9]{1,3}([.][0-9]{3})*|[0-9]+)(,[0-9]{1,6})?$");
+  const numBr = (v) => Number(String(v).split(".").join("").replace(",", "."));
+  // inteiro em texto ("1500"): até 7 dígitos, sem zero à esquerda e sem ponto ("1.234" pode ser milhar); coluna de documento/código fica texto
+  const RX_NUM_PONTO = new RegExp("^-?(0|[1-9][0-9]{0,6})$");
+  // inteiro com ponto de milhar ("1.234", como a tela formata em português)
+  const RX_MILHAR = new RegExp("^-?[1-9][0-9]{0,2}([.][0-9]{3})+$");
+  const RX_COLUNA_CODIGO = new RegExp("CPF|CNPJ|CEP|ICCID|TELEFONE|CELULAR|DOCUMENTO|CODIGO|PEDIDO|NUMERO|NRO|LOTE");
+  const RX_TEXTO_FORMULA = new RegExp('^="(.*)"$');
+  const vazio = (v) => v === null || v === undefined || v === "" || v === "—" || v === "–";
+  // ="0123" -> 0123 (texto)
+  const limpa = (v) => { if (typeof v === "string") { const m = v.match(RX_TEXTO_FORMULA); if (m) return m[1]; } return v; };
+  function separaCidadeUf(headers, rows) {
+    // "Cidade-UF" sempre; "Cidade" só quando todo valor termina numa UF (ex.: Recife-PE)
+    const alvo = headers.map((h, i) => {
+      const n = semAcento(h).toUpperCase().trim();
+      if (RX_CIDADE_UF.test(n)) return i;
+      if (RX_CIDADE.test(n)) { const vals = rows.map((r) => r[i]).filter((v) => !vazio(v)); if (vals.length && vals.every(temUf)) return i; }
+      return -1;
+    }).filter((i) => i >= 0);
+    if (!alvo.length) return { headers, rows };
+    const h2 = [], mapa = [];
+    headers.forEach((h, i) => {
+      if (alvo.includes(i)) { h2.push("Cidade", "UF"); mapa.push([i, "cidade"], [i, "uf"]); }
+      else { h2.push(h); mapa.push([i, null]); }
+    });
+    const r2 = rows.map((r) => mapa.map(([i, parte]) => {
+      if (!parte) return r[i];
+      const v = vazio(r[i]) ? "" : String(r[i]).trim();
+      const m = v.match(RX_UF_FINAL);
+      const ok = m && UFS.has(m[2]);
+      if (parte === "cidade") return ok ? m[1] : v;
+      return ok ? m[2] : "";
+    }));
+    return { headers: h2, rows: r2 };
   }
-  const tsv = buildTsv(headers, rows);
-  let ok = false;
-
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(tsv);
-      ok = true;
+  function coluna(titulo, valores, i) {
+    const vals = valores.filter((v) => !vazio(v));
+    let tipo = "t", conv = (v) => (vazio(v) ? null : v);
+    const ehCodigo = RX_COLUNA_CODIGO.test(semAcento(titulo).toUpperCase());
+    if (vals.length && vals.every((v) => typeof v === "number" && isFinite(v))) tipo = vals.every((v) => Number.isInteger(v)) ? "n0" : "n";
+    else if (!ehCodigo && vals.length && vals.every((v) => typeof v === "number" || (typeof v === "string" && (RX_NUM_PONTO.test(v.trim()) || RX_MILHAR.test(v.trim()))))) {
+      const nums = vals.map(numBr);
+      tipo = nums.every((x) => Number.isInteger(x)) ? "n0" : "n";
+      conv = (v) => (vazio(v) ? null : typeof v === "number" ? v : numBr(String(v).trim()));
     }
-  } catch (err) { ok = false; }
-
-  if (!ok) {
+    else if (vals.length && vals.every((v) => typeof v === "number" || (typeof v === "string" && RX_NUM_BR.test(v.trim()))) && vals.some((v) => typeof v === "string" && v.includes(",")) && !ehCodigo) {
+      const nums = vals.map((v) => (typeof v === "number" ? v : numBr(v.trim())));
+      tipo = nums.every((x) => Number.isInteger(x)) ? "n0" : "n";
+      conv = (v) => (vazio(v) ? null : typeof v === "number" ? v : numBr(String(v).trim()));
+    }
+    else if (vals.length && vals.every((v) => typeof v === "string" && RX_ISO.test(v))) tipo = "d";
+    else if (vals.length && vals.every((v) => typeof v === "string" && RX_BR.test(v))) { tipo = "d"; conv = (v) => (vazio(v) ? null : `${v.slice(6, 10)}-${v.slice(3, 5)}-${v.slice(0, 2)}`); }
+    else conv = (v) => (vazio(v) ? null : (typeof v === "number" ? v : String(v)));
+    return [String(titulo == null ? "" : titulo), tipo, (r) => conv(r[i])];
+  }
+  function tituloDoQuadro(ancora) {
+    let t = "";
+    if (ancora && ancora.closest) {
+      const quadro = ancora.closest(".vg2-card, .card, .panel, .modal-card, section, .tab-content, [id^='tab-content-']");
+      const h = quadro && quadro.querySelector("h1, h2, h3, h4");
+      if (h) t = h.textContent;
+    }
+    if (!t) { const aba = document.querySelector(".tab-btn.is-active, .tab-btn.active, .tab.ativo, .tab.is-active, .tab.on, [role='tab'][aria-selected='true']"); if (aba) t = aba.textContent; }
+    return String(t || document.title || "Exportação").replace(new RegExp("[ ]+", "g"), " ").trim();
+  }
+  const slug = (s) => semAcento(s).toLowerCase().replace(new RegExp("[^a-z0-9]+", "g"), "_").replace(new RegExp("^_+|_+$", "g"), "").slice(0, 60) || "exportacao";
+  // planilha do Excel: até 31 caracteres, sem [ ] : * ? / e sem barra invertida (código 92)
+  const nomePlanilha = (s) => ([...String(s)].filter((ch) => !"[]:*?/".includes(ch) && ch.charCodeAt(0) !== 92).join("").trim().slice(0, 31)) || "Dados";
+  const hoje = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+  function exportar(headers, rows, statusEl, nome) {
+    const st = (txt, erro) => { if (statusEl) { statusEl.textContent = txt; statusEl.classList.toggle("is-error", !!erro); } };
+    if (!rows || !rows.length) { st("Nada para exportar com os filtros atuais.", true); return false; }
+    const base = separaCidadeUf(headers, rows.map((r) => r.map(limpa)));
+    const cols = base.headers.map((h, i) => coluna(h, base.rows.map((r) => r[i]), i));
+    const botao = document.activeElement;
+    let titulo = nome || tituloDoQuadro(statusEl || botao);
+    // botão "Exportar Detalhado" ao lado do "Exportar Excel" do mesmo quadro: nomes diferentes
+    if (!nome && botao && /detalhad/i.test(botao.textContent || "") && !/detalh/i.test(titulo)) titulo += " detalhado";
     try {
-      const ta = document.createElement("textarea");
-      ta.value = tsv;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      ok = document.execCommand("copy");
-      document.body.removeChild(ta);
-    } catch (err) { ok = false; }
-  }
-
-  if (ok) {
-    if (statusEl) {
-      statusEl.textContent = `Copiado (${rows.length} linhas) — cole no Excel com Ctrl+V`;
-      statusEl.classList.remove("is-error");
+      const blob = BiXlsx.montaXlsx([{ nome: nomePlanilha(titulo), xml: BiXlsx.planilhaXml(cols, base.rows) }]);
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${slug(titulo)}_${hoje()}.xlsx`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      st(`Arquivo Excel gerado (${rows.length.toLocaleString("pt-BR")} ${rows.length === 1 ? "linha" : "linhas"}).`);
+      return true;
+    } catch (err) {
+      st(`Não foi possível gerar o arquivo (${err.message}).`, true);
+      return false;
     }
-  } else {
-    if (statusEl) statusEl.textContent = "";
-    showCopyFallback(tsv);
   }
+  return { exportar };
+})();
+function exportarExcel(headers, rows, statusEl, nome) { return ExportarExcelBI.exportar(headers, rows, statusEl, nome); }
+
+// Antigo "Copiar para Excel" (2026-10-29): agora baixa um arquivo Excel - ver exportarExcel acima. O nome
+// copyToExcel ficou so para nao mexer nas chamadas das abas.
+async function copyToExcel(headers, rows, statusEl, nome) {
+  return exportarExcel(headers, rows, statusEl, nome);
 }
 
 const empresas = [...new Set(RAW_CLIENTES.map(c => c.Empresa))].sort();
