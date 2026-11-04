@@ -560,15 +560,58 @@
   tbody tr.row-warning td:first-child { box-shadow: inset 3px 0 0 var(--warning); }
 
   /* ===== Faturamento & Pedidos: tabela cabe no painel (Situação nunca corta) ===== */
-  #ped-table { table-layout: fixed; width: 100%; min-width: 760px; }
-  #ped-table th:nth-child(1), #ped-table td:nth-child(1) { width: 8%; }
+  #ped-table { table-layout: fixed; width: 100%; min-width: 1060px; }
+  #ped-table th:nth-child(1), #ped-table td:nth-child(1) { width: 7%; }
   #ped-table th:nth-child(2), #ped-table td:nth-child(2) { width: 6%; }
-  #ped-table th:nth-child(3), #ped-table td:nth-child(3) { width: 24%; white-space: normal; word-break: break-word; }
-  #ped-table th:nth-child(4), #ped-table td:nth-child(4) { width: 16%; white-space: normal; word-break: break-word; }
-  #ped-table th:nth-child(5), #ped-table td:nth-child(5) { width: 13%; white-space: normal; }
-  #ped-table th:nth-child(6), #ped-table td:nth-child(6) { width: 13%; white-space: normal; }
-  #ped-table th:nth-child(7), #ped-table td:nth-child(7) { width: 11%; white-space: normal; }
-  #ped-table th:nth-child(8), #ped-table td:nth-child(8) { width: 9%; }
+  #ped-table th:nth-child(3), #ped-table td:nth-child(3) { width: 10%; white-space: normal; }
+  #ped-table th:nth-child(4), #ped-table td:nth-child(4) { width: 17%; white-space: normal; word-break: break-word; }
+  #ped-table th:nth-child(5), #ped-table td:nth-child(5) { width: 12%; white-space: normal; word-break: break-word; }
+  #ped-table th:nth-child(6), #ped-table td:nth-child(6) { width: 9%; }
+  #ped-table th:nth-child(7), #ped-table td:nth-child(7) { width: 8%; white-space: normal; word-break: break-word; }
+  #ped-table th:nth-child(8), #ped-table td:nth-child(8) { width: 11%; white-space: normal; word-break: break-all; }
+  #ped-table th:nth-child(9), #ped-table td:nth-child(9) { width: 11%; white-space: normal; }
+  #ped-table th:nth-child(10), #ped-table td:nth-child(10) { width: 9%; }
+  #ped-table .fp-col-num { text-align: right; font-variant-numeric: tabular-nums; }
+  #ped-table .ped-rastreio { font-family: var(--mono); font-size: 0.92em; }
+  #ped-table .ped-rastreio.is-invalido { color: var(--text-muted); font-family: inherit; font-style: italic; }
+  #ped-table .fp-tempo { display: block; color: var(--text-muted); font-size: 0.92em; }
+  #ped-table .fp-atrasado { color: var(--danger); font-weight: 600; }
+  /* pendentes: faixa vermelha à esquerda + selo PENDENTE, sem pintar a linha inteira (bloco saturado cansa a leitura) */
+  #tab-content-pedidos #tbody-ped tr.row-danger td { background: transparent; }
+  #tab-content-pedidos #tbody-ped tr.row-danger:hover td { background: var(--surface-2); }
+  /* Faturamento & Pedidos (homologação 04/11): filtros no topo valendo para tudo, cartões por seção, lista paginada */
+  #tab-content-pedidos:not(.is-hidden) { display: flex; flex-direction: column; gap: 10px; }
+  .fp-filtros .filters { border-bottom: 0; align-items: flex-end; }
+  .fp-filtros .filters select { min-width: 112px; }
+  .fp-filtros .filters input[type="date"] { min-width: 124px; }
+  .fp-busca input[type="search"] { min-width: 210px; }
+  #ped-envio { max-width: 200px; }
+  .fp-escopo { margin: 0; padding: 7px 12px; font-size: 11.5px; color: var(--text-muted); border-top: 1px solid var(--border); line-height: 1.45; }
+  .fp-escopo b { color: var(--text); font-weight: 600; }
+  .fp-escopo-nota { color: var(--text-faint); }
+  .fp-secao { margin: 4px 0 -2px; font-size: 13px; font-weight: 700; color: var(--text); }
+  .fp-secao span { font-weight: 400; font-size: 11.5px; color: var(--text-faint); margin-left: 6px; }
+  .fp-kpis .kpi { padding: 11px 14px; gap: 3px; }
+  .fp-kpis .kpi .lbl { font-size: 12px; color: var(--text-muted); padding-right: 24px; }
+  .fp-kpis .kpi .num { font-family: var(--sans); font-size: 24px; font-weight: 650; font-variant-numeric: normal; line-height: 1.15; }
+  .fp-kpis .kpi.k-danger .num { color: var(--danger); }
+  .fp-sub { font-size: 11.5px; color: var(--text-muted); line-height: 1.4; min-height: 16px; }
+  .fp-sub b { color: var(--text); font-weight: 600; }
+  .fp-lista-topo { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid var(--border); background: var(--surface-2); flex-wrap: wrap; }
+  .fp-lista-topo h3 { margin: 0; font-size: 13px; }
+  .fp-paginacao { display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding: 8px 12px; border-top: 1px solid var(--border); font-size: 11.5px; color: var(--text-muted); flex-wrap: wrap; }
+  .fp-paginacao label { margin-left: 14px; }
+  .fp-paginacao select { min-width: 0; }
+  .fp-paginacao .clear-btn { min-width: 30px; }
+  .fp-paginacao .clear-btn:disabled { opacity: .4; cursor: default; border-color: var(--border); color: var(--text-muted); }
+  .fp-bd-total td { font-weight: 700; border-top: 1px solid var(--border); }
+  @media (max-width: 860px) {
+    .fp-filtros .filters .field { flex: 1 1 calc(50% - 8px); }
+    .fp-filtros .filters .field select, .fp-filtros .filters .field input { min-width: 0; width: 100%; max-width: none; }
+    .fp-filtros .filters .fp-busca { flex-basis: 100%; }
+    .fp-kpis .kpi .num { font-size: 20px; }
+    .fp-paginacao { justify-content: center; }
+  }
   #ped-table td { vertical-align: top; }
 
   /* ===== Pedidos PENDENTES: fundo de alerta na linha inteira + chip vermelho sólido ===== */
@@ -1504,116 +1547,160 @@
 
     <!-- ===================== TAB: FATURAMENTO & PEDIDOS ===================== -->
     <div id="tab-content-pedidos" class="is-hidden">
-    <div class="kpis kpis-6" id="kpis-pedidos">
-      <div class="kpi kpi-static kpi-clickable" id="kpi-fat-dia" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-        <div class="num" id="total-fat-dia">–</div>
-        <div class="lbl">Faturamento do dia</div>
-      </div>
-      <div class="kpi kpi-static kpi-clickable" id="kpi-fat-mes" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-        <div class="num" id="total-fat-mes">–</div>
-        <div class="lbl">Faturamento do mês corrente</div>
-      </div>
-      <div class="kpi kpi-static kpi-clickable" id="kpi-prod-dia" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-        <div class="num" id="total-prod-dia">–</div>
-        <div class="lbl">Produtos vendidos no dia</div>
-      </div>
-      <div class="kpi kpi-static kpi-clickable" id="kpi-prod-mes" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-        <div class="num" id="total-prod-mes">–</div>
-        <div class="lbl">Produtos vendidos no mês</div>
-      </div>
-      <div class="kpi kpi-static kpi-clickable" id="kpi-fat-projecao" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-        <div class="num" id="total-fat-projecao">–</div>
-        <div class="lbl">Projeção de faturamento mensal</div>
-      </div>
-      <div class="kpi kpi-static kpi-clickable" id="kpi-prod-projecao" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-        <div class="num" id="total-prod-projecao">–</div>
-        <div class="lbl">Projeção de quantidade de vendas mensal</div>
-      </div>
-    </div>
-
-    <p class="tab-context-note">Funil operacional · tempo entre a digitação e o processamento do pedido, todo o histórico · reflete o filtro de <b>Empresa</b> acima</p>
-    <div class="kpis kpis-4" id="kpis-funil">
-      <div class="kpi kpi-static kpi-clickable" id="kpi-funil-sla" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-        <div class="num" id="total-funil-sla">–</div>
-        <div class="lbl">Processados em até 24h</div>
-      </div>
-      <div class="kpi kpi-static kpi-clickable" id="kpi-funil-tempo" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-        <div class="num" id="total-funil-tempo">–</div>
-        <div class="lbl">Tempo médio de processamento</div>
-      </div>
-      <div class="kpi kpi-static kpi-clickable" id="kpi-funil-pendentes" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-        <div class="num" id="total-funil-pendentes">–</div>
-        <div class="lbl">Pendentes em aberto</div>
-      </div>
-      <div class="kpi kpi-static kpi-clickable k-danger" id="kpi-funil-atraso" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-        <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-        <div class="num" id="total-funil-atraso">–</div>
-        <div class="lbl">Pendentes há mais de 48h</div>
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="filters">
-        <div class="field">
-          <label for="ped-empresa">Empresa</label>
-          <select id="ped-empresa"><option value="">Todas as empresas</option></select>
+      <!-- Faturamento & Pedidos (homologação 04/11): os filtros ficam numa linha só, no topo, e valem para tudo abaixo
+           (cartões de vendas, processamento e lista) - os números sempre conferem entre si. -->
+      <div class="panel fp-filtros">
+        <div class="filters">
+          <div class="field">
+            <label for="ped-periodo">Período</label>
+            <select id="ped-periodo">
+              <option value="hoje">Hoje</option>
+              <option value="ontem">Ontem</option>
+              <option value="7d">Últimos 7 dias</option>
+              <option value="30d">Últimos 30 dias</option>
+              <option value="mes">Mês corrente</option>
+              <option value="mesant">Mês anterior</option>
+              <option value="todos">Todo o período</option>
+              <option value="custom">Personalizado</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="ped-de">De</label>
+            <input type="date" id="ped-de" />
+          </div>
+          <div class="field">
+            <label for="ped-ate">Até</label>
+            <input type="date" id="ped-ate" />
+          </div>
+          <div class="field">
+            <label for="ped-empresa">Empresa</label>
+            <select id="ped-empresa"><option value="">Todas as empresas</option></select>
+          </div>
+          <div class="field">
+            <label for="ped-envio">Tipo de envio (GED)</label>
+            <select id="ped-envio"><option value="">Todos os tipos</option></select>
+          </div>
+          <div class="field">
+            <label for="ped-situacao">Situação</label>
+            <select id="ped-situacao">
+              <option value="">Todas</option>
+              <option value="pendente">Só pendentes</option>
+              <option value="processado">Só processados</option>
+            </select>
+          </div>
+          <div class="field fp-busca">
+            <label for="ped-busca">Buscar</label>
+            <input type="search" id="ped-busca" placeholder="Pedido, cliente, vendedor ou rastreio" />
+          </div>
+          <div class="spacer"></div>
+          <button class="clear-btn" id="clear-filters-ped" type="button">Limpar filtros</button>
         </div>
-        <div class="field">
-          <label for="ped-periodo">Período (processados)</label>
-          <select id="ped-periodo">
-            <option value="hoje">Hoje</option>
-            <option value="mes">Mês corrente</option>
-            <option value="todos">Todo o período</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="ped-busca">Pedido / Vendedor</label>
-          <input type="search" id="ped-busca" placeholder="Buscar..." />
-        </div>
-        <div class="spacer"></div>
-        <span class="result-count" id="result-count-ped"></span>
-        <button class="clear-btn" id="clear-filters-ped">Limpar filtros</button>
-        <button class="clear-btn copy-btn" id="copy-ped-btn" type="button">📊 Exportar Excel</button>
-        <span class="copy-status" id="copy-ped-status"></span>
+        <p class="fp-escopo" id="ped-escopo"></p>
       </div>
 
-      <div class="table-scroll">
-        <table id="ped-table">
-          <thead>
-            <tr>
-              <th data-key="Empresa"><button>Empresa <span class="sort-arrow"></span></button></th>
-              <th data-key="Pedido"><button>Pedido <span class="sort-arrow"></span></button></th>
-              <th data-key="Cliente"><button>Cliente <span class="sort-arrow"></span></button></th>
-              <th data-key="Vendedor"><button>Vendedor <span class="sort-arrow"></span></button></th>
-              <th data-key="DataDigitacao"><button>Digitado em <span class="sort-arrow"></span></button></th>
-              <th data-key="DataProcessamento"><button>Processado em <span class="sort-arrow"></span></button></th>
-              <th data-key="_tempoOrdenacao"><button>Tempo <span class="sort-arrow"></span></button></th>
-              <th data-key="Situacao"><button>Situação <span class="sort-arrow"></span></button></th>
-            </tr>
-          </thead>
-          <tbody id="tbody-ped"></tbody>
-        </table>
+      <h3 class="fp-secao">Vendas no período <span>pedidos processados, pela data do pedido</span></h3>
+      <div class="kpis kpis-4 fp-kpis" id="kpis-pedidos">
+        <div class="kpi kpi-static kpi-clickable" id="kpi-fat" tabindex="0" role="button" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="lbl">Faturamento</div>
+          <div class="num" id="total-fat">–</div>
+          <div class="fp-sub" id="sub-fat"></div>
+        </div>
+        <div class="kpi kpi-static kpi-clickable" id="kpi-ped" tabindex="0" role="button" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="lbl">Pedidos processados</div>
+          <div class="num" id="total-ped">–</div>
+          <div class="fp-sub" id="sub-ped"></div>
+        </div>
+        <div class="kpi kpi-static kpi-clickable" id="kpi-ticket" tabindex="0" role="button" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="lbl">Ticket médio</div>
+          <div class="num" id="total-ticket">–</div>
+          <div class="fp-sub" id="sub-ticket"></div>
+        </div>
+        <div class="kpi kpi-static kpi-clickable" id="kpi-prod" tabindex="0" role="button" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="lbl">Produtos vendidos</div>
+          <div class="num" id="total-prod">–</div>
+          <div class="fp-sub" id="sub-prod"></div>
+        </div>
       </div>
-      <div class="empty-state" id="empty-state-ped" style="display:none;">Nenhum pedido corresponde aos filtros aplicados.</div>
 
-      <div class="footnote">
-        Faturamento e produtos vendidos vêm das SAÍDAS reais (<code>003_SAIDA_POR_VENDAS</code>), não da fila de pedidos &middot;
-        Pedidos <b>PENDENTES</b> (qualquer situação diferente de PROCESSADO, vindos de <code>CONSULTA_PEDIDOS_A_PROCESSAR</code>) ficam sempre no topo da lista, em destaque, independente do filtro de período escolhido &middot;
-        Tempo = intervalo entre a digitação e o processamento do pedido &middot; pedidos pendentes mostram há quanto tempo estão em aberto desde a digitação &middot;
-        Projeção mensal = ritmo do mês em curso (faturamento/produtos até hoje ÷ dia do mês) projetado para os dias totais do mês &middot;
-        Clique nos cards acima (⤢) para ver o detalhamento por filial &middot;
-        Clique no nome do cliente para ver os itens do pedido e os dados do cliente (segmento, situação, cidade).
+      <h3 class="fp-secao">Processamento <span>tempo entre a digitação e o processamento do pedido</span></h3>
+      <div class="kpis kpis-4 fp-kpis" id="kpis-funil">
+        <div class="kpi kpi-static kpi-clickable" id="kpi-funil-sla" tabindex="0" role="button" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="lbl">Processados em até 24h</div>
+          <div class="num" id="total-funil-sla">–</div>
+          <div class="fp-sub" id="sub-funil-sla"></div>
+        </div>
+        <div class="kpi kpi-static kpi-clickable" id="kpi-funil-tempo" tabindex="0" role="button" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="lbl">Tempo médio de processamento</div>
+          <div class="num" id="total-funil-tempo">–</div>
+          <div class="fp-sub" id="sub-funil-tempo"></div>
+        </div>
+        <div class="kpi kpi-static kpi-clickable" id="kpi-funil-pendentes" tabindex="0" role="button" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="lbl">Pendentes agora</div>
+          <div class="num" id="total-funil-pendentes">–</div>
+          <div class="fp-sub" id="sub-funil-pendentes"></div>
+        </div>
+        <div class="kpi kpi-static kpi-clickable" id="kpi-funil-atraso" tabindex="0" role="button" title="Clique para ver por filial">
+          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
+          <div class="lbl">Pendentes há mais de 48h</div>
+          <div class="num" id="total-funil-atraso">–</div>
+          <div class="fp-sub" id="sub-funil-atraso"></div>
+        </div>
       </div>
-    </div>
+
+      <div class="panel fp-lista">
+        <div class="fp-lista-topo">
+          <h3>Pedidos</h3>
+          <span class="result-count" id="result-count-ped"></span>
+          <div class="spacer"></div>
+          <button class="clear-btn copy-btn" id="copy-ped-btn" type="button">📊 Exportar Excel</button>
+          <span class="copy-status" id="copy-ped-status"></span>
+        </div>
+        <div class="table-scroll">
+          <table id="ped-table">
+            <thead>
+              <tr>
+                <th data-key="Empresa"><button>Empresa <span class="sort-arrow"></span></button></th>
+                <th data-key="Pedido"><button>Pedido <span class="sort-arrow"></span></button></th>
+                <th data-key="_dig"><button>Digitado em <span class="sort-arrow"></span></button></th>
+                <th data-key="Cliente"><button>Cliente <span class="sort-arrow"></span></button></th>
+                <th data-key="Vendedor"><button>Vendedor <span class="sort-arrow"></span></button></th>
+                <th data-key="Valor" class="fp-col-num"><button>Valor <span class="sort-arrow"></span></button></th>
+                <th data-key="Ged"><button>GED <span class="sort-arrow"></span></button></th>
+                <th data-key="Rastreio"><button>Rastreio <span class="sort-arrow"></span></button></th>
+                <th data-key="_proc"><button>Processamento <span class="sort-arrow"></span></button></th>
+                <th data-key="Situacao"><button>Situação <span class="sort-arrow"></span></button></th>
+              </tr>
+            </thead>
+            <tbody id="tbody-ped"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="empty-state-ped" style="display:none;">Nenhum pedido corresponde aos filtros aplicados.</div>
+        <div class="fp-paginacao" id="ped-paginacao">
+          <button class="clear-btn" id="ped-pag-prim" type="button" aria-label="Primeira página">«</button>
+          <button class="clear-btn" id="ped-pag-ant" type="button" aria-label="Página anterior">‹</button>
+          <span id="ped-pag-info"></span>
+          <button class="clear-btn" id="ped-pag-prox" type="button" aria-label="Próxima página">›</button>
+          <button class="clear-btn" id="ped-pag-ult" type="button" aria-label="Última página">»</button>
+          <label for="ped-pag-tam">Linhas por página</label>
+          <select id="ped-pag-tam"><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option><option value="200">200</option></select>
+        </div>
+        <div class="footnote">
+          Todos os números seguem os filtros do topo. O período usa a <b>data do pedido</b>; pedidos <b>pendentes</b> aparecem sempre, de qualquer data, no topo da lista &middot;
+          <b>Faturamento</b> = valor dos pedidos processados no período (itens + frete; mesma conta de antes, vinda das vendas do Mira) &middot;
+          <b>Produtos vendidos</b> = unidades, sem o frete &middot; <b>Ticket médio</b> = faturamento ÷ pedidos processados &middot;
+          <b>Projeção do mês</b> = ritmo do mês corrente (valor até hoje ÷ dia do mês) × dias do mês &middot;
+          <b>Processamento</b> = tempo entre a digitação e o processamento, dos pedidos processados no período &middot;
+          <b>GED</b> e <b>Rastreio</b> são digitados à mão no Mira: o filtro <b>Tipo de envio</b> junta as grafias (RETIRA e RETIRADA = Retirada; FOTO, FOTOS ENVIADAS e ENVIO POR FOTO = Foto, quando a entrega é comprovada por foto, sem rastreio; com SEDEX junto, como FOTO/SEDEX, conta como Correios). No Rastreio, o código dos Correios aparece sem espaços e outro texto no campo aparece em itálico &middot;
+          Clique nos cartões (⤢) para ver por filial e no nome do cliente para ver os itens do pedido.
+        </div>
+      </div>
     </div>
 
     <!-- ===================== TAB: VENDAS DETALHADAS ===================== -->
@@ -2507,8 +2594,9 @@ function cidadeUfHtml(cidade, uf) {
 // ABA: FATURAMENTO & PEDIDOS — portado do BI Logística, verbatim
 // ================================================================
 (function initPedidosTab() {
-  const resumo = RAW_PEDIDOS_RESUMO;
-
+  // Homologação 04/11: os filtros do topo (período, empresa, tipo de envio, situação, busca) valem para os cartões e para a
+  // lista - os números sempre conferem. O faturamento é somado pedido a pedido (campo Valor = itens + frete, mesma conta da
+  // 003_SAIDA_POR_VENDAS usada antes nos cartões; conferido igual em 04/11), então funciona para qualquer período.
   function fmtTempo(min) {
     if (min === null || min === undefined) return "—";
     const m = Math.round(min);
@@ -2517,89 +2605,193 @@ function cidadeUfHtml(cidade, uf) {
     const rem = m % 60;
     return rem > 0 ? `${h}h ${rem}min` : `${h}h`;
   }
-
-  // KPIs sensíveis ao filtro de Empresa: cada bloco (Hoje/Mes/Projecao) já vem do servidor com um
-  // PorEmpresa[] pronto (mesmo dado usado no pop-up "por filial") - quando uma empresa é selecionada,
-  // busca o valor daquela empresa em vez do agregado geral. Período/Busca continuam só filtrando a
-  // lista de pedidos abaixo (não fazem sentido pros KPIs: eles já têm sua própria janela fixa de
-  // tempo - dia/mês corrente/projeção - independente do período escolhido na lista).
-  function valorPorEmpresa(bloco, empresaVal) {
-    if (!empresaVal) return { Faturamento: bloco.Faturamento, Produtos: bloco.Produtos };
-    const linha = bloco.PorEmpresa.find(e => e.Empresa === empresaVal);
-    return linha ? { Faturamento: linha.Faturamento, Produtos: linha.Produtos } : { Faturamento: 0, Produtos: 0 };
-  }
-
-  // ---- Funil operacional — reflete o filtro de Empresa (igual aos KPIs de cima).
-  // Período/Busca continuam só filtrando a lista de pedidos abaixo. ----
+  const escPed = s => String(s == null ? "" : s).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;");
   const SLA_MINUTOS = 24 * 60;
   const ATRASO_MINUTOS = 48 * 60;
 
-  function calcFunil(pedidos) {
-    const proc = pedidos.filter(p => !p.Pendente && p.TempoProcessamentoMin !== null && p.TempoProcessamentoMin !== undefined);
-    const pend = pedidos.filter(p => p.Pendente);
-    const dentroSla = proc.filter(p => p.TempoProcessamentoMin <= SLA_MINUTOS).length;
-    return {
-      slaPct: proc.length ? Math.round((dentroSla / proc.length) * 1000) / 10 : null,
-      tempoMedio: proc.length ? proc.reduce((s, p) => s + p.TempoProcessamentoMin, 0) / proc.length : null,
-      pendentes: pend.length,
-      atraso: pend.filter(p => p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined && p.TempoAbertoMin > ATRASO_MINUTOS).length
-    };
+  // ---- tipo de envio (GED) ----
+  // GED = tipo de envio digitado à mão no Mira (texto livre: "RETIRA" e "RETIRADA", "FOTO" e "FOTOS ENVIADAS"...). O filtro junta as
+  // grafias em grupos; a coluna mostra o texto como está no Mira. A ordem importa: "FOTO/SEDEX" e "TROCA/SEDEX" contam como Correios.
+  const TIPOS_ENVIO = ["Correios (SEDEX)", "Retirada", "Foto (entrega comprovada por foto)", "Entregue pelo consultor",
+    "Outra transportadora", "Controle / eSIM", "Outros", "Sem GED"];
+  const COD_CORREIOS_PED = /^[A-Z]{2}[0-9]{9}[A-Z]{2}$/;
+  const soLetrasNum = s => String(s || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  function tipoEnvio(ged) {
+    const g = String(ged || "").normalize("NFD").replace(/\p{M}/gu, "").toUpperCase().trim();
+    if (!/[A-Z0-9]/.test(g)) return "Sem GED";
+    if (/SEDEX|\bPAC\b/.test(g) || COD_CORREIOS_PED.test(soLetrasNum(g))) return "Correios (SEDEX)";
+    if (/RETIR/.test(g)) return "Retirada";
+    if (/FOTO/.test(g)) return "Foto (entrega comprovada por foto)";
+    if (/CONSU/.test(g)) return "Entregue pelo consultor";
+    if (/JAM ?JOY|LATAM|J&T|JADLOG|TRANSPORT|RODOVI|BRASPRESS|AZUL/.test(g)) return "Outra transportadora";
+    if (/CONTRO|E-?SIM/.test(g)) return "Controle / eSIM";
+    return "Outros";
+  }
+  // código dos Correios aparece limpo (sem espaço/tabulação); outro texto no campo (RETIRA, número de outra transportadora,
+  // link...) aparece como está, em itálico
+  function rastreioHtml(cod) {
+    if (!cod) return "—";
+    const limpo = soLetrasNum(cod);
+    if (COD_CORREIOS_PED.test(limpo)) return `<span class="ped-rastreio">${limpo}</span>`;
+    return `<span class="ped-rastreio is-invalido" title="Não é um código dos Correios">${escPed(cod)}</span>`;
   }
 
-  function renderFunil(empresaVal) {
-    const escopo = empresaVal ? RAW_PEDIDOS.filter(p => p.Empresa === empresaVal) : RAW_PEDIDOS;
-    const f = calcFunil(escopo);
-    document.getElementById("total-funil-sla").textContent = f.slaPct === null ? "—" : `${fmtNum(f.slaPct, 1)}%`;
-    document.getElementById("total-funil-tempo").textContent = f.tempoMedio === null ? "—" : fmtTempo(f.tempoMedio);
-    document.getElementById("total-funil-pendentes").textContent = fmtNum(f.pendentes);
-    document.getElementById("total-funil-atraso").textContent = fmtNum(f.atraso);
+  // campos auxiliares calculados uma vez (ordenação, busca e somas)
+  for (const p of RAW_PEDIDOS) {
+    p._tipoEnvio = tipoEnvio(p.Ged);
+    p._dig = `${p.DataDigitacao || ""} ${p.HoraDigitacao || ""}`.trim();
+    const t = p.Pendente ? p.TempoAbertoMin : p.TempoProcessamentoMin;
+    p._proc = t === null || t === undefined ? null : t;
+    p._busca = `${p.Pedido} ${p.Cliente || ""} ${p.Vendedor || ""}`.toLowerCase();
+    p._qte = (p.Itens || []).reduce((s, it) => s + (Number(it.Qte) || 0), 0);
   }
 
-  // breakdown por filial (usado nos pop-ups dos 4 cards do funil) - sempre mostra todas as
-  // filiais, independente da empresa selecionada, igual aos pop-ups dos cards de faturamento.
-  function porFilialFunil() {
-    const porEmpresa = new Map();
-    for (const p of RAW_PEDIDOS) {
-      if (!porEmpresa.has(p.Empresa)) porEmpresa.set(p.Empresa, []);
-      porEmpresa.get(p.Empresa).push(p);
+  // ---- elementos ----
+  const pedPeriodo = document.getElementById("ped-periodo");
+  const pedDe = document.getElementById("ped-de");
+  const pedAte = document.getElementById("ped-ate");
+  const pedEmpresa = document.getElementById("ped-empresa");
+  const pedEnvio = document.getElementById("ped-envio");
+  const pedSituacao = document.getElementById("ped-situacao");
+  const pedBusca = document.getElementById("ped-busca");
+  const tbody = document.getElementById("tbody-ped");
+  const resultCount = document.getElementById("result-count-ped");
+  const pagInfo = document.getElementById("ped-pag-info");
+  const pagTam = document.getElementById("ped-pag-tam");
+
+  for (const e of [...new Set(RAW_PEDIDOS.map(p => p.Empresa))].sort()) {
+    const opt = document.createElement("option"); opt.value = e; opt.textContent = e; pedEmpresa.appendChild(opt);
+  }
+  for (const t of TIPOS_ENVIO) {
+    const opt = document.createElement("option"); opt.value = t; opt.textContent = t; pedEnvio.appendChild(opt);
+  }
+
+  // ---- período (data do pedido) ----
+  const HOJE = TODAY_ISO_STR;
+  const MES_ATUAL = HOJE.slice(0, 7);
+  const somaDias = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+  const datasPed = RAW_PEDIDOS.map(p => p.DataPedido).filter(Boolean).sort();
+  const PRIMEIRA_DATA = datasPed[0] || HOJE;
+  function intervaloPreset(v) {
+    const fimMesAnt = somaDias(MES_ATUAL + "-01", -1);
+    switch (v) {
+      case "hoje": return [HOJE, HOJE];
+      case "ontem": { const o = somaDias(HOJE, -1); return [o, o]; }
+      case "7d": return [somaDias(HOJE, -6), HOJE];
+      case "30d": return [somaDias(HOJE, -29), HOJE];
+      case "mes": return [MES_ATUAL + "-01", HOJE];
+      case "mesant": return [fimMesAnt.slice(0, 7) + "-01", fimMesAnt];
+      case "todos": return [PRIMEIRA_DATA, HOJE];
+      default: return null;
     }
-    return [...porEmpresa.entries()].map(([Empresa, lista]) => {
-      const f = calcFunil(lista);
-      return { Empresa, SlaPct: f.slaPct, TempoMedio: f.tempoMedio, Pendentes: f.pendentes, Atraso: f.atraso };
-    }).sort((a, b) => a.Empresa.localeCompare(b.Empresa, "pt-BR"));
   }
-  const funilPorFilial = porFilialFunil();
-
-  function renderKpisPedidos() {
-    const empresaVal = document.getElementById("ped-empresa").value;
-    const hoje = valorPorEmpresa(resumo.Hoje, empresaVal);
-    const mes = valorPorEmpresa(resumo.Mes, empresaVal);
-    const projecao = valorPorEmpresa(resumo.Projecao, empresaVal);
-    document.getElementById("total-fat-dia").textContent = fmtMoney(hoje.Faturamento);
-    document.getElementById("total-fat-mes").textContent = fmtMoney(mes.Faturamento);
-    document.getElementById("total-prod-dia").textContent = fmtNum(hoje.Produtos);
-    document.getElementById("total-prod-mes").textContent = fmtNum(mes.Produtos);
-    document.getElementById("total-fat-projecao").textContent = fmtMoney(projecao.Faturamento);
-    document.getElementById("total-prod-projecao").textContent = fmtNum(projecao.Produtos);
-    renderFunil(empresaVal);
+  pedDe.min = pedAte.min = PRIMEIRA_DATA;
+  pedDe.max = pedAte.max = HOJE;
+  function aplicarPreset() { const r = intervaloPreset(pedPeriodo.value); if (r) { pedDe.value = r[0]; pedAte.value = r[1]; } }
+  function noPeriodo(p) {
+    const d = p.DataPedido; if (!d) return false;
+    return (!pedDe.value || d >= pedDe.value) && (!pedAte.value || d <= pedAte.value);
   }
-  renderKpisPedidos();
+  function textoPeriodo() {
+    const de = pedDe.value, ate = pedAte.value;
+    if (!de && !ate) return "todo o período";
+    if (de && de === ate) return `em ${fmtDate(de)}`;
+    return `de ${de ? fmtDate(de) : "o início"} a ${ate ? fmtDate(ate) : "hoje"}`;
+  }
 
-  // modal de detalhamento por filial - reaproveitado pelos 4 cards, cada um so muda o titulo/dado
+  // ---- filtros comuns (cartões e lista). ignorarEnvio: para contar quantos pedidos cada tipo de envio teria ----
+  function passaFiltrosBase(p, ignorarEnvio) {
+    if (pedEmpresa.value && p.Empresa !== pedEmpresa.value) return false;
+    if (!ignorarEnvio && pedEnvio.value && p._tipoEnvio !== pedEnvio.value) return false;
+    const b = pedBusca.value.trim().toLowerCase();
+    if (b) {
+      const cod = soLetrasNum(b); // código de rastreio: sem espaços nem pontuação, maiúscula ou minúscula
+      const achouCod = cod.length >= 4 && p.Rastreio && soLetrasNum(p.Rastreio).includes(cod);
+      if (!p._busca.includes(b) && !achouCod) return false;
+    }
+    return true;
+  }
+  // lista: pendente ignora o período de propósito (precisa aparecer sempre, não importa há quanto tempo foi digitado -
+  // pedido 3.o); processado respeita o período
+  function passaLista(p) {
+    if (pedSituacao.value === "pendente" && !p.Pendente) return false;
+    if (pedSituacao.value === "processado" && p.Pendente) return false;
+    return p.Pendente || noPeriodo(p);
+  }
+
+  // ---- cartões ----
+  const somaValor = l => l.reduce((s, p) => s + (p.Valor || 0), 0);
+  const somaQte = l => l.reduce((s, p) => s + p._qte, 0);
+  const calcSla = l => { const c = l.filter(p => p.TempoProcessamentoMin !== null && p.TempoProcessamentoMin !== undefined); return c.length ? c.filter(p => p.TempoProcessamentoMin <= SLA_MINUTOS).length / c.length * 100 : null; };
+  const calcMedia = l => { const c = l.filter(p => p.TempoProcessamentoMin !== null && p.TempoProcessamentoMin !== undefined); return c.length ? c.reduce((s, p) => s + p.TempoProcessamentoMin, 0) / c.length : null; };
+  const calcMediana = l => { const c = l.map(p => p.TempoProcessamentoMin).filter(v => v !== null && v !== undefined).sort((a, b) => a - b); if (!c.length) return null; const m = Math.floor(c.length / 2); return c.length % 2 ? c[m] : (c[m - 1] + c[m]) / 2; };
+  const atrasados = l => l.filter(p => p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined && p.TempoAbertoMin > ATRASO_MINUTOS);
+  const fmtPct1 = v => v === null ? "—" : `${fmtNum(v, 1)}%`;
+  let ult = { vendidos: [], pendentes: [] };
+
+  function renderKpis(base) {
+    const vendidos = base.filter(p => !p.Pendente && noPeriodo(p));
+    const pendentes = base.filter(p => p.Pendente);
+    ult = { vendidos, pendentes };
+    const fat = somaValor(vendidos), n = vendidos.length, prod = somaQte(vendidos);
+    document.getElementById("total-fat").textContent = fmtMoney(fat);
+    document.getElementById("total-ped").textContent = fmtNum(n);
+    document.getElementById("total-ticket").textContent = n ? fmtMoney(fat / n) : "—";
+    document.getElementById("total-prod").textContent = fmtNum(prod);
+
+    // projeção do mês corrente (mesma conta de antes: valor até hoje ÷ dia do mês × dias do mês), com os mesmos filtros
+    const doMes = base.filter(p => !p.Pendente && (p.DataPedido || "").slice(0, 7) === MES_ATUAL && p.DataPedido <= HOJE);
+    const dia = Number(HOJE.slice(8, 10)), diasMes = new Date(Number(HOJE.slice(0, 4)), Number(HOJE.slice(5, 7)), 0).getDate();
+    const fatMes = somaValor(doMes), prodMes = somaQte(doMes);
+    const projFat = fatMes / dia * diasMes, projProd = prodMes / dia * diasMes;
+    const nomeMes = new Date(HOJE + "T12:00:00").toLocaleDateString("pt-BR", { month: "long" });
+    const dias = new Set(vendidos.map(p => p.DataPedido)).size;
+    let subFat, subProd;
+    if (pedPeriodo.value === "hoje") {
+      subFat = `No mês: <b>${fmtMoney(fatMes)}</b> · projeção de ${nomeMes}: <b>${fmtMoney(projFat)}</b>`;
+      subProd = `No mês: <b>${fmtNum(prodMes)}</b> · projeção: <b>${fmtNum(projProd)}</b>`;
+    } else if (pedPeriodo.value === "mes") {
+      subFat = `Projeção de ${nomeMes}: <b>${fmtMoney(projFat)}</b>`;
+      subProd = `Projeção de ${nomeMes}: <b>${fmtNum(projProd)}</b>`;
+    } else {
+      subFat = textoPeriodo().replace(/^./, c => c.toUpperCase());
+      subProd = "Unidades vendidas, sem o frete";
+    }
+    document.getElementById("sub-fat").innerHTML = subFat;
+    document.getElementById("sub-prod").innerHTML = subProd;
+    document.getElementById("sub-ped").textContent = n ? `Em ${fmtNum(dias)} ${dias === 1 ? "dia" : "dias"} com venda` : "Nenhum no período";
+    document.getElementById("sub-ticket").textContent = "Faturamento ÷ pedidos processados";
+
+    const comTempo = vendidos.filter(p => p.TempoProcessamentoMin !== null && p.TempoProcessamentoMin !== undefined);
+    const noSla = comTempo.filter(p => p.TempoProcessamentoMin <= SLA_MINUTOS).length;
+    document.getElementById("total-funil-sla").textContent = fmtPct1(calcSla(vendidos));
+    document.getElementById("sub-funil-sla").textContent = comTempo.length ? `${fmtNum(noSla)} de ${fmtNum(comTempo.length)} ${comTempo.length === 1 ? "pedido" : "pedidos"}` :"Nenhum pedido processado no período";
+    const media = calcMedia(vendidos), mediana = calcMediana(vendidos);
+    document.getElementById("total-funil-tempo").textContent = media === null ? "—" : fmtTempo(media);
+    document.getElementById("sub-funil-tempo").textContent = mediana === null ? "" : `Metade dos pedidos em até ${fmtTempo(mediana)}`;
+    const atr = atrasados(pendentes);
+    document.getElementById("total-funil-pendentes").textContent = fmtNum(pendentes.length);
+    document.getElementById("sub-funil-pendentes").innerHTML = pendentes.length
+      ? `De qualquer data · <b>${fmtMoney(somaValor(pendentes))}</b> em pedidos` : "Nenhum pedido aguardando";
+    document.getElementById("total-funil-atraso").textContent = fmtNum(atr.length);
+    document.getElementById("sub-funil-atraso").textContent = atr.length ? "⚠ Abertos há mais de 2 dias" : "Nenhum atrasado";
+    document.getElementById("kpi-funil-atraso").classList.toggle("k-danger", atr.length > 0);
+  }
+
+  // ---- detalhamento por filial (pop-up dos cartões), com os mesmos filtros e uma linha de total ----
   const bdModal = document.getElementById("filial-breakdown-modal");
   const bdTitle = document.getElementById("filial-breakdown-title");
   const bdTable = document.getElementById("filial-breakdown-table");
   const bdCloseBtn = document.getElementById("filial-breakdown-close-btn");
-
-  function abrirBreakdown(titulo, porEmpresa, campo, formatter) {
+  function abrirBreakdown(titulo, lista, calc, formatter) {
     bdTitle.textContent = titulo;
-    if (!porEmpresa.length) {
-      bdTable.innerHTML = `<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:14px 0;">Sem dados no período.</td></tr>`;
-    } else {
-      bdTable.innerHTML = porEmpresa.map(e => `
-        <tr><td>${empresaBadgeHtml(e.Empresa)}${e.Empresa}</td><td>${formatter(e[campo])}</td></tr>
-      `).join("");
-    }
+    const grupos = new Map();
+    for (const p of lista) { if (!grupos.has(p.Empresa)) grupos.set(p.Empresa, []); grupos.get(p.Empresa).push(p); }
+    const linhas = [...grupos.entries()].sort((a, b) => a[0].localeCompare(b[0], "pt-BR"));
+    bdTable.innerHTML = linhas.length
+      ? linhas.map(([emp, l]) => `<tr><td>${empresaBadgeHtml(emp)}${emp}</td><td>${formatter(calc(l))}</td></tr>`).join("")
+        + `<tr class="fp-bd-total"><td>Total</td><td>${formatter(calc(lista))}</td></tr>`
+      : `<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:14px 0;">Sem dados com os filtros atuais.</td></tr>`;
     bdModal.classList.remove("is-hidden");
   }
   function fecharBreakdown() { bdModal.classList.add("is-hidden"); }
@@ -2608,16 +2800,14 @@ function cidadeUfHtml(cidade, uf) {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !bdModal.classList.contains("is-hidden")) fecharBreakdown(); });
 
   const kpiCards = {
-    "kpi-fat-dia": () => abrirBreakdown("Faturamento do dia por filial", resumo.Hoje.PorEmpresa, "Faturamento", fmtMoney),
-    "kpi-fat-mes": () => abrirBreakdown("Faturamento do mês por filial", resumo.Mes.PorEmpresa, "Faturamento", fmtMoney),
-    "kpi-prod-dia": () => abrirBreakdown("Produtos vendidos no dia por filial", resumo.Hoje.PorEmpresa, "Produtos", (v) => fmtNum(v)),
-    "kpi-prod-mes": () => abrirBreakdown("Produtos vendidos no mês por filial", resumo.Mes.PorEmpresa, "Produtos", (v) => fmtNum(v)),
-    "kpi-fat-projecao": () => abrirBreakdown("Projeção de faturamento mensal por filial", resumo.Projecao.PorEmpresa, "Faturamento", fmtMoney),
-    "kpi-prod-projecao": () => abrirBreakdown("Projeção de quantidade de vendas mensal por filial", resumo.Projecao.PorEmpresa, "Produtos", (v) => fmtNum(v)),
-    "kpi-funil-sla": () => abrirBreakdown("% processados em até 24h, por filial", funilPorFilial, "SlaPct", (v) => v === null ? "—" : `${fmtNum(v, 1)}%`),
-    "kpi-funil-tempo": () => abrirBreakdown("Tempo médio de processamento, por filial", funilPorFilial, "TempoMedio", (v) => v === null ? "—" : fmtTempo(v)),
-    "kpi-funil-pendentes": () => abrirBreakdown("Pedidos pendentes em aberto, por filial", funilPorFilial, "Pendentes", (v) => fmtNum(v)),
-    "kpi-funil-atraso": () => abrirBreakdown("Pendentes há mais de 48h, por filial", funilPorFilial, "Atraso", (v) => fmtNum(v))
+    "kpi-fat": () => abrirBreakdown(`Faturamento por filial (${textoPeriodo()})`, ult.vendidos, somaValor, fmtMoney),
+    "kpi-ped": () => abrirBreakdown(`Pedidos processados por filial (${textoPeriodo()})`, ult.vendidos, l => l.length, v => fmtNum(v)),
+    "kpi-ticket": () => abrirBreakdown(`Ticket médio por filial (${textoPeriodo()})`, ult.vendidos, l => l.length ? somaValor(l) / l.length : null, fmtMoney),
+    "kpi-prod": () => abrirBreakdown(`Produtos vendidos por filial (${textoPeriodo()})`, ult.vendidos, somaQte, v => fmtNum(v)),
+    "kpi-funil-sla": () => abrirBreakdown(`Processados em até 24h por filial (${textoPeriodo()})`, ult.vendidos, calcSla, fmtPct1),
+    "kpi-funil-tempo": () => abrirBreakdown(`Tempo médio de processamento por filial (${textoPeriodo()})`, ult.vendidos, calcMedia, v => v === null ? "—" : fmtTempo(v)),
+    "kpi-funil-pendentes": () => abrirBreakdown("Pedidos pendentes agora, por filial", ult.pendentes, l => l.length, v => fmtNum(v)),
+    "kpi-funil-atraso": () => abrirBreakdown("Pendentes há mais de 48h, por filial", atrasados(ult.pendentes), l => l.length, v => fmtNum(v))
   };
   for (const id in kpiCards) {
     const el = document.getElementById(id);
@@ -2625,142 +2815,155 @@ function cidadeUfHtml(cidade, uf) {
     el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); kpiCards[id](); } });
   }
 
-  // lista de pedidos
-  const pedEmpresa = document.getElementById("ped-empresa");
-  const pedPeriodo = document.getElementById("ped-periodo");
-  const pedBusca = document.getElementById("ped-busca");
-  const tbody = document.getElementById("tbody-ped");
-  const resultCount = document.getElementById("result-count-ped");
-
-  const empresasPed = [...new Set(RAW_PEDIDOS.map(p => p.Empresa))].sort();
-  for (const e of empresasPed) {
-    const opt = document.createElement("option");
-    opt.value = e; opt.textContent = e;
-    pedEmpresa.appendChild(opt);
-  }
-
+  // ---- lista (paginada) ----
   let sortKey = null; // null = ordem natural (Situação: pendentes primeiro -> Filial -> Pedido desc)
   let sortDir = 1;
+  let pagina = 1;
   let lastRenderedRows = [];
 
-  function passaPeriodo(p, periodo) {
-    if (periodo === "todos") return true;
-    if (!p.DataPedido) return false;
-    if (periodo === "hoje") return p.DataPedido === TODAY_ISO_STR;
-    if (periodo === "mes") return p.DataPedido.slice(0, 7) === TODAY_ISO_STR.slice(0, 7);
-    return true;
+  function compara(a, b) {
+    if (a.Pendente !== b.Pendente) return a.Pendente ? -1 : 1;
+    if (!sortKey) {
+      // ordem padrao pedida pelo usuario: Situação (PENDENTE primeiro) -> Filial -> Pedido (descendente)
+      const e = (a.Empresa || "").localeCompare(b.Empresa || "", "pt-BR");
+      return e !== 0 ? e : (b.Pedido || 0) - (a.Pedido || 0);
+    }
+    const va = a[sortKey], vb = b[sortKey];
+    const vazioA = va === null || va === undefined || va === "", vazioB = vb === null || vb === undefined || vb === "";
+    if (vazioA || vazioB) return vazioA === vazioB ? 0 : (vazioA ? 1 : -1); // vazio sempre no fim
+    if (typeof va === "number" && typeof vb === "number") return (va - vb) * sortDir;
+    return String(va).localeCompare(String(vb), "pt-BR", { numeric: true }) * sortDir;
   }
 
-  function render() {
-    const empresaVal = pedEmpresa.value;
-    const periodoVal = pedPeriodo.value;
-    const buscaVal = pedBusca.value.trim().toLowerCase();
-
-    let rows = RAW_PEDIDOS.filter(p => {
-      if (empresaVal && p.Empresa !== empresaVal) return false;
-      if (buscaVal) {
-        const alvo = `${p.Pedido} ${p.Vendedor || ""}`.toLowerCase();
-        if (!alvo.includes(buscaVal)) return false;
-      }
-      // pendente ignora o filtro de periodo de proposito - precisa aparecer sempre, nao importa
-      // ha quanto tempo foi digitado (pedido 3.o) - so processado respeita o filtro de periodo.
-      if (!p.Pendente && !passaPeriodo(p, periodoVal)) return false;
-      return true;
-    });
-
-    if (sortKey) {
-      rows.sort((a, b) => {
-        if (a.Pendente !== b.Pendente) return a.Pendente ? -1 : 1;
-        let av = a[sortKey], bv = b[sortKey];
-        if (av === null || av === undefined) av = sortDir === 1 ? Infinity : -Infinity;
-        if (bv === null || bv === undefined) bv = sortDir === 1 ? Infinity : -Infinity;
-        if (typeof av === "string") return av.localeCompare(bv) * sortDir;
-        return (av - bv) * sortDir;
-      });
-    } else {
-      // ordem padrao pedida pelo usuario: Situação (PENDENTE primeiro) -> Filial -> Pedido
-      // (descendente) - mesma regra dentro de PENDENTE e dentro de PROCESSADO.
-      rows.sort((a, b) => {
-        if (a.Pendente !== b.Pendente) return a.Pendente ? -1 : 1;
-        const empresaCompare = (a.Empresa || "").localeCompare(b.Empresa || "", "pt-BR");
-        if (empresaCompare !== 0) return empresaCompare;
-        return (b.Pedido || 0) - (a.Pedido || 0);
-      });
+  function processamentoHtml(p) {
+    if (p.Pendente) {
+      if (p.TempoAbertoMin === null || p.TempoAbertoMin === undefined) return "—";
+      const atrasado = p.TempoAbertoMin > ATRASO_MINUTOS;
+      return `<span class="${atrasado ? "fp-atrasado" : ""}">⏳ em aberto há ${fmtTempo(p.TempoAbertoMin)}</span>`;
     }
+    const quando = p.DataProcessamento ? `${fmtDate(p.DataProcessamento)} ${p.HoraProcessamento || ""}` : "—";
+    return `${quando}<span class="fp-tempo">${p.TempoProcessamentoMin === null || p.TempoProcessamentoMin === undefined ? "" : fmtTempo(p.TempoProcessamentoMin)}</span>`;
+  }
 
-    resultCount.textContent = `${rows.length} de ${RAW_PEDIDOS.length} pedidos`;
-    tbody.innerHTML = "";
+  function renderLista(base) {
+    const rows = base.filter(passaLista).sort(compara);
+    lastRenderedRows = rows;
+    const tam = Number(pagTam.value) || 50;
+    const paginas = Math.max(1, Math.ceil(rows.length / tam));
+    if (pagina > paginas) pagina = paginas;
+    const ini = (pagina - 1) * tam, pag = rows.slice(ini, ini + tam);
+    const nPend = rows.filter(p => p.Pendente).length;
+    resultCount.textContent = rows.length
+      ? `${fmtNum(ini + 1)}–${fmtNum(ini + pag.length)} de ${fmtNum(rows.length)} pedidos${nPend ? ` (${fmtNum(nPend)} pendentes)` : ""}`
+      : "0 pedidos";
+    pagInfo.textContent = `Página ${fmtNum(pagina)} de ${fmtNum(paginas)}`;
+    document.getElementById("ped-pag-prim").disabled = document.getElementById("ped-pag-ant").disabled = pagina <= 1;
+    document.getElementById("ped-pag-prox").disabled = document.getElementById("ped-pag-ult").disabled = pagina >= paginas;
+    document.getElementById("ped-paginacao").style.display = rows.length ? "" : "none";
     document.getElementById("empty-state-ped").style.display = rows.length ? "none" : "block";
 
-    for (const p of rows) {
-      const tr = document.createElement("tr");
-      tr.className = p.Pendente ? "row-danger" : "";
+    tbody.innerHTML = pag.map(p => {
       const digitadoTxt = p.DataDigitacao ? `${fmtDate(p.DataDigitacao)} ${p.HoraDigitacao || ""}` : "—";
-      const processadoTxt = p.DataProcessamento ? `${fmtDate(p.DataProcessamento)} ${p.HoraProcessamento || ""}` : "—";
-      const tempoTxt = p.Pendente
-        ? (p.TempoAbertoMin !== null ? `⏳ em aberto há ${fmtTempo(p.TempoAbertoMin)}` : "—")
-        : fmtTempo(p.TempoProcessamentoMin);
       const clienteTxt = p.Cliente
-        ? `<span class="ped-cliente-link" data-empresa="${p.CodEmpresa}" data-pedido="${p.Pedido}">${p.Cliente}</span>`
+        ? `<span class="ped-cliente-link" data-empresa="${p.CodEmpresa}" data-pedido="${p.Pedido}">${escPed(p.Cliente)}</span>`
         : "—";
-      tr.innerHTML = `
+      return `<tr class="${p.Pendente ? "row-danger" : ""}">
         <td>${empresaBadgeHtml(p.Empresa)}</td>
         <td class="num-cell">${p.Pedido}</td>
-        <td>${clienteTxt}</td>
-        <td>${p.Vendedor || "—"}</td>
         <td>${digitadoTxt}</td>
-        <td>${processadoTxt}</td>
-        <td>${tempoTxt}</td>
+        <td>${clienteTxt}</td>
+        <td>${escPed(p.Vendedor || "—")}</td>
+        <td class="fp-col-num">${p.Valor === null || p.Valor === undefined ? "—" : fmtMoney(p.Valor)}</td>
+        <td title="${escPed(p._tipoEnvio)}">${p.Ged ? escPed(p.Ged) : "—"}</td>
+        <td>${rastreioHtml(p.Rastreio)}</td>
+        <td>${processamentoHtml(p)}</td>
         <td><span class="chip ${p.Pendente ? "c-danger" : "c-ok"}">${p.Pendente ? "PENDENTE" : "PROCESSADO"}</span></td>
-      `;
-      tbody.appendChild(tr);
-    }
+      </tr>`;
+    }).join("");
 
     document.querySelectorAll("#tab-content-pedidos th[data-key] .sort-arrow").forEach(el => el.textContent = "");
     if (sortKey) {
       const activeTh = document.querySelector(`#tab-content-pedidos th[data-key="${sortKey}"] .sort-arrow`);
       if (activeTh) activeTh.textContent = sortDir === 1 ? "▲" : "▼";
     }
-
-    lastRenderedRows = rows;
   }
+
+  // quantos pedidos cada tipo de envio teria com os outros filtros (aparece no próprio seletor)
+  function renderContagemEnvio() {
+    const cont = {};
+    for (const p of RAW_PEDIDOS) if (passaFiltrosBase(p, true) && passaLista(p)) cont[p._tipoEnvio] = (cont[p._tipoEnvio] || 0) + 1;
+    for (const opt of pedEnvio.options) if (opt.value) opt.textContent = `${opt.value} (${fmtNum(cont[opt.value] || 0)})`;
+  }
+
+  function renderEscopo() {
+    const partes = [`Pedidos ${textoPeriodo()} <span class="fp-escopo-nota">(data do pedido)</span>`];
+    if (pedEmpresa.value) partes.push(`empresa <b>${escPed(pedEmpresa.value)}</b>`);
+    if (pedEnvio.value) partes.push(`tipo de envio <b>${escPed(pedEnvio.value)}</b>`);
+    if (pedSituacao.value) partes.push(pedSituacao.value === "pendente" ? "<b>só pendentes</b>" : "<b>só processados</b>");
+    if (pedBusca.value.trim()) partes.push(`busca <b>“${escPed(pedBusca.value.trim())}”</b>`);
+    document.getElementById("ped-escopo").innerHTML = partes.join(" · ") + (pedSituacao.value === "processado" ? "" : " · os pendentes aparecem sempre, de qualquer data");
+  }
+
+  function atualizar() {
+    const base = RAW_PEDIDOS.filter(p => passaFiltrosBase(p, false));
+    renderEscopo();
+    renderKpis(base);
+    renderLista(base);
+    renderContagemEnvio();
+  }
+  const reiniciar = () => { pagina = 1; atualizar(); };
 
   document.querySelectorAll("#tab-content-pedidos th[data-key] button").forEach(btn => {
     btn.addEventListener("click", () => {
       const key = btn.parentElement.dataset.key;
-      if (key === "_tempoOrdenacao") {
-        sortKey = null; // "Tempo" nao tem campo unico pra ordenar (pendente x processado usam campos
-        // diferentes) - clicar nesse cabecalho so volta pra ordem padrao (Situação -> Filial -> Pedido)
-      } else if (sortKey === key) {
-        sortDir *= -1;
-      } else {
-        sortKey = key; sortDir = 1;
-      }
-      render();
+      if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
+      reiniciar();
     });
   });
 
-  pedEmpresa.addEventListener("change", () => { renderKpisPedidos(); render(); });
-  pedPeriodo.addEventListener("change", render);
-  pedBusca.addEventListener("input", render);
+  pedPeriodo.addEventListener("change", () => { aplicarPreset(); reiniciar(); });
+  for (const el of [pedDe, pedAte]) {
+    el.addEventListener("change", () => {
+      if (pedDe.value && pedAte.value && pedDe.value > pedAte.value) { if (el === pedDe) pedAte.value = pedDe.value; else pedDe.value = pedAte.value; }
+      // se o intervalo escolhido bate com um atalho, mostra o atalho; senão, "Personalizado"
+      const atalho = [...pedPeriodo.options].map(o => o.value).find(v => { const r = intervaloPreset(v); return r && r[0] === pedDe.value && r[1] === pedAte.value; });
+      pedPeriodo.value = atalho || "custom";
+      reiniciar();
+    });
+  }
+  pedEmpresa.addEventListener("change", reiniciar);
+  pedEnvio.addEventListener("change", reiniciar);
+  pedSituacao.addEventListener("change", reiniciar);
+  pedBusca.addEventListener("input", reiniciar);
+  pagTam.addEventListener("change", reiniciar);
+  document.getElementById("ped-pag-prim").addEventListener("click", () => { pagina = 1; atualizar(); });
+  document.getElementById("ped-pag-ant").addEventListener("click", () => { pagina = Math.max(1, pagina - 1); atualizar(); });
+  document.getElementById("ped-pag-prox").addEventListener("click", () => { pagina += 1; atualizar(); });
+  document.getElementById("ped-pag-ult").addEventListener("click", () => { pagina = Infinity; atualizar(); });
 
   document.getElementById("clear-filters-ped").addEventListener("click", () => {
-    pedEmpresa.value = ""; pedPeriodo.value = "hoje"; pedBusca.value = "";
+    pedPeriodo.value = "hoje"; aplicarPreset();
+    pedEmpresa.value = ""; pedEnvio.value = ""; pedSituacao.value = ""; pedBusca.value = "";
     sortKey = null; sortDir = 1;
-    renderKpisPedidos();
-    render();
+    reiniciar();
   });
 
   document.getElementById("copy-ped-btn").addEventListener("click", () => {
-    const headers = ["Empresa", "Pedido", "Cliente", "Vendedor", "Digitado em", "Hora Digitação", "Processado em", "Hora Processamento", "Tempo (min)", "Situação"];
+    const headers = ["Empresa", "Pedido", "Data do pedido", "Digitado em", "Hora Digitação", "Cliente", "Vendedor", "Valor (R$)", "GED", "Tipo de envio", "Rastreio", "Processado em", "Hora Processamento", "Tempo (min)", "Situação"];
     const rowsOut = lastRenderedRows.map(p => [
-      p.Empresa, p.Pedido, p.Cliente || "", p.Vendedor || "", p.DataDigitacao || "", p.HoraDigitacao || "",
+      p.Empresa, p.Pedido, p.DataPedido || "", p.DataDigitacao || "", p.HoraDigitacao || "", p.Cliente || "", p.Vendedor || "",
+      p.Valor === null || p.Valor === undefined ? "" : p.Valor,
+      p.Ged || "", p._tipoEnvio, p.Rastreio || "",
       p.DataProcessamento || "", p.HoraProcessamento || "",
       p.Pendente ? p.TempoAbertoMin : p.TempoProcessamentoMin,
       p.Pendente ? "PENDENTE" : "PROCESSADO"
     ]);
     copyToExcel(headers, rowsOut, document.getElementById("copy-ped-status"));
   });
+
+  const render = atualizar; // nome antigo: window.renderPedidos (fim do bloco) chama render
+  aplicarPreset();
+  atualizar();
 
   // popup de cliente + itens do pedido, ao clicar no nome do cliente na tabela (so existe quando
   // o pedido tem vinculo achado em VENDAS_CLIENTES)
@@ -2791,6 +2994,9 @@ function cidadeUfHtml(cidade, uf) {
       <tr><td>Digitado em</td><td>${p.DataDigitacao ? fmtDate(p.DataDigitacao) + " " + (p.HoraDigitacao || "") : "—"}</td></tr>
       <tr><td>Processado em</td><td>${p.DataProcessamento ? fmtDate(p.DataProcessamento) + " " + (p.HoraProcessamento || "") : "—"}</td></tr>
       <tr><td>Tempo</td><td>${tempoTxt}</td></tr>
+      <tr><td>Valor</td><td>${p.Valor === null || p.Valor === undefined ? "—" : fmtMoney(p.Valor)}</td></tr>
+      <tr><td>GED</td><td>${p.Ged ? escPed(p.Ged) + " <span style=\"color:var(--text-muted)\">(" + escPed(p._tipoEnvio) + ")</span>" : "—"}</td></tr>
+      <tr><td>Rastreio</td><td>${rastreioHtml(p.Rastreio)}</td></tr>
     `;
 
     if (!p.Itens || !p.Itens.length) {
