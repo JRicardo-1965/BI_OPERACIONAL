@@ -1469,6 +1469,52 @@
   .icc-scope .icc-sis.sgr{ border-color:var(--accent); color:var(--accent); }
   .icc-scope .icc-nao code{ font:11px Consolas, "Courier New", monospace; color:var(--text); }
   .rast-scope .rast-mais{ font-size:10px; color:var(--text-muted); border:1px solid var(--border); border-radius:99px; padding:0 5px; margin-left:4px; }
+
+  /* ===================== ABA: CONSULTA DE TITULOS (05/11) ===================== */
+  #tab-content-titulos > .panel{ padding:14px 16px 10px; }
+  #tab-content-titulos > .panel > .footnote{ padding:10px 0 2px; }
+  #tab-content-titulos .tit-kpis{ display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:8px; margin:10px 0 8px; }
+  #tab-content-titulos .tit-kpi{ border:1px solid var(--border); background:var(--surface); border-radius:10px; padding:9px 12px; min-width:0; }
+  #tab-content-titulos .tit-kpi .k{ font-size:11px; color:var(--text-muted); font-weight:600; }
+  #tab-content-titulos .tit-kpi .v{ font-size:19px; font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0 1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text); }
+  #tab-content-titulos .tit-kpi .s{ font-size:10.5px; color:var(--text-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #tab-content-titulos .tit-kpi.crit .v{ color:var(--danger); }
+  #tab-content-titulos .tit-rot{ font-size:11px; color:var(--text-muted); font-weight:600; margin:10px 0 4px; }
+  #tab-content-titulos .tit-chips{ display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); gap:8px; margin:0 0 10px; }
+  #tab-content-titulos .tit-chip{ display:flex; flex-direction:column; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:8px; padding:6px 10px; cursor:pointer; text-align:left; font:inherit; font-size:12px; min-width:0; }
+  #tab-content-titulos .tit-chip .t{ font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:5px; white-space:nowrap; }
+  #tab-content-titulos .tit-chip .v{ font-size:13.5px; font-weight:700; font-variant-numeric:tabular-nums; margin:2px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #tab-content-titulos .tit-chip .n{ font-size:10.5px; color:var(--text-faint); }
+  #tab-content-titulos .tit-chip.is-on{ border-color:var(--accent); background:var(--accent-soft); }
+  #tab-content-titulos .tit-chip.is-off{ opacity:.5; }
+  #tab-content-titulos .tit-bar{ display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:8px; margin:4px 0 8px; }
+  #tab-content-titulos .tit-bar label{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+  #tab-content-titulos .tit-bar label > span{ font-size:10.5px; color:var(--text-muted); font-weight:600; }
+  #tab-content-titulos .tit-bar input, #tab-content-titulos .tit-bar select{ font:inherit; font-size:12px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:5px 8px; width:100%; min-width:0; box-sizing:border-box; }
+  @media (max-width: 1100px){ #tab-content-titulos .tit-kpis{ grid-template-columns:repeat(2, minmax(0, 1fr)); } #tab-content-titulos .tit-chips{ grid-template-columns:repeat(4, minmax(0, 1fr)); } #tab-content-titulos .tit-bar{ grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+  #tab-content-titulos .tit-acoes{ display:flex; gap:8px; align-items:center; margin:0 0 10px; flex-wrap:wrap; }
+  #tab-content-titulos .tit-tot{ color:var(--text-muted); font-size:12px; margin:0 0 8px; }
+  #tab-content-titulos .tit-tot b{ color:var(--text); font-variant-numeric:tabular-nums; }
+  #tab-content-titulos .tit-msg{ padding:30px; text-align:center; color:var(--text-muted); }
+  #tab-content-titulos .tit-tw{ overflow:auto; max-height:calc(100vh - 300px); min-height:300px; border:1px solid var(--border); border-radius:10px; background:var(--surface); }
+  #tab-content-titulos .tit-table{ border-collapse:separate; border-spacing:0; width:max-content; min-width:100%; font-size:11.5px; }
+  #tab-content-titulos .tit-table th{ position:sticky; top:0; background:var(--surface); z-index:1; text-align:left; font-weight:600; color:var(--text-muted); padding:6px 8px; border-bottom:1px solid var(--border); white-space:nowrap; cursor:pointer; }
+  #tab-content-titulos .tit-table th.s::after{ content:" ▲"; font-size:10px; }
+  #tab-content-titulos .tit-table th.s.desc::after{ content:" ▼"; }
+  #tab-content-titulos .tit-table td{ font-size:11.5px; padding:5px 8px; border-bottom:1px solid var(--border); vertical-align:top; white-space:nowrap; color:var(--text); }
+  #tab-content-titulos .tit-table tbody tr:hover td{ background:var(--surface-2); }
+  #tab-content-titulos .tit-table td.nm{ white-space:normal; min-width:160px; max-width:240px; }
+  #tab-content-titulos .tit-table td.tx{ max-width:200px; overflow:hidden; text-overflow:ellipsis; }
+  #tab-content-titulos .tit-table .num{ text-align:right; font-variant-numeric:tabular-nums; }
+  #tab-content-titulos .tit-table tfoot td{ position:sticky; bottom:0; background:var(--surface-2); font-weight:700; border-top:1px solid var(--border); }
+  #tab-content-titulos .tit-flag{ display:inline-flex; align-items:center; gap:5px; font-size:10.5px; padding:0 6px; border-radius:99px; border:1px solid var(--border); color:var(--text-muted); white-space:nowrap; }
+  #tab-content-titulos .tit-flag i, #tab-content-titulos .tit-chip .t i{ width:7px; height:7px; border-radius:50%; display:inline-block; background:var(--text-faint); flex:0 0 auto; }
+  #tab-content-titulos .good i{ background:var(--ok) !important; }
+  #tab-content-titulos .warn i{ background:var(--warning) !important; }
+  #tab-content-titulos .crit i{ background:var(--danger) !important; }
+  #tab-content-titulos .info i{ background:var(--accent) !important; }
+  #tab-content-titulos .tit-mais{ display:block; margin:8px auto 0; }
+  #tab-content-titulos .tit-muted{ color:var(--text-faint); }
 </style>
 
 <div class="app">
@@ -1513,6 +1559,7 @@
       <button class="tab-btn" id="tab-btn-faturamento" type="button" data-tab="faturamento">Evolução de Faturamento</button>
       <button class="tab-btn" id="tab-btn-comparar" type="button" data-tab="comparar">Comparar Períodos</button>
       <button class="tab-btn" id="tab-btn-inadimplencia" type="button" data-tab="inadimplencia">Detalhamento Inadimplência</button>
+      <button class="tab-btn" id="tab-btn-titulos" type="button" data-tab="titulos">Consulta de Títulos</button>
       <button class="tab-btn" id="tab-btn-rastreio" type="button" data-tab="rastreio">Rastreio de Envios</button>
       <button class="tab-btn" id="tab-btn-consultarastreio" type="button" data-tab="consultarastreio">Consulta de Rastreios</button>
       <button class="tab-btn" id="tab-btn-consultaiccid" type="button" data-tab="consultaiccid">Consulta de ICCID</button>
@@ -1940,6 +1987,50 @@
     </div>
     <div class="inad-ov" id="inad-ov"></div>
     <aside class="inad-dr" id="inad-dr" aria-hidden="true"><button class="inad-x" id="inad-fecha" type="button" title="Fechar (Esc)">×</button><div id="inad-drc"></div></aside>
+    </div>
+
+    <!-- ===================== TAB: CONSULTA DE TÍTULOS (05/11) ===================== -->
+    <!-- Substitui o painel "Consulta de Títulos" do BI antigo. Dados NÃO vêm embutidos (nome e CPF/CNPJ da loja):
+         GET /api/titulos, já filtrado pelas empresas do usuário, só quando a aba é aberta. Ver initTitulosTab. -->
+    <div id="tab-content-titulos" class="is-hidden">
+    <div class="panel">
+      <p class="tab-context-note">
+        <b>Consulta de Títulos</b> · títulos do Aqui Tem+ (o financeiro) com o pedido e a baixa no Mira · uma linha por título · posição de <b id="tit-posicao">—</b> &middot;
+        clique nos status do pagamento para filtrar (dá para marcar vários) e no cabeçalho da tabela para ordenar.
+      </p>
+      <div class="tit-kpis" id="tit-kpis"></div>
+      <div class="tit-rot">Status do pagamento</div>
+      <div class="tit-chips" id="tit-chips"></div>
+      <div class="tit-bar">
+        <label><span>Data da venda — de</span><input type="date" id="tit-de"></label>
+        <label><span>até</span><input type="date" id="tit-ate"></label>
+        <label><span>Status geral da loja</span><select id="tit-sg"></select></label>
+        <label><span>Ação necessária</span><select id="tit-an"></select></label>
+        <label><span>Situação no Mira</span><select id="tit-sm"></select></label>
+        <label><span>Filial</span><select id="tit-fil"></select></label>
+        <label><span>Busca por pedido, título ou boleto</span><input type="search" id="tit-qp" placeholder="Nº do pedido AQT ou Mira, título, boleto…"></label>
+        <label><span>Busca por loja</span><input type="search" id="tit-ql" placeholder="Nome ou CPF/CNPJ"></label>
+        <label><span>Consultor</span><select id="tit-ce"></select></label>
+        <label><span>Tipo de loja</span><select id="tit-tl"></select></label>
+        <label><span>UF</span><select id="tit-uf"></select></label>
+        <label><span>Cluster</span><select id="tit-cl"></select></label>
+      </div>
+      <div class="tit-acoes">
+        <button class="clear-btn" id="tit-limpa" type="button">Limpar filtros</button>
+        <button class="clear-btn copy-btn" id="tit-xls" type="button">📋 Exportar para Excel</button>
+      </div>
+      <p class="tit-tot" id="tit-tot"></p>
+      <div class="tit-tw"><table class="tit-table"><thead id="tit-th"></thead><tbody id="tit-tb"><tr><td class="tit-msg">Carregando…</td></tr></tbody><tfoot id="tit-tf"></tfoot></table></div>
+      <button class="clear-btn tit-mais" id="tit-mais" type="button" hidden>Mostrar mais</button>
+      <div class="footnote" id="tit-nota">
+        Fonte: títulos do Aqui Tem+ (títulos de pagamento e boletos) dos pedidos de compra; pedido a distribuidor Mira sem título aparece como Pix do pedido, saldo da loja ou "Sem título"; faturas sem pedido (serviços e saldo) ficam fora &middot;
+        <b>Data da venda</b> = data do pedido no Aqui Tem+ &middot; <b>Valor de títulos</b> = soma dos títulos do filtro, sem os cancelados &middot; <b>Recebido</b> = pago no Aqui Tem+ &middot; <b>Em aberto</b> = valor menos o pago dos títulos não quitados &middot; <b>Vencido</b> = em aberto com vencimento antes de hoje &middot;
+        <b>Status geral</b> = cadastro da loja no Aqui Tem+: ATIVO (sem bloqueio), COMPRA BLOQUEADA (só a compra bloqueada), INATIVO (loja bloqueada), INATIVO BLOQUEADA (loja e compra bloqueadas) &middot;
+        <b>Ação necessária</b>: "Baixar no Mira" = pago no Aqui Tem+ e o título do pedido ainda aberto no Mira; "Aguardar pagamento" = título em aberto no Aqui Tem+ &middot;
+        <b>Pedido de venda</b> = empresa.pedido no Mira, pelo mesmo casamento da aba Detalhamento Inadimplência &middot; <b>Cluster</b> = cluster da cidade da loja (mesma regra do BI Comercial) e o consultor externo cadastrado nele &middot;
+        Mira = organização 21 (as 12 empresas do grupo) &middot; linhas sem empresa (pedidos a distribuidores antigos sem vínculo da loja) só aparecem para quem tem acesso a todas as empresas.
+      </div>
+    </div>
     </div>
 
     <!-- ===================== TAB: RASTREIO DE ENVIOS ===================== -->
@@ -2948,17 +3039,39 @@ function cidadeUfHtml(cidade, uf) {
     reiniciar();
   });
 
+  // Excel da lista (05/11): planilha "Pedidos" = uma linha por pedido (colunas de sempre + Tipo de loja, Cluster, Tipo de chip e
+  // Chips) e planilha "Chips por pedido" = uma linha por chip de cada pedido, com o tipo de chip e o chip em colunas separadas.
+  // Tipo de loja = segmento do cliente no Mira; Cluster = calculado no extract (mesma regra do BI Comercial); tipo de chip =
+  // grupo do produto no cadastro, com Combo e e-SIM juntos como no BI Comercial (o CLARO E-SIM tem grupo diferente por empresa).
+  const GRUPO_CHIP = { "CHIP COMBO": "Chip Combo / E-Sim", "CHIP E-SIM": "Chip Combo / E-Sim", "CHIP LISO": "Chip Liso", "CHIP RESGATE/PORTABILIDADE": "Chip Resgate / Portabilidade", "SERVICOS DE CONTROLE": "Serviço de Controle" };
+  const tipoChip = (i) => GRUPO_CHIP[String(i.Grupo || "").toUpperCase().trim()] || (i.Grupo ? String(i.Grupo) : "Sem grupo");
   document.getElementById("copy-ped-btn").addEventListener("click", () => {
-    const headers = ["Empresa", "Pedido", "Data do pedido", "Digitado em", "Hora Digitação", "Cliente", "Vendedor", "Valor (R$)", "GED", "Tipo de envio", "Rastreio", "Processado em", "Hora Processamento", "Tempo (min)", "Situação"];
-    const rowsOut = lastRenderedRows.map(p => [
-      p.Empresa, p.Pedido, p.DataPedido || "", p.DataDigitacao || "", p.HoraDigitacao || "", p.Cliente || "", p.Vendedor || "",
-      p.Valor === null || p.Valor === undefined ? "" : p.Valor,
-      p.Ged || "", p._tipoEnvio, p.Rastreio || "",
-      p.DataProcessamento || "", p.HoraProcessamento || "",
-      p.Pendente ? p.TempoAbertoMin : p.TempoProcessamentoMin,
-      p.Pendente ? "PENDENTE" : "PROCESSADO"
-    ]);
-    copyToExcel(headers, rowsOut, document.getElementById("copy-ped-status"));
+    const stEl = document.getElementById("copy-ped-status");
+    const aviso = (txt, erro) => { stEl.textContent = txt; stEl.classList.toggle("is-error", !!erro); };
+    if (!lastRenderedRows.length) { aviso("Nada para exportar com os filtros atuais.", true); return; }
+    const cli = new Map(RAW_CLIENTES.map((c) => [String(c.CodEmpresa) + "|" + String(c.CodcCliente), c]));
+    const dados = lastRenderedRows.map((p) => ({ p, c: cli.get(String(p.CodEmpresa) + "|" + String(p.CodcCliente)) || {}, itens: (p.Itens || []).filter((i) => i.Produto !== "FRETE") }));
+    const situ = (p) => p.Pendente ? "PENDENTE" : "PROCESSADO";
+    const qtd = (v) => (v || 0).toLocaleString("pt-BR");
+    // ordem das colunas em blocos: pedido -> cliente (quem compra, onde) -> o que foi vendido -> processamento -> envio
+    const colsP = [["Empresa", "t", (x) => x.p.Empresa], ["Pedido", "n0", (x) => x.p.Pedido], ["Situação", "t", (x) => situ(x.p)], ["Data do pedido", "d", (x) => x.p.DataPedido],
+      ["Digitado em", "d", (x) => x.p.DataDigitacao], ["Hora Digitação", "t", (x) => x.p.HoraDigitacao], ["Vendedor", "t", (x) => x.p.Vendedor],
+      ["Cliente", "t", (x) => x.p.Cliente], ["Tipo de loja", "t", (x) => x.c.Segmento], ["Cidade", "t", (x) => x.c.Cidade], ["UF", "t", (x) => x.c.UF], ["Cluster", "t", (x) => x.c.Cluster],
+      ["Tipo de chip", "t", (x) => [...new Set(x.itens.map(tipoChip))].join("; ")], ["Chips", "t", (x) => x.itens.map((i) => i.Produto + " (" + qtd(i.Qte) + ")").join("; ")],
+      ["Quantidade de itens", "n0", (x) => x.itens.reduce((s, i) => s + (i.Qte || 0), 0)], ["Valor (R$)", "n", (x) => x.p.Valor],
+      ["Processado em", "d", (x) => x.p.DataProcessamento], ["Hora Processamento", "t", (x) => x.p.HoraProcessamento], ["Tempo (min)", "n0", (x) => x.p.Pendente ? x.p.TempoAbertoMin : x.p.TempoProcessamentoMin],
+      ["GED", "t", (x) => x.p.Ged], ["Tipo de envio", "t", (x) => x.p._tipoEnvio], ["Rastreio", "t", (x) => x.p.Rastreio]];
+    const linhasC = dados.flatMap((x) => x.itens.map((i) => ({ p: x.p, c: x.c, i })));
+    const colsC = [["Empresa", "t", (x) => x.p.Empresa], ["Pedido", "n0", (x) => x.p.Pedido], ["Situação", "t", (x) => situ(x.p)], ["Data do pedido", "d", (x) => x.p.DataPedido],
+      ["Cliente", "t", (x) => x.p.Cliente], ["Tipo de loja", "t", (x) => x.c.Segmento], ["Cidade", "t", (x) => x.c.Cidade], ["UF", "t", (x) => x.c.UF], ["Cluster", "t", (x) => x.c.Cluster],
+      ["Tipo de chip", "t", (x) => tipoChip(x.i)], ["Chip", "t", (x) => x.i.Produto], ["Quantidade", "n0", (x) => x.i.Qte], ["Valor dos itens (R$)", "n", (x) => x.i.Total]];
+    try {
+      const blob = BiXlsx.montaXlsx([{ nome: "Pedidos", xml: BiXlsx.planilhaXml(colsP, dados) }, { nome: "Chips por pedido", xml: BiXlsx.planilhaXml(colsC, linhasC) }]);
+      const d = new Date(), hoje = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "pedidos_" + hoje + ".xlsx";
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      aviso("Arquivo Excel gerado (" + dados.length.toLocaleString("pt-BR") + " pedidos, " + linhasC.length.toLocaleString("pt-BR") + " linhas de chips).");
+    } catch (err) { aviso("Não foi possível gerar o arquivo (" + err.message + ").", true); }
   });
 
   const render = atualizar; // nome antigo: window.renderPedidos (fim do bloco) chama render
@@ -4809,8 +4922,129 @@ const BiXlsx = (() => {
   tabela();
 })();
 
+// ================================================================
+// ABA "CONSULTA DE TÍTULOS" (05/11, substitui o painel do BI antigo): títulos do Aqui Tem+ com o pedido e a baixa no
+// Mira. Dados em GET /api/titulos { meta, lojas, linhas } (backend: filtrado por empresa e pela permissão da aba;
+// local_server: sem filtro), buscados só na 1a abertura. Sem barra invertida neste bloco.
+// ================================================================
+(function initTitulosTab() {
+  const el = (id) => document.getElementById(id);
+  let D = null, R = [], F = [], carregando = false, limite = 300;
+  const BRL = (v) => "R$ " + (v || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const BRL0 = (v) => "R$ " + Math.round(v || 0).toLocaleString("pt-BR");
+  const DT = (v) => v ? String(v).slice(0, 10).split("-").reverse().join("/") : "";
+  const NUM = (v) => (v || 0).toLocaleString("pt-BR");
+  const esc = (s) => String(s == null ? "" : s).split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;").split('"').join("&quot;");
+  const soDig = (s) => String(s || "").split("").filter((c) => c >= "0" && c <= "9").join("");
+  const ANO = String(new Date().getFullYear());
+  const SP = ["A vencer", "Vencido", "Pago parcial", "Pago", "Pago com saldo", "Cancelado", "Sem título"];
+  const FAM = { "A vencer": "info", "Vencido": "crit", "Pago parcial": "warn", "Pago": "good", "Pago com saldo": "good", "Cancelado": "", "Sem título": "", "Baixar no Mira": "warn", "Aguardar pagamento": "info" };
+  const flag = (txt) => txt ? '<span class="tit-flag ' + (FAM[txt] || "") + '"><i></i>' + esc(txt) + "</span>" : "";
+  const st = { de: ANO + "-01-01", ate: ANO + "-12-31", sp: [], sg: "", an: "", sm: "", fil: "", qp: "", ql: "", ce: "", tl: "", uf: "", cl: "", sort: ["dv", -1] };
+  // colunas: [chave, título, tipo]  t texto, nm nome, tx texto cortado, n valor, n0 inteiro, d data, fl flag
+  const COLS = [["dv", "Data da venda", "d"], ["loja", "Loja", "nm"], ["doc", "CPF/CNPJ", "t"], ["tl", "Tipo da loja", "t"], ["ufm", "UF - Município", "t"], ["clc", "Cluster / Consultor", "tx"],
+    ["sg", "Status geral", "t"], ["pc", "Pedido de compra (AQT)", "t"], ["ps", "Situação do pedido (AQT)", "t"], ["ti", "Título", "t"], ["bo", "Boleto(s)", "tx"], ["v", "Valor", "n"], ["pg", "Recebido", "n"],
+    ["ab", "Em aberto", "n"], ["ve", "Vencimento", "d"], ["dp", "Data do pagamento", "d"], ["at", "Dias de atraso", "n0"], ["sp", "Status do pagamento", "fl"], ["an", "Ação necessária", "fl"],
+    ["pv", "Pedido de venda (Mira)", "t"], ["sm", "Situação no Mira", "t"], ["fil", "Filial", "t"], ["fp", "Forma de pagamento (pedido)", "t"], ["fg", "Pago via", "t"]];
+
+  function preparar() {
+    const L = D.lojas || {}, FI = (D.meta && D.meta.filiais) || {};
+    R = (D.linhas || []).map((l) => { const j = L[l.s] || {};
+      const r = Object.assign({}, l, { loja: j.n || "", doc: j.d || "", tl: j.t || "", uf: j.uf || "", mun: j.m || "", ufm: [j.uf, j.m].filter(Boolean).join(" - "), sg: j.sg || "", cl: j.cl || "", ce: j.ce || "",
+        clc: [j.cl, j.ce].filter(Boolean).join(" · "), fil: FI[l.e] || "" });
+      r.bp = [r.pc, r.pv, r.ti, r.bo].join(" ").toLowerCase(); r.bl = (r.loja + " " + soDig(r.doc)).toLowerCase();
+      return r; });
+    const opts = (id, k, todos) => { const vs = [...new Set(R.map((r) => r[k]).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
+      el(id).innerHTML = '<option value="">' + todos + "</option>" + vs.map((v) => '<option value="' + esc(v) + '">' + esc(v) + "</option>").join(""); };
+    opts("tit-sg", "sg", "Todos"); opts("tit-sm", "sm", "Todas"); opts("tit-fil", "fil", "Todas"); opts("tit-ce", "ce", "Todos"); opts("tit-tl", "tl", "Todos"); opts("tit-uf", "uf", "Todas"); opts("tit-cl", "cl", "Todos");
+    el("tit-an").innerHTML = '<option value="">Todas</option><option value="Baixar no Mira">Baixar no Mira</option><option value="Aguardar pagamento">Aguardar pagamento</option><option value="__nada">(em branco)</option>';
+    sincroniza();
+  }
+  function sincroniza() { el("tit-de").value = st.de; el("tit-ate").value = st.ate; for (const k of ["sg", "an", "sm", "fil", "ce", "tl", "uf", "cl"]) el("tit-" + k).value = st[k]; el("tit-qp").value = st.qp; el("tit-ql").value = st.ql; }
+  // passa nos filtros; "sem" = filtro ignorado (para os botões de status mostrarem todas as opções)
+  function passa(r, sem) {
+    if (st.de && r.dv < st.de) return false; if (st.ate && r.dv > st.ate) return false;
+    if (sem !== "sp" && st.sp.length && !st.sp.includes(r.sp)) return false;
+    if (st.an === "__nada" ? r.an : (st.an && r.an !== st.an)) return false;
+    for (const k of ["sg", "sm", "fil", "ce", "tl", "uf", "cl"]) if (st[k] && r[k] !== st[k]) return false;
+    if (st.qp && r.bp.indexOf(st.qp.toLowerCase().trim()) < 0) return false;
+    if (st.ql) { const q = st.ql.toLowerCase().trim(), d = soDig(q); if (r.bl.indexOf(q) < 0 && !(d.length >= 3 && r.bl.indexOf(d) >= 0)) return false; }
+    return true;
+  }
+  function kpis() {
+    const V = F.filter((r) => r.sp !== "Cancelado"), C = F.filter((r) => r.sp === "Cancelado");
+    const tot = V.reduce((s, r) => s + r.v, 0), rec = F.reduce((s, r) => s + r.pg, 0), ab = F.reduce((s, r) => s + r.ab, 0), ven = F.filter((r) => r.at > 0), venV = ven.reduce((s, r) => s + r.ab, 0);
+    const lojas = new Set(F.map((r) => r.s)), lojasVen = new Set(ven.map((r) => r.s)), baixar = F.filter((r) => r.an === "Baixar no Mira");
+    const card = (k, v, s, cls) => '<div class="tit-kpi' + (cls ? " " + cls : "") + '"><div class="k">' + esc(k) + '</div><div class="v" title="' + esc(v) + '">' + esc(v) + '</div><div class="s" title="' + esc(s) + '">' + esc(s) + "</div></div>";
+    el("tit-kpis").innerHTML = card("Valor de títulos", BRL(tot), NUM(V.length) + " títulos" + (C.length ? " · fora " + BRL0(C.reduce((s, r) => s + r.v, 0)) + " cancelados" : ""))
+      + card("Valor recebido", BRL(rec), tot ? Math.round(100 * rec / tot) + "% do valor" : "—")
+      + card("Valor em aberto", BRL(ab), "a vencer " + BRL0(ab - venV))
+      + card("Valor vencido", BRL(venV), NUM(ven.length) + " títulos vencidos", venV > 0 ? "crit" : "")
+      + card("Quantidade de lojas", NUM(lojas.size), NUM(lojasVen.size) + " com título vencido · " + NUM(baixar.length) + " títulos para baixar no Mira");
+  }
+  function chips() {
+    const base = R.filter((r) => passa(r, "sp")), m = new Map(SP.map((s) => [s, { n: 0, v: 0 }]));
+    for (const r of base) { const o = m.get(r.sp) || m.set(r.sp, { n: 0, v: 0 }).get(r.sp); o.n++; o.v += r.sp === "Pago" || r.sp === "Pago com saldo" ? r.pg : r.sp === "Cancelado" || r.sp === "Sem título" ? r.v : r.ab; }
+    el("tit-chips").innerHTML = [...m].map(([s, o]) => '<button type="button" class="tit-chip ' + (FAM[s] || "") + (st.sp.includes(s) ? " is-on" : st.sp.length ? " is-off" : "") + '" data-sp="' + esc(s) + '" title="'
+      + (s === "Pago" || s === "Pago com saldo" ? "valor recebido" : s === "Cancelado" || s === "Sem título" ? "valor dos pedidos" : "valor em aberto") + '"><span class="t"><i></i>' + esc(s) + '</span><span class="v">' + BRL0(o.v) + '</span><span class="n">' + NUM(o.n) + (o.n === 1 ? " título" : " títulos") + "</span></button>").join("");
+    el("tit-chips").querySelectorAll("[data-sp]").forEach((b) => b.onclick = () => { const s = b.dataset.sp; st.sp = st.sp.includes(s) ? st.sp.filter((x) => x !== s) : st.sp.concat([s]); limite = 300; render(); });
+  }
+  function celula(c, r) {
+    const v = r[c[0]];
+    if (c[2] === "fl") return "<td>" + flag(v) + "</td>";
+    if (c[2] === "n") return '<td class="num">' + (v || v === 0 ? BRL(v) : "") + "</td>";
+    if (c[2] === "n0") return '<td class="num">' + (v ? NUM(v) : '<span class="tit-muted">—</span>') + "</td>";
+    if (c[2] === "d") return "<td>" + (DT(v) || '<span class="tit-muted">—</span>') + "</td>";
+    return '<td class="' + (c[2] === "nm" ? "nm" : c[2] === "tx" ? "tx" : "") + '"' + (c[2] === "tx" && v ? ' title="' + esc(v) + '"' : "") + ">" + (v ? esc(v) : '<span class="tit-muted">—</span>') + "</td>";
+  }
+  function tabela() {
+    const [k, d] = st.sort, tipo = (COLS.find((c) => c[0] === k) || [])[2];
+    F.sort((a, b) => { const x = a[k], y = b[k]; if (tipo === "n" || tipo === "n0") return d * ((x || 0) - (y || 0)); return d * String(x || "").localeCompare(String(y || ""), "pt-BR", { numeric: true }); });
+    el("tit-th").innerHTML = "<tr>" + COLS.map((c) => '<th data-k="' + c[0] + '" class="' + (c[2] === "n" || c[2] === "n0" ? "num " : "") + (k === c[0] ? "s" + (d < 0 ? " desc" : "") : "") + '">' + esc(c[1]) + "</th>").join("") + "</tr>";
+    el("tit-tb").innerHTML = F.length ? F.slice(0, limite).map((r) => "<tr>" + COLS.map((c) => celula(c, r)).join("") + "</tr>").join("") : '<tr><td class="tit-msg" colspan="' + COLS.length + '">Nenhum título com esses filtros.</td></tr>';
+    const soma = (q) => F.reduce((s, r) => s + (r[q] || 0), 0);
+    el("tit-tf").innerHTML = F.length ? "<tr>" + COLS.map((c, i) => i === 0 ? "<td>" + (F.some((r) => r.sp === "Cancelado") ? "Total (com os cancelados)" : "Total") + "</td>" : c[0] === "v" ? '<td class="num">' + BRL(soma("v")) + "</td>" : c[0] === "pg" ? '<td class="num">' + BRL(soma("pg")) + "</td>" : c[0] === "ab" ? '<td class="num">' + BRL(soma("ab")) + "</td>" : "<td></td>").join("") + "</tr>" : "";
+    el("tit-th").querySelectorAll("th[data-k]").forEach((th) => th.onclick = () => { const q = th.dataset.k; st.sort = st.sort[0] === q ? [q, -st.sort[1]] : [q, ["v", "pg", "ab", "at", "dv", "ve", "dp"].includes(q) ? -1 : 1]; tabela(); });
+    const resta = F.length - Math.min(limite, F.length);
+    el("tit-mais").hidden = resta <= 0; el("tit-mais").textContent = "Mostrar mais " + NUM(Math.min(300, resta)) + " (faltam " + NUM(resta) + ")";
+    el("tit-tot").innerHTML = "<b>" + NUM(F.length) + "</b> " + (F.length === 1 ? "título" : "títulos") + " no filtro" + (F.length > limite ? " · mostrando os primeiros <b>" + NUM(limite) + "</b> (o Excel leva todos)" : "");
+  }
+  function render() { if (!D) return; F = R.filter((r) => passa(r)); kpis(); chips(); tabela(); }
+
+  // ---- eventos
+  el("tit-de").onchange = (ev) => { st.de = ev.target.value; limite = 300; render(); };
+  el("tit-ate").onchange = (ev) => { st.ate = ev.target.value; limite = 300; render(); };
+  for (const k of ["sg", "an", "sm", "fil", "ce", "tl", "uf", "cl"]) el("tit-" + k).onchange = (ev) => { st[k] = ev.target.value; limite = 300; render(); };
+  let tq = null; for (const k of ["qp", "ql"]) el("tit-" + k).oninput = (ev) => { st[k] = ev.target.value; clearTimeout(tq); tq = setTimeout(() => { limite = 300; render(); }, 200); };
+  el("tit-limpa").onclick = () => { Object.assign(st, { de: ANO + "-01-01", ate: ANO + "-12-31", sp: [], sg: "", an: "", sm: "", fil: "", qp: "", ql: "", ce: "", tl: "", uf: "", cl: "" }); limite = 300; sincroniza(); render(); };
+  el("tit-mais").onclick = () => { limite += 300; tabela(); };
+  el("tit-xls").onclick = () => {
+    if (!D || !F.length) return;
+    const tipoX = (t) => t === "n" ? "n" : t === "n0" ? "n0" : t === "d" ? "d" : "t";
+    const cols = COLS.map((c) => [c[1], tipoX(c[2]), (r) => r[c[0]]]).concat([["Cluster", "t", (r) => r.cl], ["Consultor", "t", (r) => r.ce], ["UF", "t", (r) => r.uf], ["Município", "t", (r) => r.mun]]);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(BiXlsx.montaXlsx([{ nome: "Títulos", xml: BiXlsx.planilhaXml(cols, F) }]));
+    a.download = "consulta_de_titulos_" + D.meta.hoje + ".xlsx"; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  // ---- carga sob demanda
+  function msg(t) { el("tit-th").innerHTML = ""; el("tit-tf").innerHTML = ""; el("tit-tb").innerHTML = '<tr><td class="tit-msg">' + esc(t) + "</td></tr>"; el("tit-tot").textContent = ""; el("tit-kpis").innerHTML = ""; el("tit-chips").innerHTML = ""; }
+  function carregar() {
+    if (carregando) return; carregando = true; msg("Carregando…");
+    fetch("/api/titulos", { credentials: "same-origin", cache: "no-store" })
+      .then((r) => { const ct = r.headers.get("content-type") || ""; if (!r.ok || ct.indexOf("json") < 0) throw new Error("sessao"); return r.json(); })
+      .then((j) => {
+        carregando = false;
+        if (!j.ok) { msg(j.motivo === "aba_nao_liberada" ? "Esta aba não está liberada para o seu usuário." : "Os títulos ainda não foram sincronizados. Tente de novo depois do próximo ciclo de atualização."); return; }
+        D = { meta: j.meta || {}, lojas: j.lojas || {}, linhas: j.linhas || [] };
+        el("tit-posicao").textContent = D.meta.geradoEm ? new Date(D.meta.geradoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : DT(D.meta.hoje);
+        preparar(); render();
+      })
+      .catch(() => { carregando = false; msg("Não consegui carregar os títulos. Se a sessão expirou, recarregue a página e entre de novo."); });
+  }
+  window.renderTitulos = () => { if (D) render(); else carregar(); };
+})();
+
 (function initTabs() {
-  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar", "inadimplencia", "rastreio", "consultarastreio", "consultaiccid"];
+  const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar", "inadimplencia", "titulos", "rastreio", "consultarastreio", "consultaiccid"];
   const btns = {}, contents = {};
   for (const t of tabs) {
     btns[t] = document.getElementById("tab-btn-" + t);
@@ -4829,6 +5063,7 @@ const BiXlsx = (() => {
     if (tab === "faturamento" && window.renderFaturamento) window.renderFaturamento();
     if (tab === "comparar" && window.renderComparar) window.renderComparar();
     if (tab === "inadimplencia" && window.renderInadimplencia) window.renderInadimplencia();
+    if (tab === "titulos" && window.renderTitulos) window.renderTitulos();
     if (tab === "rastreio" && window.renderRastreio) window.renderRastreio();
     if (tab === "consultarastreio" && window.renderConsultaRastreio) window.renderConsultaRastreio();
     if (tab === "consultaiccid" && window.renderIccid) window.renderIccid();

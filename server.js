@@ -254,7 +254,7 @@ function requireAuth(req, res, next) {
 // O Portal manda no token do /sso a lista de abas do usuario neste BI SO quando ha restricao
 // (USUARIOS_SIS_BI_ABAS); sem o campo = todas. A lista fica no cookie de sessao (assinado) e vale ate o
 // proximo login pelo Portal. Aba nao liberada: some da tela E o servidor nao manda os dados dela.
-const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'faturamento', 'comparar', 'inadimplencia', 'rastreio', 'consultarastreio', 'consultaiccid'];
+const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'faturamento', 'comparar', 'inadimplencia', 'titulos', 'rastreio', 'consultarastreio', 'consultaiccid'];
 function abasValidas(abas) {
   if (!Array.isArray(abas)) return null;
   // lado seguro: lista que so tem abas desconhecidas vira "nenhuma aba", nunca "todas"
@@ -381,6 +381,42 @@ app.get('/api/inadimplencia', requireAuth, (req, res) => {
   const temTodas = temTodasEmpresas(allowed);
   const pode = (r) => (r.codEmpresa ? allowed.includes(String(r.codEmpresa)) : temTodas);
   res.json({ ok: true, meta: latestInad.meta, mira: latestInad.mira.filter(pode), aqt: latestInad.aqt.filter(pode), temTodas });
+});
+
+// --- Consulta de Títulos (05/11): títulos do Aqui Tem+ com o pedido e a baixa no Mira (cruza_titulos.js) -----------------
+// Conjunto à parte (nome e CPF/CNPJ da loja): chega por POST /api/sync-titulos e sai filtrado por empresa em GET /api/titulos;
+// nunca vai embutido no HTML. Mesma regra de empresas da inadimplência: linha sem empresa só para quem tem todas.
+const TITULOS_FILE = path.join(__dirname, 'data', 'titulos.json');
+let latestTitulos = null;
+if (fs.existsSync(TITULOS_FILE)) {
+  try { latestTitulos = JSON.parse(fs.readFileSync(TITULOS_FILE, 'utf8')); } catch (err) { console.error('Não consegui ler data/titulos.json existente, começando sem títulos:', err.message); }
+}
+app.post('/api/sync-titulos', express.json({ limit: '25mb' }), (req, res) => {
+  const secret = req.header('X-Sync-Secret');
+  if (!secret || secret !== SYNC_SECRET) return res.status(403).json({ ok: false, error: 'Segredo de sincronização inválido.' });
+  const body = req.body || {};
+  if (!Array.isArray(body.linhas) || !body.lojas || typeof body.lojas !== 'object') return res.status(400).json({ ok: false, error: 'Títulos inválidos.' });
+  try {
+    latestTitulos = { meta: body.meta || {}, lojas: body.lojas, linhas: body.linhas, syncedAt: new Date().toISOString() };
+    fs.mkdirSync(path.dirname(TITULOS_FILE), { recursive: true });
+    fs.writeFileSync(TITULOS_FILE, JSON.stringify(latestTitulos));
+    res.json({ ok: true, syncedAt: latestTitulos.syncedAt, linhas: body.linhas.length, lojas: Object.keys(body.lojas).length });
+  } catch (err) {
+    console.error('Erro processando /api/sync-titulos:', err);
+    res.status(500).json({ ok: false, error: 'Erro ao processar sincronização dos títulos.' });
+  }
+});
+app.get('/api/titulos', requireAuth, (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!abaLiberada(req.abas, 'titulos')) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
+  if (!latestTitulos) return res.json({ ok: false, motivo: 'sem_dados' });
+  const allowed = empresasDoUsuario(req.userEmail);
+  const temTodas = temTodasEmpresas(allowed);
+  const linhas = latestTitulos.linhas.filter((l) => (l.e ? allowed.includes(String(l.e)) : temTodas));
+  // só as lojas e filiais das linhas que o usuário vê
+  const lojas = {}, filiais = {}, fil = (latestTitulos.meta && latestTitulos.meta.filiais) || {};
+  for (const l of linhas) { if (latestTitulos.lojas[l.s]) lojas[l.s] = latestTitulos.lojas[l.s]; if (l.e && fil[l.e]) filiais[l.e] = fil[l.e]; }
+  res.json({ ok: true, meta: Object.assign({}, latestTitulos.meta, { filiais }), lojas, linhas, temTodas });
 });
 
 // --- Rastreio de Envios (banco correios_gateway da API dos Correios x Aqui Tem+ x Mira org 21) -------------------

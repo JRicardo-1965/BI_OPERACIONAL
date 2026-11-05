@@ -1,6 +1,7 @@
 node_modules/
 data/data.json
 data/inad.json
+data/titulos.json
 data/rastreio.json
 data/iccid.json.gz
 .env
