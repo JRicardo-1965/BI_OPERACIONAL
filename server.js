@@ -137,6 +137,11 @@ function jsonForScript(value) {
   return JSON.stringify(value).replace(/</g, '\\u003c');
 }
 
+// Coleta de lixo logo depois de cada carga (2026-11-06): as cargas (sobretudo a de ICCIDs, 69 MB descompactados)
+// deixam centenas de MB temporarios; sem coletar na hora, o lixo se somava ao da carga seguinte e o Render derrubava o
+// servidor por passar de 512 MB. Precisa do Node iniciado com --expose-gc (package.json); sem a opcao, nao faz nada.
+function liberaMemoria() { if (typeof global.gc === 'function') setImmediate(() => { try { global.gc(); } catch (e) { /* ignora */ } }); }
+
 function filterByEmpresas(arr, allowed) {
   if (!Array.isArray(arr)) return [];
   return arr.filter((row) => allowed.includes(String(row.CodEmpresa)));
@@ -347,6 +352,7 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
 
     console.log(`Sincronizado às ${latestData.syncedAt} — ${usuarios.length} usuários, ${latestData.pedidos.length} pedidos, ${latestData.vendasDetalhe.length} linhas de venda.`);
     res.json({ ok: true, syncedAt: latestData.syncedAt, usuarios: usuarios.length, pedidos: latestData.pedidos.length });
+    liberaMemoria();
   } catch (err) {
     console.error('Erro processando /api/sync:', err);
     res.status(500).json({ ok: false, error: 'Erro ao processar sincronização.' });
@@ -365,6 +371,7 @@ app.post('/api/sync-inad', express.json({ limit: '25mb' }), (req, res) => {
     fs.mkdirSync(path.dirname(INAD_FILE), { recursive: true });
     fs.writeFileSync(INAD_FILE, JSON.stringify(latestInad));
     res.json({ ok: true, syncedAt: latestInad.syncedAt, mira: det.mira.length, aqt: det.aqt.length });
+    liberaMemoria();
   } catch (err) {
     console.error('Erro processando /api/sync-inad:', err);
     res.status(500).json({ ok: false, error: 'Erro ao processar sincronização da inadimplência.' });
@@ -401,6 +408,7 @@ app.post('/api/sync-titulos', express.json({ limit: '25mb' }), (req, res) => {
     fs.mkdirSync(path.dirname(TITULOS_FILE), { recursive: true });
     fs.writeFileSync(TITULOS_FILE, JSON.stringify(latestTitulos));
     res.json({ ok: true, syncedAt: latestTitulos.syncedAt, linhas: body.linhas.length, lojas: Object.keys(body.lojas).length });
+    liberaMemoria();
   } catch (err) {
     console.error('Erro processando /api/sync-titulos:', err);
     res.status(500).json({ ok: false, error: 'Erro ao processar sincronização dos títulos.' });
@@ -430,6 +438,7 @@ app.post('/api/sync-rastreio', express.json({ limit: '25mb' }), (req, res) => {
     fs.mkdirSync(path.dirname(RASTREIO_FILE), { recursive: true });
     fs.writeFileSync(RASTREIO_FILE, JSON.stringify(latestRastreio));
     res.json({ ok: true, syncedAt: latestRastreio.syncedAt, envios: body.envios.length, cobertura: body.cobertura.length });
+    liberaMemoria();
   } catch (err) {
     console.error('Erro processando /api/sync-rastreio:', err);
     res.status(500).json({ ok: false, error: 'Erro ao processar sincronização do rastreio.' });
@@ -460,6 +469,7 @@ app.post('/api/sync-iccid', express.raw({ type: 'application/octet-stream', limi
     fs.mkdirSync(path.dirname(ICCID_FILE), { recursive: true });
     fs.writeFileSync(ICCID_FILE, req.body);
     res.json({ ok: true, syncedAt: P.syncedAt, chips: P.pos.length });
+    liberaMemoria();
   } catch (err) {
     console.error('Erro processando /api/sync-iccid:', err);
     res.status(500).json({ ok: false, error: 'Erro ao processar o pacote de ICCID.' });
@@ -534,25 +544,29 @@ app.get('/', requireAuth, (req, res) => {
   const meta = latestData.meta || {};
   const outrosSistemas = outrosSistemasDoUsuario(req.userEmail);
 
-  const html = TEMPLATE
-    .replaceAll('__VERSION__', 'hospedado')
-    .replaceAll('__RELEASE__', 'login')
-    .replaceAll('__LOGO_DATA_URI__', 'data:image/png;base64,' + LOGO_B64)
-    .replaceAll('__CLIENTES_JSON__', jsonForScript(clientes))
-    .replaceAll('__PEDIDOS_JSON__', jsonForScript(pedidos))
-    .replaceAll('__PEDIDOS_RESUMO_JSON__', jsonForScript(pedidosResumo))
-    .replaceAll('__VENDAS_DETALHE_JSON__', jsonForScript(vendasDetalhe))
-    .replaceAll('__ESTOQUE_JSON__', jsonForScript(estoque))
-    .replaceAll('__TRANSFERENCIAS_JSON__', jsonForScript(transferencias))
-    .replaceAll('__COMPARATIVO_JSON__', jsonForScript(comparativo))
-    .replaceAll('__COMPARATIVO_TOTAIS_JSON__', jsonForScript(comparativoTotais))
-    .replaceAll('__FATURAMENTO_JSON__', jsonForScript(faturamento))
-    .replaceAll('__TODAY_ISO__', new Date().toISOString().slice(0, 10))
-    .replaceAll('__PROCESSADO_EM__', meta.ProcessadoEm || 'desconhecido')
-    .replaceAll('__HOSTED_USER_LABEL__', escapeHtml(req.userNome))
-    .replaceAll('__HOSTED_SESSION__', '1')
-    .replaceAll('__OUTROS_SISTEMAS_JSON__', jsonForScript(outrosSistemas))
-    .replaceAll('__ABAS_PERMITIDAS_JSON__', jsonForScript(ab == null ? null : ab));
+  // Pagina montada numa passada so (2026-11-06): antes eram 18 .replaceAll seguidos sobre ~12 MB, cada um copiando
+  // o texto inteiro. Mesma tabela placeholder -> valor (a funcao de troca nao interpreta "$&"/"$'" como o replaceAll com texto).
+  const PLACEHOLDERS_PAGINA = {
+    '__VERSION__': 'hospedado',
+    '__RELEASE__': 'login',
+    '__LOGO_DATA_URI__': 'data:image/png;base64,' + LOGO_B64,
+    '__CLIENTES_JSON__': jsonForScript(clientes),
+    '__PEDIDOS_JSON__': jsonForScript(pedidos),
+    '__PEDIDOS_RESUMO_JSON__': jsonForScript(pedidosResumo),
+    '__VENDAS_DETALHE_JSON__': jsonForScript(vendasDetalhe),
+    '__ESTOQUE_JSON__': jsonForScript(estoque),
+    '__TRANSFERENCIAS_JSON__': jsonForScript(transferencias),
+    '__COMPARATIVO_JSON__': jsonForScript(comparativo),
+    '__COMPARATIVO_TOTAIS_JSON__': jsonForScript(comparativoTotais),
+    '__FATURAMENTO_JSON__': jsonForScript(faturamento),
+    '__TODAY_ISO__': new Date().toISOString().slice(0, 10),
+    '__PROCESSADO_EM__': meta.ProcessadoEm || 'desconhecido',
+    '__HOSTED_USER_LABEL__': escapeHtml(req.userNome),
+    '__HOSTED_SESSION__': '1',
+    '__OUTROS_SISTEMAS_JSON__': jsonForScript(outrosSistemas),
+    '__ABAS_PERMITIDAS_JSON__': jsonForScript(ab == null ? null : ab),
+  };
+  const html = TEMPLATE.replace(/__[A-Z0-9_]+__/g, (m) => (Object.prototype.hasOwnProperty.call(PLACEHOLDERS_PAGINA, m) ? PLACEHOLDERS_PAGINA[m] : m));
 
   res.set('Cache-Control', 'no-store');
   res.send(html);

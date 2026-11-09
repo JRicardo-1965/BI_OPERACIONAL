@@ -7,7 +7,11 @@
 const zlib = require('zlib');
 
 function carregaPacote(buf) {
-  const j = JSON.parse(zlib.gunzipSync(buf).toString('utf8'));
+  // descompacta num bloco unico (2026-11-06): o rodape do gzip guarda o tamanho descompactado (ISIZE, modulo 4 GB).
+  // Sem isso o zlib junta milhares de pedacos de 16 KB e copia tudo de novo (2 x 69 MB fora do heap a cada carga).
+  const isize = buf.length >= 4 ? buf.readUInt32LE(buf.length - 4) : 0;
+  const chunkSize = Math.min(Math.max(isize + 64 * 1024, 64 * 1024), 512 * 1024 * 1024);
+  const j = JSON.parse(zlib.gunzipSync(buf, { chunkSize }).toString('utf8'));
   const s = j.linhas || '';
   const pos = [];
   for (let p = 0; p < s.length;) { pos.push(p); const q = s.indexOf('\n', p); p = q < 0 ? s.length : q + 1; }

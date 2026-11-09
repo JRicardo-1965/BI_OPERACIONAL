@@ -5,7 +5,7 @@
   "description": "Backend com login e filtro por empresa para o BI Operacional (Aqui Tem Mais)",
   "engines": { "node": ">=18" },
   "scripts": {
-    "start": "node server.js"
+    "start": "node --expose-gc server.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
