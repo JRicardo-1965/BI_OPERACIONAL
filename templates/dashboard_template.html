@@ -1272,6 +1272,18 @@
     #tab-content-inadimplencia .inad-bar{ grid-template-columns:repeat(4, minmax(0, 1fr)); }
     #tab-content-inadimplencia .inad-bar input[type=search]{ grid-column:span 2; }
   }
+  /* filtros de selecao multipla (09/11) */
+  #tab-content-inadimplencia .inad-ms{ position:relative; min-width:0; }
+  #tab-content-inadimplencia .inad-ms > button{ font:inherit; font-size:12px; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:5px 22px 5px 8px; width:100%; text-align:left; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; position:relative; }
+  #tab-content-inadimplencia .inad-ms > button::after{ content:"▾"; position:absolute; right:8px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:10px; }
+  #tab-content-inadimplencia .inad-ms.tem > button{ border-color:var(--accent); background:var(--accent-soft); font-weight:600; }
+  #tab-content-inadimplencia .inad-ms-p{ position:absolute; z-index:30; top:calc(100% + 4px); left:0; min-width:100%; width:max-content; max-width:340px; max-height:300px; overflow:auto; background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,.18); padding:6px; display:none; }
+  #tab-content-inadimplencia .inad-ms.is-open .inad-ms-p{ display:block; }
+  #tab-content-inadimplencia .inad-ms-p label{ display:flex; align-items:center; gap:7px; font-size:12px; padding:4px 6px; border-radius:5px; cursor:pointer; white-space:nowrap; }
+  #tab-content-inadimplencia .inad-ms-p label:hover{ background:var(--surface-2); }
+  #tab-content-inadimplencia .inad-ms-p input{ margin:0; padding:0; border:0; width:auto; min-width:0; flex:0 0 auto; accent-color:var(--accent); }
+  #tab-content-inadimplencia .inad-ms-p .lim{ display:flex; justify-content:space-between; gap:12px; padding:2px 6px 6px; border-bottom:1px solid var(--border); margin-bottom:4px; font-size:11px; color:var(--text-muted); white-space:nowrap; }
+  #tab-content-inadimplencia .inad-ms-p .lim button{ border:0; background:none; color:var(--accent); font:inherit; font-size:11px; font-weight:600; cursor:pointer; padding:0; }
   #tab-content-inadimplencia .inad-acoes{ display:flex; gap:8px; align-items:center; margin:0 0 10px; }
   #tab-content-inadimplencia .inad-tot{ color:var(--text-muted); font-size:12px; margin:0 0 8px; }
   #tab-content-inadimplencia .inad-tot b{ color:var(--text); font-variant-numeric:tabular-nums; }
@@ -1968,8 +1980,8 @@
       <div class="inad-chips" id="inad-chips"></div>
       <div class="inad-bar">
         <input type="search" id="inad-q" placeholder="Buscar nome, CPF/CNPJ, código, pedido, título, boleto…">
-        <select id="inad-fil"></select><select id="inad-for"></select><select id="inad-tipo"></select><select id="inad-forma"></select><select id="inad-flag"></select>
-        <select id="inad-atr"><option value="">Todo atraso</option><option>1-30</option><option>31-60</option><option>61-90</option><option>91-180</option><option>181-365</option><option>&gt;365</option></select>
+        <div class="inad-ms" id="inad-fil"></div><div class="inad-ms" id="inad-for"></div><div class="inad-ms" id="inad-tipo"></div><div class="inad-ms" id="inad-forma"></div><div class="inad-ms" id="inad-flag"></div>
+        <div class="inad-ms" id="inad-atr"></div>
       </div>
       <div class="inad-acoes">
         <button class="clear-btn" id="inad-limpa" type="button">Limpar filtros</button>
@@ -3873,18 +3885,37 @@ const BiXlsx = (() => {
   };
   const ehNum = c => c[2] === "n" || c[2] === "n0";
   const SEM_FLAG = "(sem flag)";
-  const st = { tab: "mira", cats: new Set(), q: "", fil: "", forn: "", tipo: "", forma: "", flag: "", atr: "", sort: { mira: ["atraso", -1], aqt: ["atraso", -1] }, rows: [] };
+  const st = { tab: "mira", cats: new Set(), q: "", fil: new Set(), forn: new Set(), tipo: new Set(), forma: new Set(), flag: new Set(), atr: new Set(), sort: { mira: ["atraso", -1], aqt: ["atraso", -1] }, rows: [] };
+  const FILTROS_MS = ["fil", "forn", "tipo", "forma", "flag", "atr"];
   const linhas = () => D[st.tab];
   const saldoProprio = r => st.tab === "mira" ? r.saldoM : r.saldoA;
 
-  function opts(sel, vals, rot) { sel.innerHTML = '<option value="">' + rot + "</option>" + vals.map(v => '<option value="' + esc(v) + '">' + esc(v) + "</option>").join(""); }
+  // filtro de selecao multipla (09/11): botao + painel com caixas de marcar; varios itens do mesmo filtro valem juntos (OU),
+  // filtros diferentes se combinam (E); nada marcado = todos
+  const MS = {};
+  function opts(id, k, vals, todos, plural) { MS[id] = { k, vals, todos, plural }; desenhaMs(id); }
+  function desenhaMs(id) {
+    const m = MS[id], box = el(id), s = st[m.k], aberto = box.classList.contains("is-open");
+    const rot = !s.size ? m.todos : s.size === 1 ? [...s][0] : s.size + " " + m.plural;
+    box.classList.toggle("tem", s.size > 0);
+    box.innerHTML = '<button type="button" title="' + esc(s.size ? [...s].join(", ") : m.todos) + '">' + esc(rot) + '</button><div class="inad-ms-p"><div class="lim"><span>'
+      + (s.size ? s.size + (s.size === 1 ? " marcado" : " marcados") : "nada marcado = todos") + '</span><button type="button" data-lim="1">Limpar</button></div>'
+      + m.vals.map((v, i) => '<label><input type="checkbox" data-i="' + i + '"' + (s.has(v) ? " checked" : "") + "> " + esc(v) + "</label>").join("") + "</div>";
+    box.classList.toggle("is-open", aberto);
+    box.querySelector("button").onclick = e => { e.stopPropagation(); const abrir = !box.classList.contains("is-open"); fechaMs(); box.classList.toggle("is-open", abrir); };
+    box.querySelector(".inad-ms-p").onclick = e => e.stopPropagation();
+    box.querySelector("[data-lim]").onclick = () => { s.clear(); desenhaMs(id); render(); };
+    box.querySelectorAll("input[data-i]").forEach(c => c.onchange = () => { const v = m.vals[+c.dataset.i]; if (c.checked) s.add(v); else s.delete(v); desenhaMs(id); render(); });
+  }
+  function fechaMs() { document.querySelectorAll("#tab-content-inadimplencia .inad-ms.is-open").forEach(b => b.classList.remove("is-open")); }
+  document.addEventListener("click", fechaMs);
   function filtra() {
     const q = st.q.trim().toLowerCase();
     const qd = SO_NUMEROS.test(q) ? q.replace(/[^0-9]/g, "") : "";   // só números: acha documento/boleto com ou sem pontuação
     const casa = v => { const s = (Array.isArray(v) ? JSON.stringify(v) : String(v)).toLowerCase(); return s.includes(q) || (qd.length >= 4 && s.replace(/[^0-9]/g, "").includes(qd)); };
-    return linhas().filter(r => (!st.cats.size || st.cats.has(r.cat)) && (!st.fil || r.filial === st.fil) && (!st.forn || r.fornecedor === st.forn) && (!st.tipo || r.tipo === st.tipo)
-      && (!st.forma || (r.formaPedido || "Sem pedido no AQT") === st.forma)
-      && (!st.flag || (st.flag === SEM_FLAG ? !r.flags.length : r.flags.includes(st.flag))) && (!st.atr || faixa(r.atraso) === st.atr) && (!q || Object.values(r).some(casa)));
+    return linhas().filter(r => (!st.cats.size || st.cats.has(r.cat)) && (!st.fil.size || st.fil.has(r.filial)) && (!st.forn.size || st.forn.has(r.fornecedor)) && (!st.tipo.size || st.tipo.has(r.tipo))
+      && (!st.forma.size || st.forma.has(r.formaPedido || "Sem pedido no AQT"))
+      && (!st.flag.size || [...st.flag].some(f => f === SEM_FLAG ? !r.flags.length : r.flags.includes(f))) && (!st.atr.size || st.atr.has(faixa(r.atraso))) && (!q || Object.values(r).some(casa)));
   }
   // cards: ordem global das categorias (meta), contagem e valor só das linhas que o usuário vê
   function chips() {
@@ -3953,22 +3984,20 @@ const BiXlsx = (() => {
   document.addEventListener("keydown", e => { if (e.key === "Escape" && el("inad-dr").classList.contains("is-on")) fecha(); });
   // ---- abas internas e filtros
   function trocaAba(t) {
-    st.tab = t; st.cats.clear(); st.fil = st.forn = st.tipo = st.forma = st.flag = ""; fecha();
+    st.tab = t; st.cats.clear(); ["fil", "forn", "tipo", "forma", "flag"].forEach(k => st[k].clear()); fecha(); fechaMs();
     document.querySelectorAll("#inad-tabs button").forEach(b => b.classList.toggle("is-on", b.dataset.inadTab === t));
     const L = linhas(), uni = f => [...new Set(L.flatMap(f).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true }));
-    opts(el("inad-fil"), uni(r => [r.filial]), "Toda filial"); opts(el("inad-for"), uni(r => [r.fornecedor]), "Todo fornecedor");
+    opts("inad-fil", "fil", uni(r => [r.filial]), "Toda filial", "filiais"); opts("inad-for", "forn", uni(r => [r.fornecedor]), "Todo fornecedor", "fornecedores");
     const ORD_TIPO = ["À vista", "7 dias", "10 dias", "14 dias", "21 dias", "28 dias", "Não informado", "Sem pedido AQT", "Sem pedido"];
-    opts(el("inad-tipo"), uni(r => [r.tipo]).sort((a, b) => (ORD_TIPO.indexOf(a) + 99) % 99 - (ORD_TIPO.indexOf(b) + 99) % 99), "Todo tipo de boleto");
-    opts(el("inad-forma"), uni(r => [r.formaPedido || "Sem pedido no AQT"]), "Toda forma de pagamento");
-    opts(el("inad-flag"), [...uni(r => r.flags), SEM_FLAG], "Toda flag");
+    opts("inad-tipo", "tipo", uni(r => [r.tipo]).sort((a, b) => (ORD_TIPO.indexOf(a) + 99) % 99 - (ORD_TIPO.indexOf(b) + 99) % 99), "Todo tipo de boleto", "tipos de boleto");
+    opts("inad-forma", "forma", uni(r => [r.formaPedido || "Sem pedido no AQT"]), "Toda forma de pagamento", "formas de pagamento");
+    opts("inad-flag", "flag", [...uni(r => r.flags), SEM_FLAG], "Toda flag", "flags");
+    opts("inad-atr", "atr", ["1-30", "31-60", "61-90", "91-180", "181-365", ">365"], "Todo atraso", "faixas de atraso");
     render();
   }
   document.querySelectorAll("#inad-tabs button").forEach(b => b.onclick = () => { if (D) trocaAba(b.dataset.inadTab); });
   el("inad-q").oninput = e => { st.q = e.target.value; render(); };
-  el("inad-fil").onchange = e => { st.fil = e.target.value; render(); }; el("inad-for").onchange = e => { st.forn = e.target.value; render(); };
-  el("inad-tipo").onchange = e => { st.tipo = e.target.value; render(); }; el("inad-forma").onchange = e => { st.forma = e.target.value; render(); };
-  el("inad-flag").onchange = e => { st.flag = e.target.value; render(); }; el("inad-atr").onchange = e => { st.atr = e.target.value; render(); };
-  el("inad-limpa").onclick = () => { st.cats.clear(); st.q = st.fil = st.forn = st.tipo = st.forma = st.flag = st.atr = ""; ["inad-q", "inad-fil", "inad-for", "inad-tipo", "inad-forma", "inad-flag", "inad-atr"].forEach(id => el(id).value = ""); render(); };
+  el("inad-limpa").onclick = () => { st.cats.clear(); st.q = ""; el("inad-q").value = ""; FILTROS_MS.forEach(k => st[k].clear()); Object.keys(MS).forEach(desenhaMs); render(); };
   function gerarXlsx() {
     const ehMira = st.tab === "mira";
     const tipoX = t => (t === "n" || t === "n0" || t === "d") ? t : "t";
