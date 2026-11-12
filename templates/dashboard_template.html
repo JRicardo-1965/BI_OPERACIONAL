@@ -1976,6 +1976,7 @@
       <div class="inad-tabs" id="inad-tabs">
         <button type="button" data-inad-tab="mira" class="is-on">Vencido no Mira</button>
         <button type="button" data-inad-tab="aqt">Vencido no Aqui Tem+</button>
+        <button type="button" data-inad-tab="corte">Boletos de corte</button>
       </div>
       <div class="inad-chips" id="inad-chips"></div>
       <div class="inad-bar">
@@ -3878,14 +3879,16 @@ const BiXlsx = (() => {
   const flagHtml = f => '<span class="inad-flag ' + (FAM[f] || "") + '"><i></i>' + esc(f) + "</span>";
   // colunas: [chave, título, tipo] - todas sempre visíveis (o "mais colunas" saiu a pedido em 19/10)  tipos: t texto, tx texto cortado, nm nome, n valor, n0 inteiro, d data, cat, fl flags, bol boletos
   const COLS = {
-    mira: [["cat","Categoria","cat"],["flags","Flags","fl"],["filial","Filial do cliente","t"],["cliMira","Cód. cliente","t"],["nomeCli","Cliente Mira","nm"],["docCli","CPF/CNPJ","t"],["pedMira","Pedido Mira","t"],["titMira","Título Mira","t"],["vencM","Venc. Mira","d"],["atraso","Dias","n0"],["valorM","Valor do título Mira","n"],["saldoM","Saldo Mira","n"],
+    mira: [["cat","Categoria","cat"],["flags","Flags","fl"],["filial","Filial do cliente","t"],["cluster","Cluster do cliente","t"],["cliMira","Cód. cliente","t"],["nomeCli","Cliente Mira","nm"],["docCli","CPF/CNPJ","t"],["pedMira","Pedido Mira","t"],["titMira","Título Mira","t"],["vencM","Venc. Mira","d"],["atraso","Dias","n0"],["valorM","Valor do título Mira","n"],["saldoM","Saldo Mira","n"],
            ["pedAQT","Pedido AQT","t"],["titAQT","Título(s) AQT","tx"],["tipo","Tipo de boleto","t"],["bolResumo","Boletos","bol"],["sitAQTtxt","Situação no AQT","t"],["formaPg","Forma de pagamento AQT","t"],["saldoA","Em aberto no AQT","n"],["pagoAQT","Pago no AQT em","d",1],["fornecedor","Fornecedor AQT","t"],["nomeLoja","Loja AQT","nm"],["lojaAQT","Cód. loja AQT","t",1],["ligacao","Ligação","t",1]],
-    aqt:  [["cat","Categoria","cat"],["flags","Flags","fl"],["nomeLoja","Loja AQT","nm"],["lojaAQT","Cód. loja AQT","t",1],["fornecedor","Fornecedor AQT","t"],["pedAQT","Pedido AQT","t"],["titAQT","Título AQT","t"],["tipo","Tipo de boleto","t"],["bolResumo","Boletos","bol"],["formaPg","Forma de pagamento AQT","t"],["vencA","Venc. AQT","d"],["atraso","Dias","n0"],["valorA","Valor do título AQT","n"],["saldoA","Saldo AQT","n"],
+    aqt:  [["cat","Categoria","cat"],["flags","Flags","fl"],["nomeLoja","Loja AQT","nm"],["lojaAQT","Cód. loja AQT","t",1],["cluster","Cluster do cliente","t"],["fornecedor","Fornecedor AQT","t"],["pedAQT","Pedido AQT","t"],["titAQT","Título AQT","t"],["tipo","Tipo de boleto","t"],["bolResumo","Boletos","bol"],["formaPg","Forma de pagamento AQT","t"],["vencA","Venc. AQT","d"],["atraso","Dias","n0"],["valorA","Valor do título AQT","n"],["saldoA","Saldo AQT","n"],
            ["filial","Filial Mira","t"],["nomeCli","Cliente Mira","nm"],["cliMira","Cód. cliente Mira","t",1],["docCli","CPF/CNPJ cliente Mira","t",1],["pedMira","Pedido Mira","t"],["titMira","Título(s) Mira","tx"],["sitMira","Situação no Mira","t"],["saldoM","Saldo Mira","n"],["empVia","Empresa por","t",1],["ligacao","Ligação","t",1]],
   };
+  COLS.corte = COLS.aqt;   // boletos de corte (12/11): mesmas colunas da visão do Aqui Tem+
+  const ROT_ABA = { mira: "Vencido no Mira", aqt: "Vencido no Aqui Tem+", corte: "Boletos de corte" };
   const ehNum = c => c[2] === "n" || c[2] === "n0";
   const SEM_FLAG = "(sem flag)";
-  const st = { tab: "mira", cats: new Set(), q: "", fil: new Set(), forn: new Set(), tipo: new Set(), forma: new Set(), flag: new Set(), atr: new Set(), sort: { mira: ["atraso", -1], aqt: ["atraso", -1] }, rows: [] };
+  const st = { tab: "mira", cats: new Set(), q: "", fil: new Set(), forn: new Set(), tipo: new Set(), forma: new Set(), flag: new Set(), atr: new Set(), sort: { mira: ["atraso", -1], aqt: ["atraso", -1], corte: ["atraso", -1] }, rows: [] };
   const FILTROS_MS = ["fil", "forn", "tipo", "forma", "flag", "atr"];
   const linhas = () => D[st.tab];
   const saldoProprio = r => st.tab === "mira" ? r.saldoM : r.saldoA;
@@ -3954,7 +3957,7 @@ const BiXlsx = (() => {
       : '<tr><td class="inad-msg" colspan="' + cols.length + '">Nenhuma linha com esses filtros.</td></tr>';
     const soma = rows.reduce((a, r) => a + (saldoProprio(r) || 0), 0);
     // só o saldo do próprio sistema: a coluna do outro repete o valor quando o pedido tem mais de um título
-    el("inad-tot").innerHTML = "<b>" + rows.length + "</b> de " + linhas().length + " linhas · " + (st.tab === "mira" ? "saldo vencido no Mira" : "saldo vencido no Aqui Tem+") + " <b>R$ " + BRL(soma) + "</b>";
+    el("inad-tot").innerHTML = "<b>" + rows.length + "</b> de " + linhas().length + " linhas · " + (st.tab === "mira" ? "saldo vencido no Mira" : st.tab === "corte" ? "boletos de corte vencidos (recarga de celular, não cobrados pela AQT+ e fora das outras visões)" : "saldo vencido no Aqui Tem+") + " <b>R$ " + BRL(soma) + "</b>";
   }
   // ---- painel lateral da linha
   function abre(r) {
@@ -3966,7 +3969,7 @@ const BiXlsx = (() => {
     const pgs = r.pgtos.length ? tabela("<th>Forma</th><th>Data</th><th class='num'>Valor</th><th>Título</th>",
       r.pgtos.map(p => "<tr><td>" + esc(p.forma) + "</td><td>" + DT(p.data) + "</td><td class='num'>" + BRL(p.valor) + "</td><td>" + esc(p.tit) + "</td></tr>").join(""))
       : '<p class="inad-muted">Nenhum pagamento registrado no Aqui Tem+.</p>';
-    const mira = kv([["Filial", esc(r.filial)], ["Cliente", esc(r.nomeCli) + (r.cliMira ? " <span class='inad-muted'>(cód. " + esc(r.cliMira) + ")</span>" : "")], ["CPF/CNPJ", esc(r.docCli)], ["Pedido", esc(r.pedMira)], ["Título(s)", esc(r.titMira)],
+    const mira = kv([["Filial", esc(r.filial)], ["Cluster do cliente", esc(r.cluster || "")], ["Cliente", esc(r.nomeCli) + (r.cliMira ? " <span class='inad-muted'>(cód. " + esc(r.cliMira) + ")</span>" : "")], ["CPF/CNPJ", esc(r.docCli)], ["Pedido", esc(r.pedMira)], ["Título(s)", esc(r.titMira)],
       ["Vencimento", DT(r.vencM)], ["Situação", esc(r.sitMira)]].concat(r.valorM != null ? [["Valor do título", "R$ " + BRL(r.valorM)]] : [], [["Saldo", r.saldoM != null ? "R$ " + BRL(r.saldoM) : ""], ["Empresa atribuída por", esc(r.empVia)]]));
     const aqt = kv([["Loja", esc(r.nomeLoja) + (r.lojaAQT ? " <span class='inad-muted'>(cód. " + esc(r.lojaAQT) + ")</span>" : "")], ["Fornecedor", esc(r.fornecedor)], ["Pedido", esc(r.pedAQT)], ["Forma de pagamento escolhida", esc(r.formaPedido)], ["Tipo de boleto", esc(r.tipo)],
       ["Título(s)", esc(r.titAQT)], ["Vencimento", DT(r.vencA)], ["Situação", esc(r.sitAQTtxt || r.sitAQT)], ["Pagamento registrado", esc(r.pgtos.length ? r.pgtos.map(p => p.forma).filter((v, i, a) => a.indexOf(v) === i).join(" + ") : "nenhum")], ].concat(r.valorA != null ? [["Valor do título", "R$ " + BRL(r.valorA)]] : [], [[st.tab === "mira" ? "Em aberto" : "Saldo", r.saldoA != null ? "R$ " + BRL(r.saldoA) : ""], ["Pago em", DT(r.pagoAQT)], ["Ligação com o Mira", esc(r.ligacao)]]));
@@ -4009,7 +4012,7 @@ const BiXlsx = (() => {
     const pgs = st.rows.flatMap(r => r.pgtos.map(p => ({ r, p })));
     const colsB = chave.concat(quem, [["Nº do boleto", "t", x => x.b.n], ["Banco", "t", x => x.b.bco], ["Vencimento", "d", x => x.b.venc], ["Valor", "n", x => x.b.val], ["Situação", "t", x => x.b.st], ["Pago em", "d", x => x.b.pg], ["Título do boleto", "t", x => x.b.tit]]);
     const colsP = chave.concat(quem, [["Forma", "t", x => x.p.forma], ["Data", "d", x => x.p.data], ["Valor", "n", x => x.p.valor], ["Título", "t", x => x.p.tit]]);
-    return BiXlsx.montaXlsx([{ nome: ehMira ? "Vencido no Mira" : "Vencido no Aqui Tem+", xml: BiXlsx.planilhaXml(colsT, st.rows) }, { nome: "Boletos", xml: BiXlsx.planilhaXml(colsB, bols) }, { nome: "Pagamentos", xml: BiXlsx.planilhaXml(colsP, pgs) }]);
+    return BiXlsx.montaXlsx([{ nome: ROT_ABA[st.tab], xml: BiXlsx.planilhaXml(colsT, st.rows) }, { nome: "Boletos", xml: BiXlsx.planilhaXml(colsB, bols) }, { nome: "Pagamentos", xml: BiXlsx.planilhaXml(colsP, pgs) }]);
   }
   el("inad-xls").onclick = () => {
     if (!D) return;
@@ -4025,9 +4028,10 @@ const BiXlsx = (() => {
       .then(j => {
         carregando = false;
         if (!j.ok) { msg("Os dados de inadimplência ainda não foram sincronizados. Tente de novo depois do próximo ciclo de atualização."); return; }
-        D = { mira: j.mira || [], aqt: j.aqt || [], meta: j.meta || {} };
+        const aq = j.aqt || [];
+        D = { mira: j.mira || [], aqt: aq.filter(r => !r.corte), corte: aq.filter(r => r.corte), meta: j.meta || {} };
         el("inad-posicao").textContent = j.meta && j.meta.geradoEm ? new Date(j.meta.geradoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : DT(j.meta && j.meta.hoje);
-        document.querySelectorAll("#inad-tabs button").forEach(b => { b.textContent = (b.dataset.inadTab === "mira" ? "Vencido no Mira" : "Vencido no Aqui Tem+") + " (" + D[b.dataset.inadTab].length + ")"; });
+        document.querySelectorAll("#inad-tabs button").forEach(b => { b.textContent = ROT_ABA[b.dataset.inadTab] + " (" + D[b.dataset.inadTab].length + ")"; });
         trocaAba(st.tab);
       })
       .catch(() => { carregando = false; msg("Não consegui carregar os dados. Se a sessão expirou, recarregue a página e entre de novo."); });
