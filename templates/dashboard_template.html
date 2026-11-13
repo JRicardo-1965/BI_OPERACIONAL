@@ -675,6 +675,23 @@
   .filial-card__sec--pend:focus-visible { outline: 2px solid var(--warning); outline-offset: -2px; }
   .filial-card__sec--pend.is-zero { cursor: default; background: var(--surface); }
   .filial-card__sec--pend.is-zero:hover { filter: none; }
+  /* (13/11) pendentes separados em produto e serviço */
+  .fc-tipos { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 7px 4px 0; }
+  .fc-tipo { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 4px 2px; font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.3; cursor: pointer; }
+  .fc-tipo b { display: block; font-size: 14px; color: var(--text); letter-spacing: 0; font-variant-numeric: tabular-nums; }
+  .fc-tipo:hover { border-color: var(--warning); }
+  .fc-tipo:focus-visible { outline: 2px solid var(--warning); outline-offset: 1px; }
+  .fc-tipo.is-zero { cursor: default; opacity: 0.6; }
+  .fc-tipo.is-zero:hover { border-color: var(--border); }
+  /* cards da mesma linha com a mesma altura: o bloco de pendentes estica e os Processados ficam alinhados embaixo */
+  .filial-card { display: flex; flex-direction: column; }
+  .filial-card__sec--pend { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: center; }
+  /* lista de pendentes: nome longo quebra a linha em vez de invadir a coluna ao lado; datas numa linha so */
+  #pendentes-table td { overflow: hidden; text-overflow: ellipsis; }
+  #pendentes-table td.pend-quebra { white-space: normal; overflow-wrap: anywhere; line-height: 1.3; }
+  /* no celular a lista mantem largura minima e rola para o lado dentro da janela, sem cortar pedido/data */
+  #pendentes-modal .ranking-table-wrap { overflow-x: auto; }
+  @media (max-width: 760px) { #pendentes-table { min-width: 800px; } }
   .filiais-resumo-empty { grid-column: 1 / -1; font-size: 11.5px; color: var(--text-muted); padding: 4px 2px; }
 
   #clientes-tbody tr.row-inativo td { background: var(--danger-soft); }
@@ -1579,9 +1596,9 @@
 
     <!-- ===================== TAB: STATUS DOS PEDIDOS ===================== -->
     <div id="tab-content-status">
-      <p class="tab-context-note">Status dos pedidos por filial &middot; <b>Pendentes</b> = todos os pedidos em aberto da filial — clique no bloco para ver a lista &middot; <b>Processados</b> = pedidos já processados no período escolhido (valor = soma dos itens).</p>
+      <p class="tab-context-note">Status dos pedidos por filial &middot; <b>Pendentes</b> = todos os pedidos em aberto da filial, separados em produto e serviço — clique para ver a lista &middot; <b>Processados</b> = pedidos já processados no período escolhido (valor = soma dos itens).</p>
       <div class="kpis kpis-5" id="status-kpis">
-        <div class="kpi kpi-static kpi-readonly k-warning"><div class="num" id="st-total-pendentes">–</div><div class="lbl">Total de pendentes</div></div>
+        <div class="kpi kpi-static kpi-readonly k-warning"><div class="num" id="st-total-pendentes">–</div><div class="lbl">Total de pendentes</div><div class="lbl" id="st-total-pendentes-tipo"></div></div>
         <div class="kpi kpi-static kpi-readonly k-ok"><div class="num" id="st-total-processados">–</div><div class="lbl">Total de processados</div></div>
         <div class="kpi kpi-static kpi-readonly"><div class="num" id="st-total-pedidos">–</div><div class="lbl">Total de pedidos</div></div>
         <div class="kpi kpi-static kpi-readonly"><div class="num" id="st-total-clientes">–</div><div class="lbl">Total de clientes</div></div>
@@ -2248,11 +2265,12 @@
       <table class="ranking-table" id="pendentes-table">
         <thead>
           <tr>
-            <th style="width:14%">Pedido</th>
-            <th style="width:36%">Cliente</th>
-            <th style="width:24%">Vendedor</th>
-            <th style="width:13%">Digitado</th>
-            <th style="width:13%">Em aberto há</th>
+            <th style="width:9%">Pedido</th>
+            <th style="width:9%">Tipo</th>
+            <th style="width:33%">Cliente</th>
+            <th style="width:22%">Vendedor</th>
+            <th style="width:15%">Digitado</th>
+            <th style="width:12%">Em aberto há</th>
           </tr>
         </thead>
         <tbody id="pendentes-tbody"></tbody>
@@ -2602,6 +2620,13 @@ function cidadeUfHtml(cidade, uf) {
     return arr.reduce((s, p) => s + (p.Itens || []).reduce((si, it) => si + (it.Total || 0), 0), 0);
   }
 
+  // (13/11) pendente so de servico (Claro Controle etc.) separado do de produto; sem a marca (dado antigo) = produto
+  const ehServ = p => p.TipoPendente === "Servico";
+  const ROT_TIPO = { Produto: "Produto", Servico: "Serviço" };
+  function tipoPend(nome, tipo, n) {
+    return `<div class="fc-tipo${n ? "" : " is-zero"}" data-filial="${nome.replace(/"/g, "&quot;")}" data-tipo="${tipo}"${n ? ` tabindex="0" role="button" title="Ver os pendentes de ${ROT_TIPO[tipo].toLowerCase()}"` : ""}>${ROT_TIPO[tipo]}<b>${fmtNum(n)}</b></div>`;
+  }
+
   function render() {
     const empresaVal = selEmpresa.value;
     const periodoVal = selPeriodo.value;
@@ -2620,6 +2645,8 @@ function cidadeUfHtml(cidade, uf) {
     const todosPend = [], todosProc = [];
     for (const g of porFilial.values()) { todosPend.push(...g.pend); todosProc.push(...g.proc); }
     document.getElementById("st-total-pendentes").textContent = fmtNum(todosPend.length);
+    const nServTot = todosPend.filter(ehServ).length;
+    document.getElementById("st-total-pendentes-tipo").textContent = fmtNum(todosPend.length - nServTot) + " de produto · " + fmtNum(nServTot) + " de serviço";
     document.getElementById("st-total-processados").textContent = fmtNum(todosProc.length);
     document.getElementById("st-total-pedidos").textContent = fmtNum(todosPend.length + todosProc.length);
     document.getElementById("st-total-clientes").textContent = fmtNum(clientesDistintos(todosPend.concat(todosProc)));
@@ -2633,7 +2660,7 @@ function cidadeUfHtml(cidade, uf) {
     cont.innerHTML = filiais.map((nome, i) => {
       const g = porFilial.get(nome);
       const seg = (i % 8) + 1;
-      const nPend = g.pend.length;
+      const nPend = g.pend.length, nServ = g.pend.filter(ehServ).length;
       const zero = nPend === 0 ? " is-zero" : "";
       const cliPend = clientesDistintos(g.pend), cliProc = clientesDistintos(g.proc);
       return `<div class="filial-card" style="--fc:var(--seg-${seg})">
@@ -2642,6 +2669,7 @@ function cidadeUfHtml(cidade, uf) {
           <div class="filial-card__lbl">Pendentes</div>
           <div class="filial-card__big">${fmtNum(nPend)} ${nPend === 1 ? "pedido" : "pedidos"}</div>
           <div class="filial-card__sub">${fmtNum(cliPend)} ${cliPend === 1 ? "cliente" : "clientes"}</div>
+          ${nPend ? `<div class="fc-tipos">${tipoPend(nome, "Produto", nPend - nServ)}${tipoPend(nome, "Servico", nServ)}</div>` : ""}
           ${nPend ? '<div class="filial-card__hint">▸ clique para ver</div>' : ""}
         </div>
         <div class="filial-card__sec filial-card__sec--proc">
@@ -2656,21 +2684,22 @@ function cidadeUfHtml(cidade, uf) {
 
   // pop-up com todos os pendentes de uma filial
   const pendModal = document.getElementById("pendentes-modal");
-  function abrirPendentes(filialNome) {
+  function abrirPendentes(filialNome, tipo) {
     const lista = RAW_PEDIDOS
-      .filter(p => p.Pendente && p.Empresa === filialNome)
+      .filter(p => p.Pendente && p.Empresa === filialNome && (!tipo || (tipo === "Servico") === ehServ(p)))
       .sort((a, b) => (b.TempoAbertoMin || 0) - (a.TempoAbertoMin || 0));
-    document.getElementById("pendentes-title").textContent = `Pedidos pendentes — ${empresaAbrev(filialNome)}`;
+    document.getElementById("pendentes-title").textContent = `Pedidos pendentes${tipo ? " de " + ROT_TIPO[tipo].toLowerCase() : ""} — ${empresaAbrev(filialNome)}`;
     document.getElementById("pendentes-sub").textContent = `${fmtNum(lista.length)} ${lista.length === 1 ? "pedido pendente" : "pedidos pendentes"} · ${fmtNum(clientesDistintos(lista))} ${clientesDistintos(lista) === 1 ? "cliente" : "clientes"}`;
     document.getElementById("pendentes-tbody").innerHTML = lista.length
       ? lista.map(p => `<tr>
           <td class="num">${p.Pedido}</td>
-          <td title="${(p.Cliente || "").replace(/"/g, "&quot;")}">${p.Cliente || "—"}</td>
-          <td>${p.Vendedor || "—"}</td>
+          <td>${ehServ(p) ? "Serviço" : "Produto"}</td>
+          <td class="pend-quebra" title="${(p.Cliente || "").replace(/"/g, "&quot;")}">${p.Cliente || "—"}</td>
+          <td class="pend-quebra">${p.Vendedor || "—"}</td>
           <td>${p.DataDigitacao ? fmtDate(p.DataDigitacao) + (p.HoraDigitacao ? " " + p.HoraDigitacao : "") : "—"}</td>
           <td>${p.TempoAbertoMin !== null && p.TempoAbertoMin !== undefined ? "⏳ " + fmtTempoAberto(p.TempoAbertoMin) : "—"}</td>
         </tr>`).join("")
-      : `<tr><td colspan="5"><div class="ranking-empty">Sem pedidos pendentes nesta filial.</div></td></tr>`;
+      : `<tr><td colspan="6"><div class="ranking-empty">Sem pedidos pendentes nesta filial.</div></td></tr>`;
     pendModal.classList.remove("is-hidden");
   }
   function fecharPendentes() { pendModal.classList.add("is-hidden"); }
@@ -2679,11 +2708,15 @@ function cidadeUfHtml(cidade, uf) {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !pendModal.classList.contains("is-hidden")) fecharPendentes(); });
 
   cont.addEventListener("click", (e) => {
+    const tp = e.target.closest(".fc-tipo:not(.is-zero)");
+    if (tp) { abrirPendentes(tp.dataset.filial, tp.dataset.tipo); return; }
     const sec = e.target.closest(".filial-card__sec--pend:not(.is-zero)");
     if (sec) abrirPendentes(sec.dataset.filial);
   });
   cont.addEventListener("keydown", (e) => {
     if (e.key !== "Enter" && e.key !== " ") return;
+    const tp = e.target.closest(".fc-tipo:not(.is-zero)");
+    if (tp) { e.preventDefault(); e.stopPropagation(); abrirPendentes(tp.dataset.filial, tp.dataset.tipo); return; }
     const sec = e.target.closest(".filial-card__sec--pend:not(.is-zero)");
     if (sec) { e.preventDefault(); abrirPendentes(sec.dataset.filial); }
   });
