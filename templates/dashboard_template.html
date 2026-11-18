@@ -2330,9 +2330,11 @@
 
 <script>
 const RAW_CLIENTES = __CLIENTES_JSON__;
-const RAW_PEDIDOS = __PEDIDOS_JSON__;
+// PAGINA LEVE 18/11: no servidor hospedado pedidos e vendas detalhadas chegam como null e sao carregados sob demanda
+// (garanteDados, antes do initTabs); na versao local (build.js) continuam embutidos aqui.
+let RAW_PEDIDOS = __PEDIDOS_JSON__;
 const RAW_PEDIDOS_RESUMO = __PEDIDOS_RESUMO_JSON__;
-const RAW_VENDAS_DETALHE = __VENDAS_DETALHE_JSON__;
+let RAW_VENDAS_DETALHE = __VENDAS_DETALHE_JSON__;
 const RAW_ESTOQUE = __ESTOQUE_JSON__;
 const RAW_TRANSFERENCIAS = __TRANSFERENCIAS_JSON__;
 // Trazido do BI Comercial em 2026-09-09 (aba "Comparar Períodos") - ver initCompararTab.
@@ -2582,7 +2584,7 @@ function cidadeUfHtml(cidade, uf) {
 // ABA: STATUS DOS PEDIDOS — 1 card colorido por filial (Pendentes / Processados),
 // só os "desenhos", sem KPIs. Clique no bloco Pendentes abre a lista num pop-up.
 // ================================================================
-(function initStatusPedidosTab() {
+const initStatusPedidosTab = (function initStatusPedidosTab() {
   const cont = document.getElementById("status-filiais");
   const selEmpresa = document.getElementById("status-empresa");
   const selPeriodo = document.getElementById("status-periodo");
@@ -2725,12 +2727,12 @@ function cidadeUfHtml(cidade, uf) {
   selPeriodo.addEventListener("change", render);
 
   window.renderStatus = render;
-})();
+});
 
 // ================================================================
 // ABA: FATURAMENTO & PEDIDOS — portado do BI Logística, verbatim
 // ================================================================
-(function initPedidosTab() {
+const initPedidosTab = (function initPedidosTab() {
   // Homologação 04/11: os filtros do topo (período, empresa, tipo de envio, situação, busca) valem para os cartões e para a
   // lista - os números sempre conferem. O faturamento é somado pedido a pedido (campo Valor = itens + frete, mesma conta da
   // 003_SAIDA_POR_VENDAS usada antes nos cartões; conferido igual em 04/11), então funciona para qualquer período.
@@ -3187,12 +3189,12 @@ function cidadeUfHtml(cidade, uf) {
   });
 
   window.renderPedidos = render;
-})();
+});
 
 // ================================================================
 // ABA: VENDAS DETALHADAS
 // ================================================================
-(function initVendasDetalheTab() {
+const initVendasDetalheTab = (function initVendasDetalheTab() {
   const segmentoSel = document.getElementById("vd-segmento");
   const empresaSel = document.getElementById("vd-empresa");
   const periodoSel = document.getElementById("vd-periodo");
@@ -3429,7 +3431,7 @@ function cidadeUfHtml(cidade, uf) {
   });
 
   window.renderVendasDetalhe = render;
-})();
+});
 
 // ================================================================
 // TABS
@@ -5109,6 +5111,35 @@ const BiXlsx = (() => {
   window.renderTitulos = () => { if (D) render(); else carregar(); };
 })();
 
+// Dados pesados sob demanda (pagina leve): pedidos alimentam Status dos Pedidos e Faturamento & Pedidos; vendas, as
+// Vendas Detalhadas. Busca uma vez por pagina; se falhar, tenta de novo na proxima vez que a aba for aberta.
+const DADOS_SOB_DEMANDA = {
+  pedidos: { inits: [initStatusPedidosTab, initPedidosTab], local: () => RAW_PEDIDOS, aplica: (l) => { RAW_PEDIDOS = l; } },
+  vendas: { inits: [initVendasDetalheTab], local: () => RAW_VENDAS_DETALHE, aplica: (l) => { RAW_VENDAS_DETALHE = l; } }
+};
+const ABA_DADOS = { status: "pedidos", pedidos: "pedidos", "vendas-detalhe": "vendas" };
+const carregandoDados = {};
+function garanteDados(nome) {
+  const d = DADOS_SOB_DEMANDA[nome];
+  if (d.pronto) return Promise.resolve();
+  if (!carregandoDados[nome]) {
+    const embutido = d.local();
+    const busca = embutido !== null ? Promise.resolve(embutido)
+      : fetch("/api/dados/" + nome, { credentials: "same-origin", cache: "no-store" })
+        .then((r) => { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+        .then((j) => { if (!j || !j.ok || !Array.isArray(j.linhas)) throw new Error((j && j.motivo) || "resposta"); return j.linhas; });
+    carregandoDados[nome] = busca.then((linhas) => { d.aplica(linhas); for (const f of d.inits) f(); d.pronto = true; })
+      .catch((e) => { carregandoDados[nome] = null; throw e; });
+  }
+  return carregandoDados[nome];
+}
+function avisoDados(conteudo, estado) {
+  let av = conteudo.querySelector(":scope > .aviso-dados");
+  if (!estado) { if (av) av.remove(); return; }
+  if (!av) { av = document.createElement("p"); av.className = "tab-context-note aviso-dados"; conteudo.insertBefore(av, conteudo.firstChild); }
+  av.textContent = estado === "erro" ? "Não consegui carregar os dados desta aba. Se a sessão expirou, recarregue a página." : "Carregando os dados desta aba…";
+}
+
 (function initTabs() {
   const tabs = ["status", "pedidos", "vendas-detalhe", "estoquefilial", "faturamento", "comparar", "inadimplencia", "titulos", "rastreio", "consultarastreio", "consultaiccid"];
   const btns = {}, contents = {};
@@ -5116,12 +5147,39 @@ const BiXlsx = (() => {
     btns[t] = document.getElementById("tab-btn-" + t);
     contents[t] = document.getElementById("tab-content-" + t);
   }
+  let abaAtual = null;
+  // mostra a aba: se ela depende de dados sob demanda ainda nao carregados, avisa, busca e so entao desenha
+  function mostraAba(tab) {
+    abaAtual = tab;
+    const nome = ABA_DADOS[tab];
+    if (nome && !DADOS_SOB_DEMANDA[nome].pronto) {
+      avisoDados(contents[tab], "carregando");
+      garanteDados(nome).then(() => { avisoDados(contents[tab], null); if (abaAtual === tab) desenhaAba(tab); })
+        .catch(() => avisoDados(contents[tab], "erro"));
+      return;
+    }
+    desenhaAba(tab);
+  }
+  window.mostraAba = mostraAba;
   function activate(tab) {
     for (const t of tabs) {
       const isActive = t === tab;
       btns[t].classList.toggle("is-active", isActive);
       contents[t].classList.toggle("is-hidden", !isActive);
     }
+    mostraAba(tab);
+
+    // log de acessos por aba (fase 2) - so na versao hospedada (tem sessao/usuario logado),
+    // fire-and-forget: nunca deve travar/atrasar a troca de aba, mesmo se a chamada falhar.
+    if (HOSTED_SESSION) {
+      fetch("/api/registrar-aba", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ aba: tab })
+      }).catch(() => {});
+    }
+  }
+  function desenhaAba(tab) {
     if (tab === "status" && window.renderStatus) window.renderStatus();
     if (tab === "pedidos" && window.renderPedidos) window.renderPedidos();
     if (tab === "vendas-detalhe" && window.renderVendasDetalhe) window.renderVendasDetalhe();
@@ -5133,16 +5191,6 @@ const BiXlsx = (() => {
     if (tab === "rastreio" && window.renderRastreio) window.renderRastreio();
     if (tab === "consultarastreio" && window.renderConsultaRastreio) window.renderConsultaRastreio();
     if (tab === "consultaiccid" && window.renderIccid) window.renderIccid();
-
-    // log de acessos por aba (fase 2) - so na versao hospedada (tem sessao/usuario logado),
-    // fire-and-forget: nunca deve travar/atrasar a troca de aba, mesmo se a chamada falhar.
-    if (HOSTED_SESSION) {
-      fetch("/api/registrar-aba", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ aba: tab })
-      }).catch(() => {});
-    }
   }
   for (const t of tabs) btns[t].addEventListener("click", () => activate(t));
 
@@ -5165,7 +5213,7 @@ const BiXlsx = (() => {
 })();
 
 // "Status dos Pedidos" é a aba visível no load - dispara o render dela uma vez (se estiver liberada).
-if (window.ABA_INICIAL === "status" && window.renderStatus) window.renderStatus();
+if (window.ABA_INICIAL === "status" && window.mostraAba) window.mostraAba("status");
 
 // ================================================================
 // TEMA, BOTÃO ATUALIZAR, FRESCOR, SESSÃO HOSPEDADA

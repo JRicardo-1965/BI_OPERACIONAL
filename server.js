@@ -21,6 +21,7 @@ const helmet = require('helmet');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
+const zlib = require('zlib');
 
 const PORT = process.env.PORT || 3000;
 const SESSION_SECRET = process.env.SESSION_SECRET;
@@ -347,6 +348,7 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
       syncedAt: new Date().toISOString()
     };
 
+    cacheDados.clear();
     fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
     fs.writeFileSync(DATA_FILE, JSON.stringify(latestData));
 
@@ -495,6 +497,36 @@ app.post('/api/iccid/consulta', requireAuth, express.json({ limit: '2mb' }), (re
   res.json(Object.assign({ ok: true, corteAtivacao: (latestIccid.meta || {}).corteAtivacao || {} }, r));
 });
 
+// --- dados pesados sob demanda (PAGINA LEVE 18/11) ------------------------------
+// Pedidos e vendas detalhadas eram ~91% da pagina (12,9 MB a cada abertura para quem ve todas as empresas). Agora a pagina
+// so traz o resto e cada aba busca o seu conjunto aqui, filtrado pelas empresas do usuario. A resposta ja sai compactada
+// (gzip) e fica guardada por conjunto de empresas ate a proxima carga: depois da primeira vez, abrir a aba nao refaz o
+// texto inteiro no servidor. Guarda no maximo CACHE_DADOS_MAX respostas (cada uma ~0,5 MB compactada).
+const DADOS_API = {
+  pedidos: { abas: ['status', 'pedidos'], linhas: () => latestData.pedidos },
+  vendas: { abas: ['vendas-detalhe'], linhas: () => latestData.vendasDetalhe }
+};
+const cacheDados = new Map();
+const CACHE_DADOS_MAX = 12;
+app.get('/api/dados/:nome', requireAuth, (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const d = DADOS_API[req.params.nome];
+  if (!d) return res.status(404).json({ ok: false, motivo: 'desconhecido' });
+  if (!algumaLiberada(req.abas, d.abas)) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
+  if (!latestData) return res.json({ ok: false, motivo: 'sem_dados' });
+  const allowed = empresasDoUsuario(req.userEmail);
+  const chave = req.params.nome + '|' + allowed.slice().sort().join(',');
+  let gz = cacheDados.get(chave);
+  if (gz) cacheDados.delete(chave);
+  else gz = zlib.gzipSync(JSON.stringify({ ok: true, syncedAt: latestData.syncedAt, linhas: filterByEmpresas(d.linhas(), allowed) }));
+  cacheDados.set(chave, gz);
+  while (cacheDados.size > CACHE_DADOS_MAX) cacheDados.delete(cacheDados.keys().next().value);
+  res.type('application/json');
+  res.set('Vary', 'Accept-Encoding');
+  if (/gzip/.test(String(req.headers['accept-encoding'] || ''))) { res.set('Content-Encoding', 'gzip'); return res.send(gz); }
+  res.send(zlib.gunzipSync(gz));
+});
+
 // --- log de acessos por aba (fase 2) ------------------------------------------
 app.post('/api/registrar-aba', requireAuth, express.json(), (req, res) => {
   const aba = String((req.body && req.body.aba) || '').slice(0, 100);
@@ -532,9 +564,7 @@ app.get('/', requireAuth, (req, res) => {
   const ab = req.abas;
   const se = (abas, valor, vazio) => (algumaLiberada(ab, abas) ? valor() : vazio);
   const clientes = se(['pedidos', 'comparar'], () => filterByEmpresas(latestData.clientes, allowed), []);
-  const pedidos = se(['status', 'pedidos'], () => filterByEmpresas(latestData.pedidos, allowed), []);
   const pedidosResumo = filterResumoPedidos(latestData.pedidosResumo, algumaLiberada(ab, ['pedidos']) ? allowed : []);
-  const vendasDetalhe = se(['vendas-detalhe'], () => filterByEmpresas(latestData.vendasDetalhe, allowed), []);
   // "Estoque por Filial" mostra TODAS as empresas pra todo usuario (sem filterByEmpresas).
   const estoque = se(['estoquefilial', 'vendas-detalhe'], () => latestData.estoque || [], []);
   const transferencias = se(['estoquefilial'], () => latestData.transferencias || [], []);
@@ -551,9 +581,9 @@ app.get('/', requireAuth, (req, res) => {
     '__RELEASE__': 'login',
     '__LOGO_DATA_URI__': 'data:image/png;base64,' + LOGO_B64,
     '__CLIENTES_JSON__': jsonForScript(clientes),
-    '__PEDIDOS_JSON__': jsonForScript(pedidos),
+    '__PEDIDOS_JSON__': 'null', // PAGINA LEVE 18/11: vem de /api/dados/pedidos quando a aba abre
     '__PEDIDOS_RESUMO_JSON__': jsonForScript(pedidosResumo),
-    '__VENDAS_DETALHE_JSON__': jsonForScript(vendasDetalhe),
+    '__VENDAS_DETALHE_JSON__': 'null', // idem, /api/dados/vendas
     '__ESTOQUE_JSON__': jsonForScript(estoque),
     '__TRANSFERENCIAS_JSON__': jsonForScript(transferencias),
     '__COMPARATIVO_JSON__': jsonForScript(comparativo),
