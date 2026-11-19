@@ -260,7 +260,7 @@ function requireAuth(req, res, next) {
 // O Portal manda no token do /sso a lista de abas do usuario neste BI SO quando ha restricao
 // (USUARIOS_SIS_BI_ABAS); sem o campo = todas. A lista fica no cookie de sessao (assinado) e vale ate o
 // proximo login pelo Portal. Aba nao liberada: some da tela E o servidor nao manda os dados dela.
-const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'faturamento', 'comparar', 'inadimplencia', 'titulos', 'rastreio', 'consultarastreio', 'consultaiccid'];
+const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'comparar', 'inadimplencia', 'titulos', 'rastreio', 'consultarastreio', 'consultaiccid'];
 function abasValidas(abas) {
   if (!Array.isArray(abas)) return null;
   // lado seguro: lista que so tem abas desconhecidas vira "nenhuma aba", nunca "todas"
@@ -337,7 +337,6 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
       transferencias: body.transferencias || [],
       comparativo: body.comparativo || [],
       comparativoTotais: body.comparativoTotais || [],
-      faturamento: body.faturamento || [],
       meta: body.meta || {},
       usuarios,
       usuariosEmpresas: (body.usuariosEmpresas || []).map((v) => ({ email: v.email, empresa: String(v.empresa) })),
@@ -570,7 +569,6 @@ app.get('/', requireAuth, (req, res) => {
   const transferencias = se(['estoquefilial'], () => latestData.transferencias || [], []);
   const comparativo = se(['comparar'], () => filterByEmpresas(latestData.comparativo, allowed), []);
   const comparativoTotais = se(['comparar'], () => filterByEmpresas(latestData.comparativoTotais, allowed), []);
-  const faturamento = se(['faturamento'], () => filterByEmpresas(latestData.faturamento, allowed), []);
   const meta = latestData.meta || {};
   const outrosSistemas = outrosSistemasDoUsuario(req.userEmail);
 
@@ -588,7 +586,6 @@ app.get('/', requireAuth, (req, res) => {
     '__TRANSFERENCIAS_JSON__': jsonForScript(transferencias),
     '__COMPARATIVO_JSON__': jsonForScript(comparativo),
     '__COMPARATIVO_TOTAIS_JSON__': jsonForScript(comparativoTotais),
-    '__FATURAMENTO_JSON__': jsonForScript(faturamento),
     '__TODAY_ISO__': new Date().toISOString().slice(0, 10),
     '__PROCESSADO_EM__': meta.ProcessadoEm || 'desconhecido',
     '__HOSTED_USER_LABEL__': escapeHtml(req.userNome),
