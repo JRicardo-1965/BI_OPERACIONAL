@@ -260,7 +260,7 @@ function requireAuth(req, res, next) {
 // O Portal manda no token do /sso a lista de abas do usuario neste BI SO quando ha restricao
 // (USUARIOS_SIS_BI_ABAS); sem o campo = todas. A lista fica no cookie de sessao (assinado) e vale ate o
 // proximo login pelo Portal. Aba nao liberada: some da tela E o servidor nao manda os dados dela.
-const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'comparar', 'inadimplencia', 'titulos', 'rastreio', 'consultarastreio', 'consultaiccid'];
+const ABAS_OPERACIONAL = ['status', 'pedidos', 'vendas-detalhe', 'estoquefilial', 'inadimplencia', 'titulos', 'rastreio', 'consultarastreio', 'consultaiccid'];
 function abasValidas(abas) {
   if (!Array.isArray(abas)) return null;
   // lado seguro: lista que so tem abas desconhecidas vira "nenhuma aba", nunca "todas"
@@ -335,8 +335,6 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
       // pra todo mundo, mesma regra do BI Logistica).
       estoque: body.estoque || [],
       transferencias: body.transferencias || [],
-      comparativo: body.comparativo || [],
-      comparativoTotais: body.comparativoTotais || [],
       meta: body.meta || {},
       usuarios,
       usuariosEmpresas: (body.usuariosEmpresas || []).map((v) => ({ email: v.email, empresa: String(v.empresa) })),
@@ -562,13 +560,11 @@ app.get('/', requireAuth, (req, res) => {
   // Cada bloco de dados so vai se ALGUMA aba que o usa estiver liberada (mapa conferido nos init*Tab do template).
   const ab = req.abas;
   const se = (abas, valor, vazio) => (algumaLiberada(ab, abas) ? valor() : vazio);
-  const clientes = se(['pedidos', 'comparar'], () => filterByEmpresas(latestData.clientes, allowed), []);
+  const clientes = se(['pedidos'], () => filterByEmpresas(latestData.clientes, allowed), []);
   const pedidosResumo = filterResumoPedidos(latestData.pedidosResumo, algumaLiberada(ab, ['pedidos']) ? allowed : []);
   // "Estoque por Filial" mostra TODAS as empresas pra todo usuario (sem filterByEmpresas).
   const estoque = se(['estoquefilial', 'vendas-detalhe'], () => latestData.estoque || [], []);
   const transferencias = se(['estoquefilial'], () => latestData.transferencias || [], []);
-  const comparativo = se(['comparar'], () => filterByEmpresas(latestData.comparativo, allowed), []);
-  const comparativoTotais = se(['comparar'], () => filterByEmpresas(latestData.comparativoTotais, allowed), []);
   const meta = latestData.meta || {};
   const outrosSistemas = outrosSistemasDoUsuario(req.userEmail);
 
@@ -584,8 +580,6 @@ app.get('/', requireAuth, (req, res) => {
     '__VENDAS_DETALHE_JSON__': 'null', // idem, /api/dados/vendas
     '__ESTOQUE_JSON__': jsonForScript(estoque),
     '__TRANSFERENCIAS_JSON__': jsonForScript(transferencias),
-    '__COMPARATIVO_JSON__': jsonForScript(comparativo),
-    '__COMPARATIVO_TOTAIS_JSON__': jsonForScript(comparativoTotais),
     '__TODAY_ISO__': new Date().toISOString().slice(0, 10),
     '__PROCESSADO_EM__': meta.ProcessadoEm || 'desconhecido',
     '__HOSTED_USER_LABEL__': escapeHtml(req.userNome),
