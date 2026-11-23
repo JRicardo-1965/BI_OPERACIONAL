@@ -1605,85 +1605,8 @@
       </div>
     </div>
 
-    <!-- ===================== TAB: VENDAS DETALHADAS ===================== -->
-    <div id="tab-content-vendas-detalhe" class="is-hidden">
-      <p class="tab-context-note">
-        <b>Listagem linha a linha das vendas</b> (fonte: <code>VENDAS_CLIENTES</code>) — Empresa, Pedido, Data, Cliente, Produto, Quantidade e Valores. Mostra o mês corrente por padrão; escolha outro em Ano/Mês.
-      </p>
-      <div class="kpis kpis-4" id="kpis-vd">
-        <div class="kpi kpi-static kpi-clickable" id="kpi-vd-qte" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-          <div class="num" id="num-vd-qte">–</div>
-          <div class="lbl">Total de unidades vendidas (SKUs)</div>
-        </div>
-        <div class="kpi kpi-static kpi-clickable" id="kpi-vd-valor" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-          <div class="num" id="num-vd-valor">–</div>
-          <div class="lbl">Valor total vendido</div>
-        </div>
-        <div class="kpi kpi-static kpi-clickable" id="kpi-vd-projqte" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-          <div class="num" id="num-vd-projqte">–</div>
-          <div class="lbl" id="lbl-vd-projqte">Projeção de unidades no mês</div>
-        </div>
-        <div class="kpi kpi-static kpi-clickable" id="kpi-vd-projvalor" tabindex="0" role="button" aria-pressed="false" title="Clique para ver por filial">
-          <span class="kpi-click-icon" aria-hidden="true">⤢</span>
-          <div class="num" id="num-vd-projvalor">–</div>
-          <div class="lbl" id="lbl-vd-projvalor">Projeção de valor no mês</div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="filters">
-          <div class="field">
-            <label for="vd-segmento">Segmento</label>
-            <select id="vd-segmento"><option value="">Todos os segmentos</option></select>
-          </div>
-          <div class="field">
-            <label for="vd-empresa">Empresa</label>
-            <select id="vd-empresa"><option value="">Todas as empresas</option></select>
-          </div>
-          <div class="field">
-            <label for="vd-periodo">Ano/Mês</label>
-            <select id="vd-periodo"></select>
-          </div>
-          <div class="field">
-            <label for="vd-busca">Pedido / Cliente / Produto</label>
-            <input type="search" id="vd-busca" placeholder="Buscar..." />
-          </div>
-          <button class="clear-btn copy-btn" id="vd-sumarizacao-btn" type="button">📊 Sumarização</button>
-          <div class="spacer"></div>
-          <span class="result-count" id="result-count-vd"></span>
-          <button class="clear-btn copy-btn" id="copy-vd-btn" type="button">📊 Exportar Excel</button>
-          <span class="copy-status" id="copy-vd-status"></span>
-        </div>
-        <div class="table-scroll">
-          <table class="table-vd">
-            <thead>
-              <tr>
-                <th data-key="Empresa"><button>Empresa <span class="sort-arrow"></span></button></th>
-                <th data-key="Pedido"><button>Ped. <span class="sort-arrow"></span></button></th>
-                <th data-key="Data"><button>Data <span class="sort-arrow"></span></button></th>
-                <th data-key="DataHoraProcessamento"><button>Data/Hora<br>Processamento <span class="sort-arrow">▼</span></button></th>
-                <th data-key="CidadeUF"><button>Cidade-UF <span class="sort-arrow"></span></button></th>
-                <th data-key="Cliente"><button>Cliente <span class="sort-arrow"></span></button></th>
-                <th data-key="Produto"><button>Produto <span class="sort-arrow"></span></button></th>
-                <th data-key="Qte"><button>Qtde <span class="sort-arrow"></span></button></th>
-                <th data-key="VrUnit"><button>Vr.Unit.(R$) <span class="sort-arrow"></span></button></th>
-                <th data-key="Total"><button>Vr.Tot.(R$) <span class="sort-arrow"></span></button></th>
-              </tr>
-            </thead>
-            <tbody id="tbody-vd"></tbody>
-          </table>
-        </div>
-        <div class="empty-state" id="empty-state-vd" style="display:none;">Nenhuma venda corresponde aos filtros aplicados.</div>
-      </div>
-      <div class="footnote">
-        Fonte: <code>VENDAS_CLIENTES</code>, histórico completo, excluindo FRETE &middot;
-        Cliente mostra a tag de Segmento e o selo ATIVO/INATIVO do cadastro &middot;
-        Projeção = ritmo do mês em curso (valor até hoje ÷ dia do mês) projetado pros dias totais do mês - só se aplica ao mês corrente; num mês já fechado, Projeção = valor exato do mês &middot;
-        Clique nos cards de KPI (⤢) pra ver o detalhamento por filial, respeitando os filtros de Segmento/Ano-Mês ativos.
-      </div>
-    </div>
+    <!-- ===================== TAB: VENDAS DETALHADAS (23/11/2026) - tela em /vendas.js (backend/vendas_tela.js) ===================== -->
+    <div id="tab-content-vendas-detalhe" class="is-hidden"><div id="vd-raiz"></div></div>
 
     <!-- ===================== TAB: ESTOQUE POR FILIAL ===================== -->
     <div id="tab-content-estoquefilial" class="is-hidden">
@@ -2012,29 +1935,6 @@
   </div>
 </div>
 
-<div class="modal-overlay is-hidden" id="vd-sumarizacao-modal">
-  <div class="modal-card modal-card-wide is-compact" role="dialog" aria-modal="true" aria-labelledby="vd-sumarizacao-title">
-    <h2 id="vd-sumarizacao-title">Sumarização — Vendas por SKU</h2>
-    <p class="ranking-filters-note">Quantidade e valor total vendidos de cada produto, no escopo dos filtros aplicados.</p>
-    <div class="filtro-ativo-row" id="vd-sumarizacao-tags"></div>
-    <div class="ranking-table-wrap">
-      <table class="ranking-table">
-        <thead>
-          <tr>
-            <th style="width:55%">SKU (Produto)</th>
-            <th style="width:22%">Qtde</th>
-            <th style="width:23%">Valor</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-vd-sumarizacao"></tbody>
-      </table>
-    </div>
-    <div class="modal-close-row">
-      <button class="modal-close-btn" id="vd-sumarizacao-close-btn" type="button">Fechar</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay is-hidden" id="copy-fallback-modal">
   <div class="modal-card modal-card-wide" role="dialog" aria-modal="true" aria-labelledby="copy-fallback-title">
     <h2 id="copy-fallback-title">Copiar para Excel</h2>
@@ -2053,7 +1953,6 @@ const RAW_CLIENTES = __CLIENTES_JSON__;
 // (garanteDados, antes do initTabs); na versao local (build.js) continuam embutidos aqui.
 let RAW_PEDIDOS = __PEDIDOS_JSON__;
 const RAW_PEDIDOS_RESUMO = __PEDIDOS_RESUMO_JSON__;
-let RAW_VENDAS_DETALHE = __VENDAS_DETALHE_JSON__;
 const RAW_ESTOQUE = __ESTOQUE_JSON__;
 const RAW_TRANSFERENCIAS = __TRANSFERENCIAS_JSON__;
 
@@ -2903,248 +2802,6 @@ const initPedidosTab = (function initPedidosTab() {
   });
 
   window.renderPedidos = render;
-});
-
-// ================================================================
-// ABA: VENDAS DETALHADAS
-// ================================================================
-const initVendasDetalheTab = (function initVendasDetalheTab() {
-  const segmentoSel = document.getElementById("vd-segmento");
-  const empresaSel = document.getElementById("vd-empresa");
-  const periodoSel = document.getElementById("vd-periodo");
-  const buscaInput = document.getElementById("vd-busca");
-  const tbody = document.getElementById("tbody-vd");
-  const resultCount = document.getElementById("result-count-vd");
-  const tabelaPrincipal = tbody.closest("table");
-
-  for (const s of SEGMENTOS_DISTINCT) {
-    const opt = document.createElement("option"); opt.value = s; opt.textContent = s; segmentoSel.appendChild(opt);
-  }
-  for (const e of empresas) {
-    const opt = document.createElement("option"); opt.value = e; opt.textContent = e; empresaSel.appendChild(opt);
-  }
-  const anoMesRealAtualVD = TODAY_ISO_STR.slice(0, 7);
-  const periodosSetVD = new Set(RAW_VENDAS_DETALHE.map(v => v.AnoMes));
-  periodosSetVD.add(anoMesRealAtualVD);
-  const periodosOrdenadosVD = [...periodosSetVD].sort().reverse();
-  for (const p of periodosOrdenadosVD) {
-    const opt = document.createElement("option");
-    opt.value = p; opt.textContent = fmtMesLabel(p) + (p === anoMesRealAtualVD ? " (atual)" : "");
-    periodoSel.appendChild(opt);
-  }
-  periodoSel.value = anoMesRealAtualVD;
-
-  let sortKey = "DataHoraProcessamento";
-  let sortDir = -1;
-  let lastRenderedRows = [];
-
-  // Segmento + Ano/Mês definem o "escopo" - Empresa e a busca textual só recortam dentro dele (o
-  // drill-down por filial precisa do escopo SEM o filtro de Empresa, senão clicar num KPI já
-  // filtrado por uma empresa mostraria só ela mesma no popup).
-  function escopoBase() {
-    const segmentoVal = segmentoSel.value;
-    const periodoVal = periodoSel.value;
-    return RAW_VENDAS_DETALHE.filter(v => {
-      if (segmentoVal && v.Segmento !== segmentoVal) return false;
-      if (periodoVal && v.AnoMes !== periodoVal) return false;
-      return true;
-    });
-  }
-
-  function porEmpresaBreakdownVD() {
-    const base = escopoBase();
-    const ehAtual = periodoSel.value === anoMesRealAtualVD;
-    const map = new Map();
-    for (const v of base) {
-      if (!map.has(v.Empresa)) map.set(v.Empresa, { Empresa: v.Empresa, Qte: 0, Total: 0 });
-      const e = map.get(v.Empresa);
-      e.Qte += v.Qte; e.Total += v.Total;
-    }
-    const diaAtualVD = today.getDate();
-    const totalDiasVD = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-    return Array.from(map.values()).map(e => {
-      let projQte = e.Qte, projValor = e.Total;
-      if (ehAtual && diaAtualVD > 0) { projQte = (e.Qte / diaAtualVD) * totalDiasVD; projValor = (e.Total / diaAtualVD) * totalDiasVD; }
-      return { Empresa: e.Empresa, Qte: e.Qte, Total: e.Total, ProjQte: projQte, ProjValor: projValor };
-    }).sort((a, b) => a.Empresa.localeCompare(b.Empresa, "pt-BR"));
-  }
-
-  function abrirBreakdownVD(titulo, linhas, campo, formatter) {
-    const bdModal = document.getElementById("filial-breakdown-modal");
-    const bdTitle = document.getElementById("filial-breakdown-title");
-    const bdTable = document.getElementById("filial-breakdown-table");
-    bdTitle.textContent = titulo;
-    bdTable.innerHTML = linhas.length
-      ? linhas.map(e => `<tr><td>${empresaBadgeHtml(e.Empresa)}${e.Empresa}</td><td>${formatter(e[campo])}</td></tr>`).join("")
-      : `<tr><td colspan="2" style="text-align:center;color:var(--text-muted);padding:14px 0;">Sem dados no escopo.</td></tr>`;
-    bdModal.classList.remove("is-hidden");
-  }
-
-  function render() {
-    const empresaVal = empresaSel.value;
-    const buscaVal = buscaInput.value.trim().toLowerCase();
-    const periodoVal = periodoSel.value;
-    const ehMesAtual = periodoVal === anoMesRealAtualVD;
-
-    document.getElementById("lbl-vd-projqte").textContent = ehMesAtual ? "Projeção de unidades no mês" : "Unidades no mês (fechado)";
-    document.getElementById("lbl-vd-projvalor").textContent = ehMesAtual ? "Projeção de valor no mês" : "Valor no mês (fechado)";
-
-    const base = escopoBase();
-    const kpiScope = empresaVal ? base.filter(v => v.Empresa === empresaVal) : base;
-    const totalQte = kpiScope.reduce((s, v) => s + v.Qte, 0);
-    const totalValor = kpiScope.reduce((s, v) => s + v.Total, 0);
-    let projQte = totalQte, projValor = totalValor;
-    if (ehMesAtual) {
-      const diaAtualVD = today.getDate();
-      const totalDiasVD = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-      if (diaAtualVD > 0) { projQte = (totalQte / diaAtualVD) * totalDiasVD; projValor = (totalValor / diaAtualVD) * totalDiasVD; }
-    }
-    document.getElementById("num-vd-qte").textContent = fmtNum(totalQte);
-    document.getElementById("num-vd-valor").textContent = fmtMoney(totalValor);
-    document.getElementById("num-vd-projqte").textContent = fmtNum(projQte);
-    document.getElementById("num-vd-projvalor").textContent = fmtMoney(projValor);
-
-    let rows = base.filter(v => {
-      if (empresaVal && v.Empresa !== empresaVal) return false;
-      if (buscaVal) {
-        const alvo = `${v.Pedido} ${v.CodcCliente} ${v.Cliente} ${v.Produto}`.toLowerCase();
-        if (!alvo.includes(buscaVal)) return false;
-      }
-      return true;
-    });
-
-    // CidadeUF e DataHoraProcessamento não são campos reais da linha - montam na hora pra poder
-    // ordenar por eles também. DataHoraProcessamento vem de CONSULTA_PEDIDOS_A_PROCESSAR (data/hora
-    // real do processamento do pedido, não a DataSaida) e é o critério de ordenação padrão da aba,
-    // por pedido explícito do usuário (desconsidera qualquer outro critério como padrão).
-    function cidadeUfTexto(v) { return v.Cidade && v.UF ? `${v.Cidade}-${v.UF}` : (v.Cidade || v.UF || ""); }
-    function dataHoraProcTexto(v) { return v.DataProcessamento ? `${v.DataProcessamento} ${v.HoraProcessamento || "00:00"}` : ""; }
-
-    rows.sort((a, b) => {
-      let av, bv;
-      if (sortKey === "CidadeUF") { av = cidadeUfTexto(a); bv = cidadeUfTexto(b); }
-      else if (sortKey === "DataHoraProcessamento") { av = dataHoraProcTexto(a); bv = dataHoraProcTexto(b); }
-      else { av = a[sortKey]; bv = b[sortKey]; }
-      if (av === null || av === undefined || av === "") av = sortDir === 1 ? "￿" : "";
-      if (bv === null || bv === undefined || bv === "") bv = sortDir === 1 ? "￿" : "";
-      let cmp;
-      if (typeof av === "string") cmp = av.localeCompare(bv) * sortDir;
-      else cmp = (av - bv) * sortDir;
-      // Desempate quando processamento cai no mesmo minuto (ou nenhum dos dois tem processamento
-      // ainda): Empresa antes de Pedido porque cada empresa tem sua própria sequência de numeração
-      // (pedido 50 da empresa A não é comparável com pedido 200 da empresa B).
-      if (cmp === 0 && sortKey === "DataHoraProcessamento") {
-        cmp = a.Empresa.localeCompare(b.Empresa, "pt-BR");
-        if (cmp === 0) cmp = (b.Pedido - a.Pedido);
-      }
-      return cmp;
-    });
-
-    resultCount.textContent = `${fmtNum(rows.length)} de ${fmtNum(base.length)} vendas`;
-    document.getElementById("empty-state-vd").style.display = rows.length ? "none" : "block";
-
-    const frag = document.createDocumentFragment();
-    for (const v of rows) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${empresaBadgeHtml(v.Empresa)}</td>
-        <td class="num-cell">${v.Pedido}</td>
-        <td>${fmtDate(v.Data)}</td>
-        <td>${v.DataProcessamento ? `${fmtDate(v.DataProcessamento)}<br>${v.HoraProcessamento || ""}` : "—"}</td>
-        <td>${cidadeUfTexto(v) || "—"}</td>
-        <td class="produto-name">${v.CodcCliente} - ${v.Cliente}${segmentoTagHtml(v.Segmento)}${situacaoBadgeHtml(v.Situacao)}</td>
-        <td>${v.Produto}</td>
-        <td class="num-cell">${fmtNum(v.Qte)}</td>
-        <td class="num-cell">${fmtNum(v.VrUnit, 2)}</td>
-        <td class="num-cell">${fmtNum(v.Total, 2)}</td>
-      `;
-      frag.appendChild(tr);
-    }
-    tbody.innerHTML = "";
-    tbody.appendChild(frag);
-
-    tabelaPrincipal.querySelectorAll("th[data-key] .sort-arrow").forEach(el => el.textContent = "");
-    const activeTh = tabelaPrincipal.querySelector(`th[data-key="${sortKey}"] .sort-arrow`);
-    if (activeTh) activeTh.textContent = sortDir === 1 ? "▲" : "▼";
-
-    lastRenderedRows = rows;
-
-  }
-
-  // Sumarização (SKU x Segmento) em pop-up, sob demanda - mesmo escopo já filtrado da tabela
-  // principal (lastRenderedRows, atualizado a cada render()). Tags no topo do modal mostram só os
-  // filtros de fato aplicados (Segmento/Empresa) na mesma ordem em que aparecem no formulário de
-  // filtros; Ano/Mês sempre aparece porque esta aba não tem opção "todos os períodos".
-  function filtroTagHtml(label, valor) {
-    return `<span class="filtro-ativo-tag">${label}: <b>${valor}</b></span>`;
-  }
-
-  function abrirSumarizacaoVD() {
-    // Agrupa só por Produto - não quebra por Segmento (se um Segmento estiver filtrado, a TAG acima
-    // já indica isso; sem filtro, o total já é a soma de todos os segmentos, pedido explícito do
-    // usuário pra não fragmentar a mesma linha de produto em várias por segmento).
-    const skuMap = new Map();
-    for (const v of lastRenderedRows) {
-      if (!skuMap.has(v.Produto)) skuMap.set(v.Produto, { Produto: v.Produto, Qte: 0, Total: 0 });
-      const e = skuMap.get(v.Produto);
-      e.Qte += v.Qte; e.Total += v.Total;
-    }
-    const skuRows = Array.from(skuMap.values()).sort((a, b) => b.Total - a.Total);
-
-    const tags = [];
-    if (segmentoSel.value) tags.push(filtroTagHtml("Segmento", segmentoSel.value));
-    if (empresaSel.value) tags.push(filtroTagHtml("Empresa", empresaSel.value));
-    const periodoLabel = fmtMesLabel(periodoSel.value) + (periodoSel.value === anoMesRealAtualVD ? " (atual)" : "");
-    tags.push(filtroTagHtml("Ano/Mês", periodoLabel));
-    document.getElementById("vd-sumarizacao-tags").innerHTML = tags.join("");
-
-    document.getElementById("tbody-vd-sumarizacao").innerHTML = skuRows.length
-      ? skuRows.map(r => `<tr><td title="${r.Produto}">${r.Produto}</td><td class="num">${fmtNum(r.Qte)}</td><td class="num">${fmtMoney(r.Total)}</td></tr>`).join("")
-      : `<tr><td colspan="3"><div class="ranking-empty">Sem vendas no escopo.</div></td></tr>`;
-
-    document.getElementById("vd-sumarizacao-modal").classList.remove("is-hidden");
-  }
-
-  tabelaPrincipal.querySelectorAll("th[data-key] button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const key = btn.parentElement.dataset.key;
-      if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = (key === "Data" || key === "DataHoraProcessamento") ? -1 : 1; }
-      render();
-    });
-  });
-
-  const kpiCardsVD = {
-    "kpi-vd-qte": () => abrirBreakdownVD("Unidades vendidas por filial", porEmpresaBreakdownVD(), "Qte", (v) => fmtNum(v)),
-    "kpi-vd-valor": () => abrirBreakdownVD("Valor vendido por filial", porEmpresaBreakdownVD(), "Total", fmtMoney),
-    "kpi-vd-projqte": () => abrirBreakdownVD(document.getElementById("lbl-vd-projqte").textContent + " por filial", porEmpresaBreakdownVD(), "ProjQte", (v) => fmtNum(v)),
-    "kpi-vd-projvalor": () => abrirBreakdownVD(document.getElementById("lbl-vd-projvalor").textContent + " por filial", porEmpresaBreakdownVD(), "ProjValor", fmtMoney)
-  };
-  for (const id in kpiCardsVD) {
-    const el = document.getElementById(id);
-    el.addEventListener("click", kpiCardsVD[id]);
-    el.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); kpiCardsVD[id](); } });
-  }
-
-  segmentoSel.addEventListener("change", render);
-  empresaSel.addEventListener("change", render);
-  periodoSel.addEventListener("change", render);
-  buscaInput.addEventListener("input", render);
-
-  const sumarizacaoModal = document.getElementById("vd-sumarizacao-modal");
-  document.getElementById("vd-sumarizacao-btn").addEventListener("click", abrirSumarizacaoVD);
-  document.getElementById("vd-sumarizacao-close-btn").addEventListener("click", () => sumarizacaoModal.classList.add("is-hidden"));
-  sumarizacaoModal.addEventListener("click", (e) => { if (e.target === sumarizacaoModal) sumarizacaoModal.classList.add("is-hidden"); });
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !sumarizacaoModal.classList.contains("is-hidden")) sumarizacaoModal.classList.add("is-hidden"); });
-
-  document.getElementById("copy-vd-btn").addEventListener("click", () => {
-    const headers = ["Empresa", "Pedido", "Data", "Data Processamento", "Hora Processamento", "Cidade", "UF", "Cód. Cliente", "Cliente", "Segmento", "Situação", "Produto", "Qtde", "Valor Unitário", "Valor Total"];
-    const rowsOut = lastRenderedRows.map(v => [
-      v.Empresa, v.Pedido, v.Data, v.DataProcessamento || "", v.HoraProcessamento || "", v.Cidade || "", v.UF || "", v.CodcCliente, v.Cliente, v.Segmento || "", v.Situacao || "", v.Produto, v.Qte, v.VrUnit, v.Total
-    ]);
-    copyToExcel(headers, rowsOut, document.getElementById("copy-vd-status"));
-  });
-
-  window.renderVendasDetalhe = render;
 });
 
 // ================================================================
@@ -4368,10 +4025,9 @@ const BiXlsx = (() => {
 // Dados pesados sob demanda (pagina leve): pedidos alimentam Status dos Pedidos e Faturamento & Pedidos; vendas, as
 // Vendas Detalhadas. Busca uma vez por pagina; se falhar, tenta de novo na proxima vez que a aba for aberta.
 const DADOS_SOB_DEMANDA = {
-  pedidos: { inits: [initStatusPedidosTab, initPedidosTab], local: () => RAW_PEDIDOS, aplica: (l) => { RAW_PEDIDOS = l; } },
-  vendas: { inits: [initVendasDetalheTab], local: () => RAW_VENDAS_DETALHE, aplica: (l) => { RAW_VENDAS_DETALHE = l; } }
+  pedidos: { inits: [initStatusPedidosTab, initPedidosTab], local: () => RAW_PEDIDOS, aplica: (l) => { RAW_PEDIDOS = l; } }
 };
-const ABA_DADOS = { status: "pedidos", pedidos: "pedidos", "vendas-detalhe": "vendas" };
+const ABA_DADOS = { status: "pedidos", pedidos: "pedidos" };
 const carregandoDados = {};
 function garanteDados(nome) {
   const d = DADOS_SOB_DEMANDA[nome];
@@ -4436,7 +4092,10 @@ function avisoDados(conteudo, estado) {
   function desenhaAba(tab) {
     if (tab === "status" && window.renderStatus) window.renderStatus();
     if (tab === "pedidos" && window.renderPedidos) window.renderPedidos();
-    if (tab === "vendas-detalhe" && window.renderVendasDetalhe) window.renderVendasDetalhe();
+    if (tab === "vendas-detalhe") {
+      if (window.renderVendasDetalhe) window.renderVendasDetalhe();
+      else if (!HOSTED_SESSION) document.getElementById("vd-raiz").innerHTML = '<p class="tab-context-note">As Vendas Detalhadas ficam só na versão online do BI.</p>';
+    }
     if (tab === "estoquefilial" && window.renderEstoqueFilial) window.renderEstoqueFilial();
     if (tab === "inadimplencia" && window.renderInadimplencia) window.renderInadimplencia();
     if (tab === "titulos" && window.renderTitulos) window.renderTitulos();
@@ -4631,3 +4290,5 @@ if (window.ABA_INICIAL === "status" && window.mostraAba) window.mostraAba("statu
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") fechar(); });
 })();
 </script>
+<script src="/componentes.js" defer></script>
+<script src="/vendas.js" defer></script>

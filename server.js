@@ -330,7 +330,6 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
       clientes: body.clientes || [],
       pedidos: body.pedidos || [],
       pedidosResumo: body.pedidosResumo || { Hoje: { PorEmpresa: [] }, Mes: { PorEmpresa: [] }, Projecao: { PorEmpresa: [] } },
-      vendasDetalhe: body.vendasDetalhe || [],
       // estoque + transferencias vao SEM filtro por empresa (aba "Estoque por Filial" mostra tudo
       // pra todo mundo, mesma regra do BI Logistica).
       estoque: body.estoque || [],
@@ -349,7 +348,7 @@ app.post('/api/sync', express.json({ limit: '25mb' }), async (req, res) => {
     fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
     fs.writeFileSync(DATA_FILE, JSON.stringify(latestData));
 
-    console.log(`Sincronizado às ${latestData.syncedAt} — ${usuarios.length} usuários, ${latestData.pedidos.length} pedidos, ${latestData.vendasDetalhe.length} linhas de venda.`);
+    console.log(`Sincronizado às ${latestData.syncedAt} — ${usuarios.length} usuários, ${latestData.pedidos.length} pedidos.`);
     res.json({ ok: true, syncedAt: latestData.syncedAt, usuarios: usuarios.length, pedidos: latestData.pedidos.length });
     liberaMemoria();
   } catch (err) {
@@ -500,8 +499,7 @@ app.post('/api/iccid/consulta', requireAuth, express.json({ limit: '2mb' }), (re
 // (gzip) e fica guardada por conjunto de empresas ate a proxima carga: depois da primeira vez, abrir a aba nao refaz o
 // texto inteiro no servidor. Guarda no maximo CACHE_DADOS_MAX respostas (cada uma ~0,5 MB compactada).
 const DADOS_API = {
-  pedidos: { abas: ['status', 'pedidos'], linhas: () => latestData.pedidos },
-  vendas: { abas: ['vendas-detalhe'], linhas: () => latestData.vendasDetalhe }
+  pedidos: { abas: ['status', 'pedidos'], linhas: () => latestData.pedidos }
 };
 const cacheDados = new Map();
 const CACHE_DADOS_MAX = 12;
@@ -577,7 +575,6 @@ app.get('/', requireAuth, (req, res) => {
     '__CLIENTES_JSON__': jsonForScript(clientes),
     '__PEDIDOS_JSON__': 'null', // PAGINA LEVE 18/11: vem de /api/dados/pedidos quando a aba abre
     '__PEDIDOS_RESUMO_JSON__': jsonForScript(pedidosResumo),
-    '__VENDAS_DETALHE_JSON__': 'null', // idem, /api/dados/vendas
     '__ESTOQUE_JSON__': jsonForScript(estoque),
     '__TRANSFERENCIAS_JSON__': jsonForScript(transferencias),
     '__TODAY_ISO__': new Date().toISOString().slice(0, 10),
@@ -592,6 +589,9 @@ app.get('/', requireAuth, (req, res) => {
   res.set('Cache-Control', 'no-store');
   res.send(html);
 });
+
+// --- base dos relatorios do BI antigo (23/11/2026): hoje serve a aba Vendas Detalhadas - rotas em relatorios.js --------------
+require('./relatorios')(app, { requireAuth, abaLiberada, empresasDoUsuario, SYNC_SECRET, express, liberaMemoria, dataDir: path.join(__dirname, 'data') });
 
 app.get('/health', (req, res) => res.status(200).send('ok'));
 
