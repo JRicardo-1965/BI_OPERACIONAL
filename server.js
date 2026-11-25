@@ -493,6 +493,25 @@ app.post('/api/iccid/consulta', requireAuth, express.json({ limit: '2mb' }), (re
   res.json(Object.assign({ ok: true, corteAtivacao: (latestIccid.meta || {}).corteAtivacao || {} }, r));
 });
 
+// Excel da aba Faturamento & Pedidos (2026-11-25, aba "Ativações por pedido"): os chips (ICCID) dos pedidos exportados, com a
+// situação de ativação de cada um. Mesma base da Consulta de ICCID, liberada para quem tem a aba de pedidos (decisão do
+// usuário: todos que exportam a planilha veem) e só com pedidos das empresas do usuário. Acima do teto volta só o total.
+const PEDIDOS_CHIPS_MAX = 20000, PEDIDOS_CHIPS_TETO = 100000;
+app.post('/api/iccid/por-pedidos', requireAuth, express.json({ limit: '2mb' }), (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!abaLiberada(req.abas, 'pedidos')) return res.status(403).json({ ok: false, motivo: 'aba_nao_liberada' });
+  if (!latestIccid) return res.json({ ok: false, motivo: 'sem_dados' });
+  const lista = Array.isArray(req.body && req.body.pedidos) ? req.body.pedidos : [];
+  if (lista.length > PEDIDOS_CHIPS_MAX) return res.status(400).json({ ok: false, motivo: 'muitos', limite: PEDIDOS_CHIPS_MAX });
+  const allowed = empresasDoUsuario(req.userEmail);
+  const r = iccidBusca.chipsDosPedidos(latestIccid, lista, (e) => allowed.includes(String(e)), PEDIDOS_CHIPS_TETO);
+  const gz = zlib.gzipSync(JSON.stringify(Object.assign({ ok: true, corteAtivacao: (latestIccid.meta || {}).corteAtivacao || {}, syncedAt: latestIccid.syncedAt }, r)));
+  res.type('application/json');
+  res.set('Vary', 'Accept-Encoding');
+  if (/gzip/.test(String(req.headers['accept-encoding'] || ''))) { res.set('Content-Encoding', 'gzip'); return res.send(gz); }
+  res.send(zlib.gunzipSync(gz));
+});
+
 // --- dados pesados sob demanda (PAGINA LEVE 18/11) ------------------------------
 // Pedidos e vendas detalhadas eram ~91% da pagina (12,9 MB a cada abertura para quem ve todas as empresas). Agora a pagina
 // so traz o resto e cada aba busca o seu conjunto aqui, filtrado pelas empresas do usuario. A resposta ja sai compactada

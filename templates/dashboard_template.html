@@ -2706,7 +2706,7 @@ const initPedidosTab = (function initPedidosTab() {
   // grupo do produto no cadastro, com Combo e e-SIM juntos como no BI Comercial (o CLARO E-SIM tem grupo diferente por empresa).
   const GRUPO_CHIP = { "CHIP COMBO": "Chip Combo / E-Sim", "CHIP E-SIM": "Chip Combo / E-Sim", "CHIP LISO": "Chip Liso", "CHIP RESGATE/PORTABILIDADE": "Chip Resgate / Portabilidade", "SERVICOS DE CONTROLE": "Serviço de Controle" };
   const tipoChip = (i) => GRUPO_CHIP[String(i.Grupo || "").toUpperCase().trim()] || (i.Grupo ? String(i.Grupo) : "Sem grupo");
-  document.getElementById("copy-ped-btn").addEventListener("click", () => {
+  document.getElementById("copy-ped-btn").addEventListener("click", async () => {
     const stEl = document.getElementById("copy-ped-status");
     const aviso = (txt, erro) => { stEl.textContent = txt; stEl.classList.toggle("is-error", !!erro); };
     if (!lastRenderedRows.length) { aviso("Nada para exportar com os filtros atuais.", true); return; }
@@ -2726,13 +2726,61 @@ const initPedidosTab = (function initPedidosTab() {
     const colsC = [["Empresa", "t", (x) => x.p.Empresa], ["Pedido", "n0", (x) => x.p.Pedido], ["Situação", "t", (x) => situ(x.p)], ["Data do pedido", "d", (x) => x.p.DataPedido],
       ["Cliente", "t", (x) => x.p.Cliente], ["Tipo de loja", "t", (x) => x.c.Segmento], ["Cidade", "t", (x) => x.c.Cidade], ["UF", "t", (x) => x.c.UF], ["Cluster", "t", (x) => x.c.Cluster],
       ["Tipo de chip", "t", (x) => tipoChip(x.i)], ["Chip", "t", (x) => x.i.Produto], ["Quantidade", "n0", (x) => x.i.Qte], ["Valor dos itens (R$)", "n", (x) => x.i.Total]];
+    // Aba "Ativações por pedido" (2026-11-25, pedido do usuário): 1 linha por ICCID de cada pedido exportado, com a situação
+    // de ativação do chip e as contagens do pedido. Os ICCIDs não vêm na página: o servidor devolve os chips dos pedidos (mesma
+    // base da Consulta de ICCID, só das empresas do usuário) na hora de exportar. Sem resposta, o Excel sai sem essa aba.
+    const btnPed = document.getElementById("copy-ped-btn");
+    btnPed.disabled = true;
+    aviso("Buscando os ICCIDs e as ativações dos pedidos...");
+    let ativ = null, semAtiv = "";
     try {
-      const blob = BiXlsx.montaXlsx([{ nome: "Pedidos", xml: BiXlsx.planilhaXml(colsP, dados) }, { nome: "Chips por pedido", xml: BiXlsx.planilhaXml(colsC, linhasC) }]);
+      const r = await fetch("/api/iccid/por-pedidos", { method: "POST", credentials: "same-origin", cache: "no-store", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pedidos: dados.map((x) => String(x.p.CodEmpresa) + "|" + String(x.p.Pedido)) }) });
+      const j = r.ok ? await r.json() : null;
+      if (j && j.ok && j.excedeu) semAtiv = qtd(j.total) + " chips nos pedidos, acima do limite de " + qtd(j.teto) + ": reduza o período ou escolha uma empresa";
+      else if (j && j.ok) ativ = j;
+      else semAtiv = j && j.motivo === "sem_dados" ? "a base de ICCIDs ainda não foi carregada" : "não foi possível buscar os ICCIDs";
+    } catch (e) { semAtiv = "não foi possível buscar os ICCIDs"; }
+    const linhasA = [];
+    const DIC = (ativ && ativ.dic) || {};
+    if (ativ) {
+      const porPed = new Map();
+      for (const c of ativ.chips) { const k = ativ.pedidos[c[0]], l = porPed.get(k); if (l) l.push(c); else porPed.set(k, [c]); }
+      const CHIP_ITEM = new Set(["Chip Combo / E-Sim", "Chip Liso", "Chip Resgate / Portabilidade"]);
+      const sitDe = (c) => (DIC.situacoes || [])[c[5]] || "";
+      for (const x of dados) {
+        const chips = porPed.get(String(x.p.CodEmpresa) + "|" + String(x.p.Pedido)) || [];
+        const vendidos = x.itens.filter((i) => CHIP_ITEM.has(tipoChip(i))).reduce((s, i) => s + (i.Qte || 0), 0);
+        if (!chips.length && !vendidos) continue;
+        const at = chips.filter((c) => sitDe(c) === "Ativado").length, sem = chips.filter((c) => sitDe(c).indexOf("Sem dados") === 0).length;
+        const ped = { x, vendidos, n: chips.length, at, sem, pct: chips.length - sem > 0 ? Math.round(at / (chips.length - sem) * 1000) / 10 : "" };
+        if (!chips.length) linhasA.push({ ped, c: null });
+        else for (const c of chips) linhasA.push({ ped, c });
+      }
+      if (!linhasA.length) semAtiv = "nenhum pedido com chip nos filtros";
+    }
+    const rotOpA = (o) => o === "TIM" ? "TIM" : String(o || "").charAt(0) + String(o || "").slice(1).toLowerCase();
+    const diasA = (de, ate) => { const a = Date.parse(String(de).slice(0, 10)), b = Date.parse(String(ate).slice(0, 10)); return isFinite(a) && isFinite(b) ? Math.round((b - a) / 86400000) : ""; };
+    const prodA = (y) => (y.c && (DIC.produtos || [])[y.c[4]]) || [];
+    const colsA = [["Empresa", "t", (y) => y.ped.x.p.Empresa], ["Pedido", "n0", (y) => y.ped.x.p.Pedido], ["Data do pedido", "d", (y) => y.ped.x.p.DataPedido],
+      ["Cliente", "t", (y) => y.ped.x.p.Cliente], ["Cluster", "t", (y) => y.ped.x.c.Cluster],
+      ["Chips vendidos no pedido", "n0", (y) => y.ped.vendidos], ["ICCIDs do pedido", "n0", (y) => y.ped.n], ["Ativados no pedido", "n0", (y) => y.ped.at],
+      ["Sem dados de ativação no pedido", "n0", (y) => y.ped.sem], ["% ativado do pedido (ICCIDs com dados de ativação)", "n", (y) => y.ped.pct],
+      ["Operadora", "t", (y) => y.c ? rotOpA((DIC.operadoras || [])[y.c[3]]) : ""], ["Chip", "t", (y) => prodA(y)[0] || ""], ["ICCID", "t", (y) => y.c ? y.c[1] : ""],
+      ["Data da venda", "d", (y) => y.c ? y.c[2] : ""], ["Situação de ativação", "t", (y) => y.c ? (DIC.situacoes || [])[y.c[5]] || "" : "Sem ICCID registrado na venda"],
+      ["Data da ativação", "d", (y) => y.c ? y.c[6] : ""], ["Dias até ativar", "n0", (y) => y.c && y.c[6] ? diasA(y.c[2], y.c[6]) : ""], ["Dados de ativação até", "d", (y) => y.c ? y.c[7] : ""]];
+    try {
+      const abas = [{ nome: "Pedidos", xml: BiXlsx.planilhaXml(colsP, dados) }, { nome: "Chips por pedido", xml: BiXlsx.planilhaXml(colsC, linhasC) }];
+      if (linhasA.length) abas.push({ nome: "Ativações por pedido", xml: BiXlsx.planilhaXml(colsA, linhasA) });
+      const blob = await BiXlsx.montaXlsxCompactado(abas);
       const d = new Date(), hoje = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
       const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "pedidos_" + hoje + ".xlsx";
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-      aviso("Arquivo Excel gerado (" + dados.length.toLocaleString("pt-BR") + " pedidos, " + linhasC.length.toLocaleString("pt-BR") + " linhas de chips).");
+      const nIccid = linhasA.filter((y) => y.c).length;
+      aviso("Arquivo Excel gerado (" + dados.length.toLocaleString("pt-BR") + " pedidos, " + linhasC.length.toLocaleString("pt-BR") + " linhas de chips"
+        + (linhasA.length ? ", " + qtd(nIccid) + " ICCIDs na aba Ativações por pedido" : "") + ")." + (semAtiv ? " Sem a aba Ativações por pedido: " + semAtiv + "." : ""));
     } catch (err) { aviso("Não foi possível gerar o arquivo (" + err.message + ").", true); }
+    finally { btnPed.disabled = false; }
   });
 
   const render = atualizar; // nome antigo: window.renderPedidos (fim do bloco) chama render
@@ -2950,22 +2998,38 @@ const BiXlsx = (() => {
     const data = ((agora.getFullYear() - 1980) << 9) | ((agora.getMonth() + 1) << 5) | agora.getDate();
     const partes = [], central = []; let pos = 0;
     for (const f of arquivos) {
-      const nome = enc.encode(f.nome), dados = enc.encode(f.texto), crc = crc32(dados);
+      // f.comp (2026-11-25): o mesmo conteudo ja compactado (deflate, metodo 8); f.bytes: o texto ja codificado
+      const nome = enc.encode(f.nome), dados = f.bytes || enc.encode(f.texto), crc = crc32(dados), grav = f.comp || dados, metodo = f.comp ? 8 : 0;
       const h = new DataView(new ArrayBuffer(30));
-      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true); h.setUint16(10, hora, true); h.setUint16(12, data, true);
-      h.setUint32(14, crc, true); h.setUint32(18, dados.length, true); h.setUint32(22, dados.length, true); h.setUint16(26, nome.length, true); h.setUint16(28, 0, true);
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, metodo, true); h.setUint16(10, hora, true); h.setUint16(12, data, true);
+      h.setUint32(14, crc, true); h.setUint32(18, grav.length, true); h.setUint32(22, dados.length, true); h.setUint16(26, nome.length, true); h.setUint16(28, 0, true);
       const c = new DataView(new ArrayBuffer(46));
-      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true); c.setUint16(12, hora, true); c.setUint16(14, data, true);
-      c.setUint32(16, crc, true); c.setUint32(20, dados.length, true); c.setUint32(24, dados.length, true); c.setUint16(28, nome.length, true); c.setUint32(42, pos, true);
-      partes.push(h, nome, dados); central.push(c, nome);
-      pos += 30 + nome.length + dados.length;
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, metodo, true); c.setUint16(12, hora, true); c.setUint16(14, data, true);
+      c.setUint32(16, crc, true); c.setUint32(20, grav.length, true); c.setUint32(24, dados.length, true); c.setUint16(28, nome.length, true); c.setUint32(42, pos, true);
+      partes.push(h, nome, grav); central.push(c, nome);
+      pos += 30 + nome.length + grav.length;
     }
     const fim = new DataView(new ArrayBuffer(22));
     fim.setUint32(0, 0x06054b50, true); fim.setUint16(8, arquivos.length, true); fim.setUint16(10, arquivos.length, true);
     fim.setUint32(12, central.reduce((s, x) => s + x.byteLength, 0), true); fim.setUint32(16, pos, true);
     return new Blob([...partes, ...central, fim], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
   }
-  function montaXlsx(abas) {
+  function montaXlsx(abas) { return zipStore(arquivosXlsx(abas)); }
+  // Excel grande (2026-11-25, aba "Ativações por pedido" do Excel de Faturamento & Pedidos: 1 linha por ICCID): o mesmo
+  // arquivo do montaXlsx, compactado (deflate) quando o navegador tem CompressionStream; sem ele, igual ao montaXlsx.
+  async function montaXlsxCompactado(abas) {
+    const arquivos = arquivosXlsx(abas);
+    if (typeof CompressionStream !== "function") return zipStore(arquivos);
+    try {
+      const enc = new TextEncoder();
+      for (const f of arquivos) {
+        f.bytes = enc.encode(f.texto); f.texto = null;
+        f.comp = new Uint8Array(await new Response(new Blob([f.bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer());
+      }
+      return zipStore(arquivos);
+    } catch (e) { return zipStore(arquivosXlsx(abas)); }
+  }
+  function arquivosXlsx(abas) {
     const XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
     const NS_REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
     const tipos = XML + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'
@@ -2985,10 +3049,10 @@ const BiXlsx = (() => {
       + '<cellXfs count="5"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
       + '<xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
       + '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
-    return zipStore([{ nome: "[Content_Types].xml", texto: tipos }, { nome: "_rels/.rels", texto: rels }, { nome: "xl/workbook.xml", texto: wb }, { nome: "xl/_rels/workbook.xml.rels", texto: wbRels }, { nome: "xl/styles.xml", texto: estilos }]
-      .concat(abas.map((a, i) => ({ nome: "xl/worksheets/sheet" + (i + 1) + ".xml", texto: a.xml }))));
+    return [{ nome: "[Content_Types].xml", texto: tipos }, { nome: "_rels/.rels", texto: rels }, { nome: "xl/workbook.xml", texto: wb }, { nome: "xl/_rels/workbook.xml.rels", texto: wbRels }, { nome: "xl/styles.xml", texto: estilos }]
+      .concat(abas.map((a, i) => ({ nome: "xl/worksheets/sheet" + (i + 1) + ".xml", texto: a.xml })));
   }
-  return { planilhaXml, montaXlsx };
+  return { planilhaXml, montaXlsx, montaXlsxCompactado };
 })();
 
 // ================================================================

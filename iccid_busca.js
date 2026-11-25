@@ -85,4 +85,53 @@ function consulta(P, iccids, podeEmpresa, podeSgr) {
   return { resultados, naoEncontrados, invalidos, repetidos };
 }
 
-module.exports = { carregaPacote, consulta };
+// Chips (ICCID) de cada pedido do Mira (2026-11-25, Excel da aba Faturamento & Pedidos: aba "Ativacoes por pedido"). O
+// indice empresa|pedido -> linhas do pacote e montado na primeira vez e fica no proprio pacote (o proximo pacote monta o
+// seu). So vendas do Mira: o pedido do SGR e outra numeracao.
+function indicePorPedido(P) {
+  if (P.porPedido) return P.porPedido;
+  const lista = new Map();
+  for (let i = 0; i < P.pos.length; i++) {
+    const v = linhaEm(P, i).split('\t');
+    if (v[8] === 'S' || !v[5]) continue;
+    const k = v[3] + '|' + v[5], a = lista.get(k);
+    if (a) a.push(i); else lista.set(k, [i]);
+  }
+  const m = new Map();
+  for (const [k, a] of lista) m.set(k, Uint32Array.from(a));
+  P.porPedido = m;
+  return m;
+}
+
+// chaves: "empresa|pedido" dos pedidos exportados; podeEmpresa(codEmpresa) -> bool (pedido de empresa que o usuario nao
+// tem fica de fora); teto: maximo de chips numa resposta (acima dele volta so o total, para a pagina avisar). Cada chip vai
+// como [indice em pedidos, ICCID, data da venda, operadora, produto, situacao de ativacao, data da ativacao, dados de
+// ativacao ate], na ordem do ICCID; operadora, produto e situacao vao como indice nas listas de dic (resposta menor).
+function chipsDosPedidos(P, chaves, podeEmpresa, teto) {
+  const idx = indicePorPedido(P), vistos = new Set(), achados = [];
+  let total = 0;
+  for (const bruto of chaves) {
+    const k = String(bruto == null ? '' : bruto).trim();
+    if (!k || vistos.has(k)) continue;
+    vistos.add(k);
+    const lin = idx.get(k);
+    if (!lin || !podeEmpresa(k.split('|')[0])) continue;
+    achados.push([k, lin]);
+    total += lin.length;
+  }
+  if (teto && total > teto) return { excedeu: true, total, teto, pedidos: [], chips: [], dic: {} };
+  const dic = { operadoras: [], produtos: [], situacoes: [] }, ix = { operadoras: new Map(), produtos: new Map(), situacoes: new Map() };
+  const cod = (lista, chave, valor) => { let i = ix[lista].get(chave); if (i === undefined) { i = dic[lista].length; dic[lista].push(valor); ix[lista].set(chave, i); } return i; };
+  const pedidos = [], chips = [];
+  for (const [k, lin] of achados) {
+    const pi = pedidos.length;
+    pedidos.push(k);
+    for (const i of lin) {
+      const r = decodifica(P, linhaEm(P, i));
+      chips.push([pi, r.iccid, r.dataVenda, cod('operadoras', r.operadora, r.operadora), cod('produtos', r.produto + '|' + r.tipoChip, [r.produto, r.tipoChip]),
+        cod('situacoes', r.ativacao.situacao, r.ativacao.situacao), r.ativacao.data || '', r.ativacao.ate || '']);
+    }
+  }
+  return { excedeu: false, total, teto, pedidos, chips, dic };
+}
+module.exports = { carregaPacote, consulta, chipsDosPedidos };
